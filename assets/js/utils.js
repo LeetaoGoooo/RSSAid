@@ -1,14 +1,13 @@
-function ruleHandler(rule, params, url, html, success, fail) {
+function ruleHandler(rule, params, url, html) {
     const run = () => {
         let reaultWithParams;
         if (typeof rule.target === 'function') {
-//            const parser = new DOMParser();
-//            const document = parser.parseFromString(html, 'text/html');
+            //            const parser = new DOMParser();
+            //            const document = parser.parseFromString(html, 'text/html');
             try {
                 // reaultWithParams = rule.target(params, url, document);
                 reaultWithParams = rule.target(params, url);
             } catch (error) {
-                console.warn(error);
                 reaultWithParams = '';
             }
         } else if (typeof rule.target === 'string') {
@@ -20,14 +19,13 @@ function ruleHandler(rule, params, url, html, success, fail) {
                 reaultWithParams = reaultWithParams.replace(`/:${param}`, `/${params[param]}`);
             }
         }
-
         return reaultWithParams;
     };
     const reaultWithParams = run();
     if (reaultWithParams && (!rule.verification || rule.verification(params))) {
-        success(reaultWithParams);
+        return reaultWithParams;
     } else {
-        fail();
+        return undefined;
     }
 }
 
@@ -46,7 +44,6 @@ function parseRules(rules) {
 function getPageRSSHub(data) {
     const { url, host, path, html } = data;
     const rules = parseRules(data.rules);
-
     const parsedDomain = psl.parse(host);
     if (parsedDomain && parsedDomain.domain) {
         const subdomain = parsedDomain.subdomain;
@@ -94,47 +91,81 @@ function getPageRSSHub(data) {
                     }
                 });
                 const result = [];
-                Promise.all(
-                    recognized.map(
-                        (recog) =>
-                            new Promise((resolve) => {
-                                ruleHandler(
-                                    rule[recog.handler],
-                                    recog.params,
-                                    url,
-                                    html,
-                                    (parsed) => {
-                                        if (parsed) {
-                                            result.push({
-                                                title: formatBlank(rules[domain]._name ? '当前' : '', rule[recog.handler].title),
-                                                url: '{rsshubDomain}' + parsed,
-                                                path: parsed,
-                                            });
-                                        } else {
-                                            result.push({
-                                                title: formatBlank(rules[domain]._name ? '当前' : '', rule[recog.handler].title),
-                                                url: rule[recog.handler].docs,
-                                                isDocs: true,
-                                            });
-                                        }
-                                        resolve();
-                                    },
-                                    () => {
-                                        resolve();
-                                    }
-                                );
+                for (var i = 0; i < recognized.length; i++) {
+                    var recog = recognized[i];
+                    var parsed = ruleHandler(rule[recog.handler],
+                        recog.params,
+                        url,
+                        html);
+                    if (parsed !== undefined) {
+                        if (parsed) {
+                            console.log({
+                                title: formatBlank(rules[domain]._name ? '当前' : '', rule[recog.handler].title),
+                                url: '{rsshubDomain}' + parsed,
+                                path: parsed,
                             })
-                    )
-                );
-                return result;
+                            result.push({
+                                title: formatBlank(rules[domain]._name ? '当前' : '', rule[recog.handler].title),
+                                url: '{rsshubDomain}' + parsed,
+                                path: parsed,
+                            });
+                        } else {
+                            result.push({
+                                title: formatBlank(rules[domain]._name ? '当前' : '', rule[recog.handler].title),
+                                url: rule[recog.handler].docs,
+                                isDocs: true,
+                            });
+                        }
+                    }
+                }
+                // Promise.all(
+                //     recognized.map(
+                //         (recog) =>
+                //             new Promise((resolve) => {
+                //                 ruleHandler(
+                //                     rule[recog.handler],
+                //                     recog.params,
+                //                     url,
+                //                     html,
+                //                     (parsed) => {
+                //                         console.log("parsed: "+parsed);
+                //                         if (parsed) {
+                //                             console.log({
+                //                                 title: formatBlank(rules[domain]._name ? '当前' : '', rule[recog.handler].title),
+                //                                 url: '{rsshubDomain}' + parsed,
+                //                                 path: parsed,
+                //                             })
+                //                             result.push({
+                //                                 title: formatBlank(rules[domain]._name ? '当前' : '', rule[recog.handler].title),
+                //                                 url: '{rsshubDomain}' + parsed,
+                //                                 path: parsed,
+                //                             });
+                //                         } else {
+                //                             result.push({
+                //                                 title: formatBlank(rules[domain]._name ? '当前' : '', rule[recog.handler].title),
+                //                                 url: rule[recog.handler].docs,
+                //                                 isDocs: true,
+                //                             });
+                //                         }
+                //                         resolve();
+                //                     },
+                //                     () => {
+                //                         resolve();
+                //                     }
+                //                 );
+                //             })
+                //     )
+                // );
+                return JSON.stringify(result);
             } else {
-                return [];
+                return JSON.stringify([]);
             }
         } else {
-            return [];
+            return JSON.stringify([]);
         }
     } else {
-        return [];
+        return JSON.stringify([]);
+
     }
 }
 

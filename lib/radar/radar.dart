@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_js/flutter_js.dart';
+import 'package:rssbud/models/radar.dart';
 
 class RssHubJsContext {
   JavascriptRuntime flutterJs;
@@ -15,7 +16,7 @@ class RssHubJsContext {
       var js = await rootBundle.loadString(filePath);
       flutterJs.evaluate(js + " ");
     } catch (error) {
-      throw Exception("load js file failed!");
+      throw Exception("load js file failed:$error");
     }
   }
 }
@@ -32,7 +33,7 @@ class RssHub {
       var response = await request.close();
       if (response.statusCode == HttpStatus.ok) {
         var jsCode = await response.transform(utf8.decoder).join();
-        jsContext.flutterJs.evaluate(jsCode + " ");
+        jsContext.flutterJs.evaluate("var rules=$jsCode ");
       }
     } catch (error) {
       print('load local rules');
@@ -40,27 +41,32 @@ class RssHub {
     }
   }
 
-  static Future<String> detecting(String url) async {
+  static Future<List<Radar>> detecting(String url) async {
+    await fetchRules();
     await jsContext.evaluateScript('assets/js/url.min.js');
     await jsContext.evaluateScript('assets/js/psl.min.js');
+    await jsContext.evaluateScript('assets/js/route-recognizer.js');
     await jsContext.evaluateScript('assets/js/route-recognizer.min.js');
-    await jsContext.evaluateScript('assets/utils.js');
+    await jsContext.evaluateScript('assets/js/utils.js');
     Uri uri = Uri.parse(url);
-    String result = "";
     try {
-      JsEvalResult jsResult = jsContext.flutterJs.evaluate("""
+      String expression = """
       getPageRSSHub({
-                            url: "\($url)",
-                            host: "\(${uri.host})",
-                            path: "\(${uri.path})",
+                            url: "$url",
+                            host: "${uri.host}",
+                            path: "${uri.path}",
                             html: "",
                             rules: rules
                         })
-      """);
-      result = jsResult.stringResult;
+      """;
+
+      jsContext.flutterJs.enableHandlePromises();
+      var jsResult = jsContext.flutterJs.evaluate(expression);
+      var result = jsResult.stringResult;
+      return Radar.listFromJson(json.decode(result));
     } on PlatformException catch (e) {
       print('ERRO: ${e.details}');
     }
-    return result;
+    return null;
   }
 }
