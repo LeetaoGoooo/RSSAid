@@ -4,7 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_link_preview/flutter_link_preview.dart';
 import 'package:rssbud/models/radar.dart';
 import 'package:rssbud/radar/radar.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:rssbud/views/settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'common/common.dart';
 
 void main() {
   runApp(RSSBudApp());
@@ -14,6 +17,10 @@ class RSSBudApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+          brightness: Brightness.light, //指定亮度主题，有白色/黑色两种可选。
+          primaryColor: Colors.orange, //这里我们选蓝色为基准色值。
+          accentColor: Colors.orange[100]), //这里我们选浅蓝色为强调色值。
       home: SafeArea(child: HomePage()),
     );
   }
@@ -35,9 +42,11 @@ class _HomePageState extends State<HomePage> {
   bool _isScrollingDown = false;
   bool _notUrlDetected = false;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   void initState() {
     super.initState();
+    _fetchRules();
     _scrollViewController = new ScrollController();
     _scrollViewController.addListener(() {
       if (_scrollViewController.position.userScrollDirection ==
@@ -58,6 +67,10 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
+  }
+
+  Future<void> _fetchRules() async {
+    await RssHub.fetchRules();
   }
 
   Future<void> _detectUrlByClipboard() async {
@@ -102,14 +115,19 @@ class _HomePageState extends State<HomePage> {
               backgroundColor: Colors.white,
               centerTitle: false,
               title:
-                  Text("RSSBud", style: Theme.of(context).textTheme.headline6),
+                  Text("RSSAid", style: Theme.of(context).textTheme.headline6),
               actions: [
                 IconButton(
                     icon: Icon(
                       Icons.settings,
                       color: Colors.orange,
                     ),
-                    onPressed: () {})
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          new MaterialPageRoute(
+                              builder: (context) => new SettingPage()));
+                    })
               ],
             )
           : null,
@@ -182,44 +200,48 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (context, index) => _buildRssWidget(radarList[index]),
           );
         }
-        return _notUrlDetected ? Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset('assets/imgs/404.png'),
-            Text(
-              "报告主人，真的没有啦o(╥﹏╥)o",
-              style: TextStyle(fontSize: 12),
-            ),
-            Padding(
-                padding: EdgeInsets.only(left: 24, right: 24, top: 8),
-                child: FlatButton.icon(
-                    minWidth: double.infinity,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    color: Color.fromARGB(255, 242, 242, 247),
-                    icon: Icon(Icons.support, color: Colors.orange),
-                    label: Text("看看支持什么规则",
-                        style: TextStyle(color: Colors.orange)),
-                    onPressed: ()async{
-                      await _launchInBrowser('https://docs.rsshub.app/joinus/#ti-jiao-xin-de-rsshub-gui-ze');
-                    })),
-            Padding(
-                padding: EdgeInsets.only(left: 24, right: 24),
-                child: FlatButton.icon(
-                    minWidth: double.infinity,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    color: Color.fromARGB(255, 242, 242, 247),
-                    icon: Icon(Icons.cloud_upload, color: Colors.orange),
-                    label:
-                        Text("提交新的规则", style: TextStyle(color: Colors.orange)),
-                    onPressed: ()async{
-                      await _launchInBrowser('https://docs.rsshub.app/social-media.html#_755');
-                    })),
-          ],
-        ):Container();
+        return _notUrlDetected
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset('assets/imgs/404.png'),
+                  Text(
+                    "报告主人，真的没有啦o(╥﹏╥)o",
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(left: 24, right: 24, top: 8),
+                      child: FlatButton.icon(
+                          minWidth: double.infinity,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          color: Color.fromARGB(255, 242, 242, 247),
+                          icon: Icon(Icons.support, color: Colors.orange),
+                          label: Text("看看支持什么规则",
+                              style: TextStyle(color: Colors.orange)),
+                          onPressed: () async {
+                            await Common.launchInBrowser(
+                                'https://docs.rsshub.app/joinus/#ti-jiao-xin-de-rsshub-gui-ze');
+                          })),
+                  Padding(
+                      padding: EdgeInsets.only(left: 24, right: 24),
+                      child: FlatButton.icon(
+                          minWidth: double.infinity,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          color: Color.fromARGB(255, 242, 242, 247),
+                          icon: Icon(Icons.cloud_upload, color: Colors.orange),
+                          label: Text("提交新的规则",
+                              style: TextStyle(color: Colors.orange)),
+                          onPressed: () async {
+                            await Common.launchInBrowser(
+                                'https://docs.rsshub.app/social-media.html#_755');
+                          })),
+                ],
+              )
+            : Container();
       },
     );
   }
@@ -257,8 +279,15 @@ class _HomePageState extends State<HomePage> {
                         "复制",
                         style: TextStyle(color: Colors.orange),
                       ),
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: "${radar.path}"));
+                      onPressed: () async {
+                        final SharedPreferences prefs = await _prefs;
+                        var host = "https://rsshub.app/";
+                        if (prefs.containsKey("RSSHUB")) {
+                          host = prefs.getString("RSSHUB");
+                        }
+
+                        Clipboard.setData(
+                            ClipboardData(text: "$host${radar.path}"));
                         _scaffoldKey.currentState.showSnackBar(SnackBar(
                             behavior: SnackBarBehavior.floating,
                             content: Text('复制成功')));
@@ -279,15 +308,5 @@ class _HomePageState extends State<HomePage> {
                 )
               ],
             )));
-  }
-
-  Future<void> _launchInBrowser(String url) async {
-    if (await canLaunch(url)) {
-      await launch(
-        url,
-        forceSafariVC: false,
-        forceWebView: false
-      );
-    }
   }
 }

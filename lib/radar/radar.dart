@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:rssbud/models/radar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RssHubJsContext {
   JavascriptRuntime flutterJs;
@@ -23,8 +24,10 @@ class RssHubJsContext {
 
 class RssHub {
   static RssHubJsContext jsContext = new RssHubJsContext();
+  static Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   static Future<void> fetchRules() async {
+    final SharedPreferences prefs = await _prefs;
     try {
       var url =
           'https://cdn.jsdelivr.net/gh/DIYgod/RSSHub@master/assets/radar-rules.js';
@@ -33,11 +36,18 @@ class RssHub {
       var response = await request.close();
       if (response.statusCode == HttpStatus.ok) {
         var jsCode = await response.transform(utf8.decoder).join();
+        prefs.setString("Rules", "var rules=$jsCode ");
         jsContext.flutterJs.evaluate("var rules=$jsCode ");
       }
     } catch (error) {
       print('load local rules');
-      await jsContext.evaluateScript('assets/js/radar-rules.js');
+      if (!prefs.containsKey("Rules")) {
+        var js = await rootBundle.loadString("assets/js/radar-rules.js");
+        prefs.setString("Rules", js);
+        await jsContext.evaluateScript('assets/js/radar-rules.js');
+      } else {
+        jsContext.flutterJs.evaluate(prefs.getString("Rules"));
+      }
     }
   }
 
