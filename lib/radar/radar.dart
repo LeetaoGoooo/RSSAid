@@ -1,10 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:RSSAid/models/radar.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_js/flutter_js.dart';
-import 'package:rssbud/models/radar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+extension UriExtension on Uri {
+  Future<Uri> expanding() async {
+    var httpClient = new HttpClient();
+    var request = await httpClient.headUrl(this);
+    request.followRedirects = false;
+    var response = await request.close();
+    var location = response.headers.value("Location");
+    return location != null ? Uri.parse(location) : this;
+  }
+}
 
 class RssHubJsContext {
   JavascriptRuntime flutterJs;
@@ -55,10 +66,11 @@ class RssHub {
     await fetchRules();
     await jsContext.evaluateScript('assets/js/url.min.js');
     await jsContext.evaluateScript('assets/js/psl.min.js');
-    await jsContext.evaluateScript('assets/js/route-recognizer.js');
     await jsContext.evaluateScript('assets/js/route-recognizer.min.js');
+    await jsContext.evaluateScript('assets/js/route-recognizer.js');
     await jsContext.evaluateScript('assets/js/utils.js');
-    Uri uri = Uri.parse(url);
+    await jsContext.evaluateScript('assets/js/url.js');
+    Uri uri = await Uri.parse(url).expanding();
     try {
       String expression = """
       getPageRSSHub({

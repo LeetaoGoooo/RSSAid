@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_link_preview/flutter_link_preview.dart';
-import 'package:rssbud/models/radar.dart';
-import 'package:rssbud/radar/radar.dart';
-import 'package:rssbud/views/settings.dart';
+import 'package:RSSAid/models/radar.dart';
+import 'package:RSSAid/radar/radar.dart';
+import 'package:RSSAid/views/config.dart';
+import 'package:RSSAid/views/settings.dart';
+import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'common/common.dart';
@@ -160,8 +162,14 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: _configVisible
           ? FloatingActionButton(
               tooltip: "添加配置",
-              child: Icon(Icons.add, color: Colors.white),
-              onPressed: () {},
+              child: Icon(Icons.post_add, color: Colors.white),
+              onPressed: () {
+                Navigator.of(context).push(new MaterialPageRoute<Null>(
+                    builder: (BuildContext context) {
+                      return new ConfigDialog();
+                    },
+                    fullscreenDialog: true));
+              },
               backgroundColor: Colors.orange,
             )
           : null,
@@ -177,6 +185,7 @@ class _HomePageState extends State<HomePage> {
           child: Padding(
               padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
               child: FlutterLinkPreview(
+                key: ValueKey(_currentUrl),
                 url: _currentUrl.trim(),
                 titleStyle: TextStyle(
                   color: Colors.orange,
@@ -285,9 +294,18 @@ class _HomePageState extends State<HomePage> {
                         if (prefs.containsKey("RSSHUB")) {
                           host = prefs.getString("RSSHUB");
                         }
-
-                        Clipboard.setData(
-                            ClipboardData(text: "$host${radar.path}"));
+                        var url = "$host${radar.path}";
+                        if (prefs.containsKey("currentParams")) {
+                          url += prefs.getString("currentParams");
+                        } else {
+                          url += prefs.containsKey("defaultParams")
+                              ? prefs.getString("defaultParams")
+                              : "";
+                        }
+                        Clipboard.setData(ClipboardData(text: url));
+                        if (prefs.containsKey("currentParams")) {
+                          prefs.remove("currentParams");
+                        }
                         _scaffoldKey.currentState.showSnackBar(SnackBar(
                             behavior: SnackBarBehavior.floating,
                             content: Text('复制成功')));
@@ -302,7 +320,15 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.white,
                       icon: Icon(Icons.done, color: Colors.orange),
                       label: Text("订阅", style: TextStyle(color: Colors.orange)),
-                      onPressed: () {},
+                      onPressed: () async {
+                        final SharedPreferences prefs = await _prefs;
+                        var host = "https://rsshub.app/";
+                        if (prefs.containsKey("RSSHUB")) {
+                          host = prefs.getString("RSSHUB");
+                        }
+                        Share.share('$host${radar.path}',
+                            subject: '${radar.title}');
+                      },
                     )),
                   ],
                 )

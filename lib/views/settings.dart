@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:rssbud/common/common.dart';
-import 'package:rssbud/radar/radar.dart';
-import 'package:rssbud/views/rules.dart';
+import 'package:RSSAid/common/common.dart';
+import 'package:RSSAid/radar/radar.dart';
+import 'package:RSSAid/views/rules.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingPage extends StatefulWidget {
@@ -95,8 +95,8 @@ class CommonRows extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       children: [
+        _buildHowUseSoftware(),
         _buildRssHubDomain(context),
-        _buildSub2Software(),
         _buildRules(context)
       ],
     );
@@ -122,7 +122,7 @@ class CommonRows extends StatelessWidget {
     );
   }
 
-  Widget _buildSub2Software() {
+  Widget _buildHowUseSoftware() {
     return Card(
       margin: EdgeInsets.only(left: 24, right: 24, bottom: 8),
       shape: RoundedRectangleBorder(
@@ -132,10 +132,12 @@ class CommonRows extends StatelessWidget {
       child: ListTile(
         leading: Icon(Icons.apps, color: Colors.orange),
         title: Text(
-          "一键订阅",
+          "食用手册",
           style: TextStyle(color: Colors.orange),
         ),
-        onTap: () {},
+        onTap: () {
+          Common.launchInBrowser("https://docs.rsshub.app");
+        },
       ),
     );
   }
