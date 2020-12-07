@@ -24,7 +24,6 @@ class _SettingPageState extends State<SettingPage> {
     setState(() {});
   }
 
-
   Future<void> init() async {
     final SharedPreferences prefs = await _prefs;
     if (prefs.containsKey("RSSHUB")) {
@@ -49,6 +48,7 @@ class _SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
             backgroundColor: Colors.white,
             centerTitle: true,
@@ -65,7 +65,7 @@ class _SettingPageState extends State<SettingPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("通用"),
-              CommonRows(_domain, setDomain,_fetchRules, _rules),
+              CommonRows(_domain, setDomain, _fetchRules, _rules),
               Text("关于"),
               AboutRows()
             ],
@@ -82,7 +82,8 @@ class CommonRows extends StatelessWidget {
   Function _refreshRulesCallBack;
   TextEditingController _domainController = new TextEditingController();
 
-  CommonRows(String domain, Function domainSetFunc, Function _refreshRules, String rules) {
+  CommonRows(String domain, Function domainSetFunc, Function _refreshRules,
+      String rules) {
     this._domain = domain;
     this._domainController.text = domain;
     this._domainSetCallback = domainSetFunc;
@@ -167,39 +168,39 @@ class CommonRows extends StatelessWidget {
 
   _showDialog(BuildContext context) async {
     await showDialog(
-      context: context,
-      child: new _SystemPadding(
-        child: new AlertDialog(
-          contentPadding: const EdgeInsets.all(16.0),
-          content: new Row(
-            children: <Widget>[
-              new Expanded(
-                child: new TextFormField(
-                  controller: _domainController,
-                  autofocus: true,
-                  decoration: new InputDecoration(labelText: 'Host'),
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return new AlertDialog(
+                // contentPadding: const EdgeInsets.all(16.0),
+                content: Container(
+                  child: TextField(
+                    controller: _domainController,
+                    decoration: new InputDecoration(labelText: 'Host'),
+                  ),
                 ),
-              )
-            ],
-          ),
-          actions: <Widget>[
-            new FlatButton(
-                child: const Text('取消', style: TextStyle(color: Colors.orange)),
-                onPressed: () {
-                  Navigator.pop(context);
-                }),
-            new FlatButton(
-                child: const Text('保存', style: TextStyle(color: Colors.orange)),
-                onPressed: () {
-                  if (_domainController.text != _domain) {
-                    _domainSetCallback(_domainController.text);
-                  }
-                  Navigator.pop(context);
-                })
-          ],
-        ),
-      ),
-    );
+                actions: <Widget>[
+                  new FlatButton(
+                      child: const Text('取消',
+                          style: TextStyle(color: Colors.orange)),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      }),
+                  new FlatButton(
+                      child: const Text('保存',
+                          style: TextStyle(color: Colors.orange)),
+                      onPressed: () {
+                        if (_domainController.text != _domain) {
+                          _domainSetCallback(_domainController.text);
+                        }
+                        Navigator.pop(context);
+                      })
+                ],
+              );
+            },
+          );
+        });
   }
 }
 
@@ -240,20 +241,5 @@ class AboutRows extends StatelessWidget {
             'Telegram 群组', Icons.group, null, "https://t.me/rssaid"),
       ],
     );
-  }
-}
-
-class _SystemPadding extends StatelessWidget {
-  final Widget child;
-
-  _SystemPadding({Key key, this.child}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    var mediaQuery = MediaQuery.of(context);
-    return new AnimatedContainer(
-        padding: mediaQuery.viewInsets,
-        duration: const Duration(milliseconds: 300),
-        child: child);
   }
 }
