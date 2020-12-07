@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.rssbud">
    <application
-        android:label="rssbud"
+        android:label="RSSAid"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
