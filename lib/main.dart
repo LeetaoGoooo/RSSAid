@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_link_preview/flutter_link_preview.dart';
-import 'package:RSSAid/models/radar.dart';
-import 'package:RSSAid/radar/radar.dart';
-import 'package:RSSAid/views/config.dart';
-import 'package:RSSAid/views/settings.dart';
+import 'package:rssaid/models/radar.dart';
+import 'package:rssaid/radar/radar.dart';
+import 'package:rssaid/views/config.dart';
+import 'package:rssaid/views/settings.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

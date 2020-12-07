@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:RSSAid/models/radar.dart';
+import 'package:rssaid/models/radar.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:shared_preferences/shared_preferences.dart';

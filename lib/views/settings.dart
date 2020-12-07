@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:RSSAid/common/common.dart';
-import 'package:RSSAid/radar/radar.dart';
-import 'package:RSSAid/views/rules.dart';
+import 'package:rssaid/common/common.dart';
+import 'package:rssaid/radar/radar.dart';
+import 'package:rssaid/views/rules.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingPage extends StatefulWidget {

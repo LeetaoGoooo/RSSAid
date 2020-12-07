@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:RSSAid/common/common.dart';
-import 'package:RSSAid/models/radar_config.dart';
+import 'package:rssaid/common/common.dart';
+import 'package:rssaid/models/radar_config.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -441,7 +441,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
       radarConfig.filterOutAuthor = _filterAuthorOutController.text.trim();
     }
     if (params.endsWith("&")) {
-      params = params.substring(0,params.length-1);
+      params = params.substring(0, params.length - 1);
     }
     // 全局配置或者本次配置
     if (_onlyOnce) {
