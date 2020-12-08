@@ -45,11 +45,11 @@ Telegram 群中有 [debug 版本](https://t.me/rssaid/3)
 
 RSSAid 和 [RSSHub Radar](https://github.com/DIYgod/RSSHub-Radar) 使用同一份 [规则](https://github.com/DIYgod/RSSHub/blob/master/assets/radar-rules.js)，且均支持自动更新。
 
-[为 RSSHub Radar 和 RSSBud 提交新的规则](https://docs.rsshub.app/joinus/#ti-jiao-xin-de-rsshub-radar-gui-ze)
+[为 RSSHub Radar 和 RSSAid 提交新的规则](https://docs.rsshub.app/joinus/#ti-jiao-xin-de-rsshub-radar-gui-ze)
 
-> 请注意，在 `target` 中使用 `document` 的规则并不适用 RSSBud。RSSBud 并不是一个浏览器插件，他只获取并分析网站的 URL。
+> 请注意，在 `target` 中使用 `document` 的规则并不适用 RSSAid。RSSAid 并不是一个浏览器插件，它只获取并分析网站的 URL。
 
-> 一些网站的移动端和电脑端页面 URL 不同。由于 RSSHub Radar 的规则是适配电脑端的，在你发现 RSSBud 无法识别 RSSHub Radar 可以识别的网站时，可以尝试使用电脑端的 URL 并在 Telegram 向作者反馈。
+> 一些网站的移动端和电脑端页面 URL 不同。由于 RSSHub Radar 的规则是适配电脑端的，在你发现 RSSAid 无法识别 RSSHub Radar 可以识别的网站时，可以尝试使用电脑端的 URL 并在 Telegram 向作者反馈。
 
 ## 作者
 
