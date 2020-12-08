@@ -20,7 +20,7 @@
 
 ## 下载
 
-Telegram 群中有 debug 版本
+Telegram 群中有 [debug 版本](https://t.me/rssaid/3)
 
 订阅 [Telegram 频道](https://t.me/RSSBud) 以获取更新信息。
 
