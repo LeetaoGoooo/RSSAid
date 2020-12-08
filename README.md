@@ -8,7 +8,7 @@
 
 > RSSAid 是一个由 Flutter 构建的 [RSSHub](https://github.com/DIYgod/RSSHub) 的辅助 App，和 [RSSHub Radar](https://github.com/DIYgod/RSSHub-Radar) 类似，他可以帮助你快速发现和订阅网站的 RSS。此外，他还支持 RSSHub 的通用参数 (实现过滤、获取全文等功能)。
 
-[Telegram 群](https://t.me/rssaid) | [Telegram 频道](https://t.me/rssaid_group)
+[Telegram 群](https://t.me/rssaid_group) | [Telegram 频道](https://t.me/rssaid)
 
 <center>
 <figure>
@@ -38,7 +38,7 @@ Telegram 群中有 [debug 版本](https://t.me/rssaid/3)
 
 ## 参与 Beta 测试
 
-加入 [Telegram 群](https://t.me/rssaid) 以获得 Beta 测试详情。
+加入 [Telegram 群](https://t.me/rssaid_group) 以获得 Beta 测试详情。
 
 
 ## 规则
