@@ -24,6 +24,10 @@ Telegram 群中有 [debug 版本](https://t.me/rssaid/3)
 
 订阅 [Telegram 频道](https://t.me/RSSBud) 以获取更新信息。
 
+## 打包
+
+自行打包，请参考官方文档 [打包并发布 Android 应用](https://flutter.cn/docs/deployment/android)
+
 ## 功能
 
 - [x] 检测适用于网页的 RSSHub 源 (几乎支持所有 RSSHub Radar 的规则)
