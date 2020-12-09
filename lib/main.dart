@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _detectUrlByClipboard() async {
     ClipboardData data = await Clipboard.getData(Clipboard.kTextPlain);
-    if (data != null && data.text != null) {
+    if (data != null && data.text != null && data.text.startsWith("http")) {
       setState(() {
         _radarList = _detectUrl(data.text.trim());
         _radarList.then((value) {
