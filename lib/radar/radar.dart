@@ -37,20 +37,30 @@ class RssHub {
   static RssHubJsContext jsContext = new RssHubJsContext();
   static Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-  static Future<void> fetchRules() async {
-    final SharedPreferences prefs = await _prefs;
+  static Future<String> getContentByUrl(Uri uri) async {
+    var content = "";
     try {
-      var url =
-          'https://cdn.jsdelivr.net/gh/DIYgod/RSSHub@master/assets/radar-rules.js';
       var httpClient = new HttpClient();
-      var request = await httpClient.getUrl(Uri.parse(url));
+      var request = await httpClient.getUrl(uri);
       var response = await request.close();
       if (response.statusCode == HttpStatus.ok) {
-        var jsCode = await response.transform(utf8.decoder).join();
-        prefs.setString("Rules", "var rules=$jsCode ");
-        jsContext.flutterJs.evaluate("var rules=$jsCode ");
+        content = await response.transform(utf8.decoder).join();
       }
     } catch (error) {
+      print('get content by url failed:$error');
+    }
+    return content;
+  }
+
+  static Future<void> fetchRules() async {
+    final SharedPreferences prefs = await _prefs;
+    var url =
+        'https://cdn.jsdelivr.net/gh/DIYgod/RSSHub@master/assets/radar-rules.js';
+    var jsCode = await getContentByUrl(Uri.parse(url));
+    if (jsCode.isNotEmpty) {
+      prefs.setString("Rules", "var rules=$jsCode ");
+      jsContext.flutterJs.evaluate("var rules=$jsCode ");
+    } else {
       print('load local rules');
       if (!prefs.containsKey("Rules")) {
         var js = await rootBundle.loadString("assets/js/radar-rules.js");
