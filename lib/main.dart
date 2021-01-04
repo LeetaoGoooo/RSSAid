@@ -80,15 +80,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _detectUrlByClipboard() async {
+    setState(() {_currentUrl = ''; _configVisible = false; _notUrlDetected = false;});
     ClipboardData data = await Clipboard.getData(Clipboard.kTextPlain);
     if (data != null && data.text != null && data.text.startsWith("http")) {
-      setState(() {
         _radarList = _detectUrl(data.text.trim());
+        setState(() => _currentUrl = data.text.trim());
         _radarList.then((value) {
           if (value.length > 0) {
             setState(() {
               _configVisible = true;
-              _currentUrl = data.text.trim();
               _notUrlDetected = false;
             });
           } else {
@@ -97,7 +97,6 @@ class _HomePageState extends State<HomePage> {
             });
           }
         });
-      });
     } else {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
           behavior: SnackBarBehavior.floating,
@@ -190,13 +189,32 @@ class _HomePageState extends State<HomePage> {
           elevation: 0,
           child: Padding(
               padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
-              child: FlutterLinkPreview(
-                key: ValueKey(_currentUrl),
-                url: _currentUrl.trim(),
-                titleStyle: TextStyle(
-                  color: Colors.orange,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 30,
+                    child: Row(
+                      children: [
+                      Expanded(
+                        child: Text(_currentUrl, 
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                      ),
+                      if(!(_configVisible || _notUrlDetected))
+                      SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    ],),
+                  ),
+                  if(_configVisible)
+                  FlutterLinkPreview(
+                    key: ValueKey(_currentUrl),
+                    url: _currentUrl.trim(),
+                    titleStyle: TextStyle(
+                      color: Colors.orange,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               )));
     }
     return Container();
