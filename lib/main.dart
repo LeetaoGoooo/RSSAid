@@ -13,6 +13,10 @@ import 'common/common.dart';
 
 void main() {
   runApp(RSSBudApp());
+  var systemUiOverlayStyle = SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent);
+  SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
 }
 
 class RSSBudApp extends StatelessWidget {
@@ -23,7 +27,7 @@ class RSSBudApp extends StatelessWidget {
           brightness: Brightness.light, //指定亮度主题，有白色/黑色两种可选。
           primaryColor: Colors.orange, //这里我们选蓝色为基准色值。
           accentColor: Colors.orange[100]), //这里我们选浅蓝色为强调色值。
-      home: SafeArea(child: HomePage()),
+      home: HomePage(),
     );
   }
 }
@@ -133,32 +137,34 @@ class _HomePageState extends State<HomePage> {
               ],
             )
           : null,
-      body: SingleChildScrollView(
-          controller: _scrollViewController,
-          child: Container(
-            color: Color.fromARGB(255, 255, 255, 255),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              // mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                _buildCustomLinkPreview(context),
-                Padding(
-                    padding:
-                        EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 8),
-                    child: FlatButton.icon(
-                        minWidth: double.infinity,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        color: Color.fromARGB(255, 242, 242, 247),
-                        icon: Icon(Icons.copy_outlined, color: Colors.orange),
-                        label: Text("从剪贴板读取",
-                            style: TextStyle(color: Colors.orange)),
-                        onPressed: _detectUrlByClipboard)),
-                _createRadarList(context)
-              ],
-            ),
-          )),
+      body: SafeArea(
+              child: SingleChildScrollView(
+            controller: _scrollViewController,
+            child: Container(
+              color: Color.fromARGB(255, 255, 255, 255),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                // mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  _buildCustomLinkPreview(context),
+                  Padding(
+                      padding:
+                          EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 8),
+                      child: FlatButton.icon(
+                          minWidth: double.infinity,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          color: Color.fromARGB(255, 242, 242, 247),
+                          icon: Icon(Icons.copy_outlined, color: Colors.orange),
+                          label: Text("从剪贴板读取",
+                              style: TextStyle(color: Colors.orange)),
+                          onPressed: _detectUrlByClipboard)),
+                  _createRadarList(context)
+                ],
+              ),
+            )),
+      ),
       floatingActionButton: _configVisible
           ? FloatingActionButton(
               tooltip: "添加配置",
