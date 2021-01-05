@@ -20,7 +20,7 @@
 
 ## 下载
 
-Telegram 群中有 [debug 版本](https://t.me/rssaid/3)
+下载最新版本 [RSSAid](https://github.com/lt94/RSSAid/releases)
 
 订阅 [Telegram 频道](https://t.me/rssaid_group) 以获取更新信息。
 
@@ -37,12 +37,11 @@ Telegram 群中有 [debug 版本](https://t.me/rssaid/3)
 - [x] 自定义通用参数
 - [x] 自定义 RSSHub 域名
 - [x] 自动更新 RSSHub Radar 规则
-- [ ] 分享菜单插件 (Action Extension)
 
 
 ## 参与 Beta 测试
 
-加入 [Telegram 群](https://t.me/rssaid_group) 以获得 Beta 测试详情。
+加入 [Telegram 群](https://t.me/rssaid_group) 以获得最新详情。
 
 
 ## 规则
