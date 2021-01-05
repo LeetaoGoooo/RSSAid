@@ -106,6 +106,7 @@ class CommonRows extends StatelessWidget {
   Widget _buildRssHubDomain(BuildContext context) {
     return Card(
       margin: EdgeInsets.only(left: 24, right: 24, bottom: 8),
+      clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
@@ -126,6 +127,7 @@ class CommonRows extends StatelessWidget {
   Widget _buildHowUseSoftware() {
     return Card(
       margin: EdgeInsets.only(left: 24, right: 24, bottom: 8),
+      clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
@@ -146,6 +148,7 @@ class CommonRows extends StatelessWidget {
   Widget _buildRules(BuildContext context) {
     return Card(
       margin: EdgeInsets.only(left: 24, right: 24, bottom: 8),
+      clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
@@ -209,6 +212,7 @@ class AboutRows extends StatelessWidget {
       String name, IconData icon, String trailing, String url) {
     return Card(
       margin: EdgeInsets.only(left: 24, right: 24, bottom: 8),
+      clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
