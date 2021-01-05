@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_link_preview/flutter_link_preview.dart';
+import 'package:linkify/linkify.dart';
 import 'package:rssaid/models/radar.dart';
 import 'package:rssaid/radar/radar.dart';
 import 'package:rssaid/views/config.dart';
@@ -82,9 +83,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> _detectUrlByClipboard() async {
     setState(() {_currentUrl = ''; _configVisible = false; _notUrlDetected = false;});
     ClipboardData data = await Clipboard.getData(Clipboard.kTextPlain);
-    if (data != null && data.text != null && data.text.startsWith("http")) {
-        _radarList = _detectUrl(data.text.trim());
-        setState(() => _currentUrl = data.text.trim());
+    if (data != null && data.text != null) {
+      var links = linkify(data.text.trim(), options: LinkifyOptions(humanize: false),
+          linkifiers: [UrlLinkifier()]).where((element) => element is LinkableElement);
+      if(links.isNotEmpty)
+        {_radarList = _detectUrl(links.first.text);
+        setState(() => _currentUrl = links.first.text);
         _radarList.then((value) {
           if (value.length > 0) {
             setState(() {
@@ -97,13 +101,18 @@ class _HomePageState extends State<HomePage> {
             });
           }
         });
+        }
+        else{
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+          elevation: 0,
+          behavior: SnackBarBehavior.floating,
+          content: Text('剪贴板没有发现链接')));
+        }
     } else {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
+          elevation: 0,
           behavior: SnackBarBehavior.floating,
           content: Text('这个世界那么空,你的剪贴板也很空')));
-      setState(() {
-        _notUrlDetected = false;
-      });
     }
   }
 

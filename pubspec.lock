@@ -142,6 +142,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.16.1"
+  linkify:
+    dependency: "direct main"
+    description:
+      name: linkify
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.0"
   matcher:
     dependency: transitive
     description:
