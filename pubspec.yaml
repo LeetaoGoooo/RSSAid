@@ -26,6 +26,7 @@ dependencies:
   flutter_js: 0.1.0+0
   clipboard: ^0.1.2+8
   flutter_link_preview: ^1.5.6
+  linkify: ^3.0.0
   url_launcher: ^5.7.10
   shared_preferences: ^0.5.12+4
   share: ^0.6.5+4
