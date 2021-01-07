@@ -238,7 +238,7 @@ class AboutRows extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       children: [
-        _buildAboutItem("当前版本", Icons.info, "v1.0.0", null),
+        _buildAboutItem("当前版本", Icons.info, "v1.1.0", null),
         _buildAboutItem("关注作者", Icons.favorite, null,
             "https://www.zhihu.com/people/tao-lee-68-32"),
         _buildAboutItem(
