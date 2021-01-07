@@ -27,7 +27,7 @@ jobs:
         uses: subosito/flutter-action@v1.4.0
         with:
           channel: "stable"
-          flutter-version: "1.12.x"
+          flutter-version: "1.22.4"
       # 下载项目依赖
       - run: flutter pub get
       # 打包 APK
