@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +11,7 @@ import 'package:rssaid/views/config.dart';
 import 'package:rssaid/views/settings.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import 'common/common.dart';
 
@@ -50,10 +53,21 @@ class _HomePageState extends State<HomePage> {
   bool _notUrlDetected = false;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  StreamSubscription _intentDataStreamSubscription;
 
+  @override
   void initState() {
     super.initState();
     _fetchRules();
+        // For sharing or opening urls/text coming from outside the app while the app is in the memory
+    _intentDataStreamSubscription =
+        ReceiveSharingIntent.getTextStream().where((event) => event!=null).listen(_detectUrlFromShare, onError: (err) {
+      print("getLinkStream error: $err");
+    });
+
+    // For sharing or opening urls/text coming from outside the app while the app is closed
+    ReceiveSharingIntent.getInitialText().then(_detectUrlFromShare);
+
     _scrollViewController = new ScrollController();
     _scrollViewController.addListener(() {
       if (_scrollViewController.position.userScrollDirection ==
@@ -76,8 +90,42 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  @override 
+  void dispose(){
+    _intentDataStreamSubscription.cancel();
+    super.dispose();
+  }
+
   Future<void> _fetchRules() async {
     await RssHub.fetchRules();
+  }
+
+  Future<void> _detectUrlFromShare(String text) async{
+    setState(() {_currentUrl = ''; _configVisible = false; _notUrlDetected = false;});
+      var links = linkify(text.trim(), options: LinkifyOptions(humanize: false),
+          linkifiers: [UrlLinkifier()]).where((element) => element is LinkableElement);
+      if(links.isNotEmpty)
+        {_radarList = _detectUrl(links.first.text);
+        setState(() => _currentUrl = links.first.text);
+        _radarList.then((value) {
+          if (value.length > 0) {
+            setState(() {
+              _configVisible = true;
+              _notUrlDetected = false;
+            });
+          } else {
+            setState(() {
+              _notUrlDetected = true;
+            });
+          }
+        });
+        }
+        else{
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+          elevation: 0,
+          behavior: SnackBarBehavior.floating,
+          content: Text('分享没有发现链接')));
+        }
   }
 
   Future<void> _detectUrlByClipboard() async {

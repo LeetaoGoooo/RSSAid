@@ -28,6 +28,7 @@ dependencies:
   flutter_link_preview: ^1.5.6
   linkify: ^3.0.0
   url_launcher: ^5.7.10
+  receive_sharing_intent: ^1.4.2
   shared_preferences: ^0.5.12+4
   share: ^0.6.5+4
   # The following adds the Cupertino Icons font to your application.
