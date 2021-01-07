@@ -30,8 +30,15 @@ jobs:
           flutter-version: "1.22.4"
       # 下载项目依赖
       - run: flutter pub get
+      - run: echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
+        env:
+          ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
       # 打包 APK
       - run: flutter build apk --release
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD}}
       # 发布到 Release
       - name: Release apk
         uses: ncipollo/release-action@v1.5.0
