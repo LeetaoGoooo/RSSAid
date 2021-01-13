@@ -2,11 +2,10 @@ function ruleHandler(rule, params, url, html) {
     const run = () => {
         let reaultWithParams;
         if (typeof rule.target === 'function') {
-            //            const parser = new DOMParser();
-            //            const document = parser.parseFromString(html, 'text/html');
+            const parser = new DomParser();
+            const document = parser.parseFromString(html, 'text/html');
             try {
-                // reaultWithParams = rule.target(params, url, document);
-                reaultWithParams = rule.target(params, url);
+                reaultWithParams = rule.target(params, url, document);
             } catch (error) {
                 reaultWithParams = '';
             }
@@ -64,12 +63,10 @@ function getPageRSSHub(data) {
                         if (Object.prototype.toString.call(ru.source) === '[object Array]') {
                             ru.source.forEach((source) => {
                                 const router = new RouteRecognizer();
-                                router.add([
-                                    {
-                                        path: source,
-                                        handler: index,
-                                    },
-                                ]);
+                                router.add([{
+                                    path: source,
+                                    handler: index,
+                                }, ]);
                                 const result = router.recognize(path.replace(/\/$/, ''));
                                 if (result && result[0]) {
                                     recognized.push(result[0]);
@@ -77,12 +74,10 @@ function getPageRSSHub(data) {
                             });
                         } else if (typeof ru.source === 'string') {
                             const router = new RouteRecognizer();
-                            router.add([
-                                {
-                                    path: ru.source,
-                                    handler: index,
-                                },
-                            ]);
+                            router.add([{
+                                path: ru.source,
+                                handler: index,
+                            }, ]);
                             const result = router.recognize(path.replace(/\/$/, ''));
                             if (result && result[0]) {
                                 recognized.push(result[0]);

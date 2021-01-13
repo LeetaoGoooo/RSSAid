@@ -101,6 +101,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _detectUrlFromShare(String text) async{
+    
+    if (text == null || text.isEmpty) {
+      return;
+    }
+
     setState(() {_currentUrl = ''; _configVisible = false; _notUrlDetected = false;});
       var links = linkify(text.trim(), options: LinkifyOptions(humanize: false),
           linkifiers: [UrlLinkifier()]).where((element) => element is LinkableElement);

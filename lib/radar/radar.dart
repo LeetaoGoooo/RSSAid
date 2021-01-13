@@ -78,6 +78,10 @@ class RssHub {
     await jsContext.evaluateScript('assets/js/psl.min.js');
     await jsContext.evaluateScript('assets/js/route-recognizer.min.js');
     await jsContext.evaluateScript('assets/js/route-recognizer.js');
+  
+    await jsContext.evaluateScript('assets/js/dom-parser.min.js');
+
+
     await jsContext.evaluateScript('assets/js/utils.js');
     await jsContext.evaluateScript('assets/js/url.js');
     Uri uri = await Uri.parse(url).expanding();
