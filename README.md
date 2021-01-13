@@ -54,6 +54,28 @@ RSSAid 和 [RSSHub Radar](https://github.com/DIYgod/RSSHub-Radar) 使用同一�
 
 > 一些网站的移动端和电脑端页面 URL 不同。由于 RSSHub Radar 的规则是适配电脑端的，在你发现 RSSAid 无法识别 RSSHub Radar 可以识别的网站时，可以尝试使用电脑端的 URL 并在 Telegram 向作者反馈。
 
+## 支持 RSSAid
+
+RSSAid 是采用 MIT 许可的开源项目，使用完全免费。
+
+觉得不错的话，可以通过下列的方法来赞助 RSSAid 的开发.
+
+### 周期性赞助
+
+周期性赞助可以获得额外的回报，比如更快的 GitHub 响应或者你的名字会出现在 RSSAid 的 GitHub 仓库.
+
+*   通过 [爱发电](https://afdian.net/@leetao) 赞助
+
+*   给我们发邮件联系赞助事宜: leetao@email.cn
+
+### 一次性赞助
+
+我们通过以下方式接受赞助:
+
+*   [支付宝](http://ww1.sinaimg.cn/large/006wYWbGly1fm10itkjb6j30aj0a9t8w.jpg)
+
+*   [微信支付](http://ww1.sinaimg.cn/large/006wYWbGly1fm10jihygsj309r09tglw.jpg)
+
 ## 作者
 
 RSSAid 由 Leetao 制作，在 **MIT 协议** 下开源。
