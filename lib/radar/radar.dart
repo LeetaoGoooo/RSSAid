@@ -85,13 +85,14 @@ class RssHub {
     await jsContext.evaluateScript('assets/js/utils.js');
     await jsContext.evaluateScript('assets/js/url.js');
     Uri uri = await Uri.parse(url).expanding();
+    String html = await getContentByUrl(uri);
     try {
       String expression = """
       getPageRSSHub({
                             url: "$url",
                             host: "${uri.host}",
                             path: "${uri.path}",
-                            html: "",
+                            html: "$html",
                             rules: rules
                         })
       """;
@@ -104,5 +105,9 @@ class RssHub {
       print('ERRO: ${e.details}');
     }
     return null;
+  }
+
+  static Future<List<Radar>> detectByUrl(String url) async {
+    
   }
 }
