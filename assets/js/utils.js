@@ -3,10 +3,11 @@ function ruleHandler(rule, params, url, html) {
         let reaultWithParams;
         if (typeof rule.target === 'function') {
             const parser = new DomParser();
-            const document = parser.parseFromString(decodeUtf8(html), 'text/html');
+            const document = parser.parseFromString(html);
             try {
                 reaultWithParams = rule.target(params, url, document);
             } catch (error) {
+                console.log(error)
                 reaultWithParams = '';
             }
         } else if (typeof rule.target === 'string') {
@@ -212,5 +213,7 @@ function decodeUtf8(bytes) {
     for (var i = 0; i < bytes.length; i++) {
         encoded += '%' + bytes[i].toString(16);
     }
-    return decodeURIComponent(encoded);
+    var html =  decodeURIComponent(encoded);
+    console.log(html);
+    return html;
 }

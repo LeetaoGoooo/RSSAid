@@ -96,7 +96,7 @@
                 docs: 'https://docs.rsshub.app/social-media.html#wei-bo',
                 source: ['/u/:id', '/:id'],
                 target: (params, url, document) => {
-                    const uid = document && document.documentElement.innerHTML.match(/\$CONFIG\['oid']='(\d+)'/)[1];
+                    const uid = document && document.rawHTML.match(/\$CONFIG\['oid']='(\d+)'/)[1];
                     return uid ? `/weibo/user/${uid}` : '';
                 },
             },
@@ -2202,7 +2202,8 @@
                 docs: 'https://docs.rsshub.app/study.html#yu-que',
                 source: ['/:space/:book'],
                 target: (params, url, document) => {
-                    const match = document.documentElement.innerHTML.match(/JSON\.parse\(decodeURIComponent\("(.*)"\)/);
+                    const match = document.rawHTML.match(/JSON\.parse\(decodeURIComponent\("(.*)"\)/);
+                    console.log(match)
                     if (match && match[1]) {
                         const dataStr = match[1];
                         try {

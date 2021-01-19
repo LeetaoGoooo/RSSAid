@@ -22,6 +22,9 @@ class RssHubJsContext {
 
   RssHubJsContext() {
     flutterJs = getJavascriptRuntime();
+    flutterJs.onMessage("console", (args) { 
+      print(args);
+    });
   }
   evaluateScript(String filePath) async {
     try {
@@ -55,13 +58,12 @@ class RssHub {
   static Future<void> fetchRules() async {
     final SharedPreferences prefs = await _prefs;
     var url =
-        'https://cdn.jsdelivr.net/gh/DIYgod/RSSHub@master/assets/radar-rules.js';
+        'https://cdn.jsdelivr.net/gh/lt94/RSSAid@main/assets/js/radar-rules.js';
     var jsCode = await getContentByUrl(Uri.parse(url));
     if (jsCode.isNotEmpty) {
       prefs.setString("Rules", "var rules=$jsCode ");
       jsContext.flutterJs.evaluate("var rules=$jsCode ");
     } else {
-      print('load local rules');
       if (!prefs.containsKey("Rules")) {
         var js = await rootBundle.loadString("assets/js/radar-rules.js");
         prefs.setString("Rules", js);
@@ -86,18 +88,16 @@ class RssHub {
     await jsContext.evaluateScript('assets/js/url.js');
     Uri uri = await Uri.parse(url).expanding();
     String html = await getContentByUrl(uri);
-    var encodeHtml = utf8.encode(html);
     try {
       String expression = """
       getPageRSSHub({
                             url: "$url",
                             host: "${uri.host}",
                             path: "${uri.path}",
-                            html: $encodeHtml,
+                            html: `$html`,
                             rules: rules
                         })
       """;
-
       jsContext.flutterJs.enableHandlePromises();
       var jsResult = jsContext.flutterJs.evaluate(expression);
       var result = jsResult.stringResult;
