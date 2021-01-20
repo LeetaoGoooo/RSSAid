@@ -8,6 +8,8 @@ PODS:
     - Flutter
   - shared_preferences (0.0.1):
     - Flutter
+  - system_proxy (0.0.1):
+    - Flutter
   - url_launcher (0.0.1):
     - Flutter
 
@@ -17,6 +19,7 @@ DEPENDENCIES:
   - receive_sharing_intent (from `.symlinks/plugins/receive_sharing_intent/ios`)
   - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
+  - system_proxy (from `.symlinks/plugins/system_proxy/ios`)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
 
 EXTERNAL SOURCES:
@@ -30,6 +33,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/share/ios"
   shared_preferences:
     :path: ".symlinks/plugins/shared_preferences/ios"
+  system_proxy:
+    :path: ".symlinks/plugins/system_proxy/ios"
   url_launcher:
     :path: ".symlinks/plugins/url_launcher/ios"
 
@@ -39,6 +44,7 @@ SPEC CHECKSUMS:
   receive_sharing_intent: c0d87310754e74c0f9542947e7cbdf3a0335a3b1
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
+  system_proxy: bec1a5c5af67dd3e3ebf43979400a8756c04cc44
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c

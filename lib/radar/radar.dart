@@ -5,15 +5,36 @@ import 'package:rssaid/models/radar.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:system_proxy/system_proxy.dart';
+
+extension HttpClientExtension on HttpClient {
+  Future<HttpClient> autoProxy() async {
+    Map<String, String> sysProxy = await SystemProxy.getProxySettings();
+    var proxy = "DIRECT";
+    if (sysProxy != null) {
+      proxy = "PROXY ${sysProxy['host']}, ${sysProxy['port']};";
+      print("find proxy $proxy");
+    }
+    this.findProxy = (uri) {
+      return proxy;
+    };
+    return this;
+  }
+}
 
 extension UriExtension on Uri {
   Future<Uri> expanding() async {
-    var httpClient = new HttpClient();
-    var request = await httpClient.headUrl(this);
-    request.followRedirects = false;
-    var response = await request.close();
-    var location = response.headers.value("Location");
-    return location != null ? Uri.parse(location) : this;
+    try {
+      var httpClient = await new HttpClient().autoProxy();
+      httpClient.connectionTimeout = Duration(seconds: 5);
+      var request = await httpClient.headUrl(this);
+      request.followRedirects = false;
+      var response = await request.close();
+      var location = response.headers.value("Location");
+      return location != null ? Uri.parse(location) : this;
+    } catch (e) {
+      return this;
+    }
   }
 }
 
@@ -22,7 +43,7 @@ class RssHubJsContext {
 
   RssHubJsContext() {
     flutterJs = getJavascriptRuntime();
-    flutterJs.onMessage("console", (args) { 
+    flutterJs.onMessage("console", (args) {
       print(args);
     });
   }
@@ -43,8 +64,10 @@ class RssHub {
   static Future<String> getContentByUrl(Uri uri) async {
     var content = "";
     try {
-      var httpClient = new HttpClient();
+      var httpClient = await new HttpClient().autoProxy();
+      httpClient.connectionTimeout = Duration(seconds: 10);
       var request = await httpClient.getUrl(uri);
+      request.headers.set("User-Agent", "RSSAid");
       var response = await request.close();
       if (response.statusCode == HttpStatus.ok) {
         content = await response.transform(utf8.decoder).join();
@@ -80,9 +103,8 @@ class RssHub {
     await jsContext.evaluateScript('assets/js/psl.min.js');
     await jsContext.evaluateScript('assets/js/route-recognizer.min.js');
     await jsContext.evaluateScript('assets/js/route-recognizer.js');
-  
-    await jsContext.evaluateScript('assets/js/dom-parser.min.js');
 
+    await jsContext.evaluateScript('assets/js/dom-parser.min.js');
 
     await jsContext.evaluateScript('assets/js/utils.js');
     await jsContext.evaluateScript('assets/js/url.js');
