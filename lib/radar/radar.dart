@@ -12,7 +12,7 @@ extension HttpClientExtension on HttpClient {
     Map<String, String> sysProxy = await SystemProxy.getProxySettings();
     var proxy = "DIRECT";
     if (sysProxy != null) {
-      proxy = "PROXY ${sysProxy['host']}, ${sysProxy['port']};";
+      proxy = "PROXY ${sysProxy['host']}:${sysProxy['port']}; DIRECT";
       print("find proxy $proxy");
     }
     this.findProxy = (uri) {
@@ -84,8 +84,8 @@ class RssHub {
         'https://cdn.jsdelivr.net/gh/lt94/RSSAid@main/assets/js/radar-rules.js';
     var jsCode = await getContentByUrl(Uri.parse(url));
     if (jsCode.isNotEmpty) {
-      prefs.setString("Rules", "var rules=$jsCode ");
-      jsContext.flutterJs.evaluate("var rules=$jsCode ");
+      prefs.setString("Rules", "$jsCode");
+      jsContext.flutterJs.evaluate("$jsCode ");
     } else {
       if (!prefs.containsKey("Rules")) {
         var js = await rootBundle.loadString("assets/js/radar-rules.js");
@@ -98,16 +98,17 @@ class RssHub {
   }
 
   static Future<List<Radar>> detecting(String url) async {
-    await fetchRules();
+    // await fetchRules();
+    await jsContext.evaluateScript('assets/js/radar-rules.js');
     await jsContext.evaluateScript('assets/js/url.min.js');
     await jsContext.evaluateScript('assets/js/psl.min.js');
     await jsContext.evaluateScript('assets/js/route-recognizer.min.js');
     await jsContext.evaluateScript('assets/js/route-recognizer.js');
-
     await jsContext.evaluateScript('assets/js/dom-parser.min.js');
-
     await jsContext.evaluateScript('assets/js/utils.js');
     await jsContext.evaluateScript('assets/js/url.js');
+
+
     Uri uri = await Uri.parse(url).expanding();
     String html = await getContentByUrl(uri);
     try {

@@ -1,4 +1,4 @@
-({
+var rules = ({
     'bilibili.com': {
         _name: 'bilibili',
         www: [
@@ -1850,7 +1850,7 @@
                 docs: 'https://docs.rsshub.app/social-media.html#telegram',
                 source: '/:username',
                 target: (params, url, document) => {
-                    const isChannel = document && document.querySelector('.tgme_action_button_label');
+                    const isChannel = document && document.getElementsByClassName('tgme_action_button_label');
                     if (isChannel) {
                         return '/telegram/channel/:username';
                     }
@@ -2203,7 +2203,6 @@
                 source: ['/:space/:book'],
                 target: (params, url, document) => {
                     const match = document.rawHTML.match(/JSON\.parse\(decodeURIComponent\("(.*)"\)/);
-                    console.log(match)
                     if (match && match[1]) {
                         const dataStr = match[1];
                         try {
