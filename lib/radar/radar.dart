@@ -98,8 +98,7 @@ class RssHub {
   }
 
   static Future<List<Radar>> detecting(String url) async {
-    // await fetchRules();
-    await jsContext.evaluateScript('assets/js/radar-rules.js');
+    await fetchRules();
     await jsContext.evaluateScript('assets/js/url.min.js');
     await jsContext.evaluateScript('assets/js/psl.min.js');
     await jsContext.evaluateScript('assets/js/route-recognizer.min.js');
@@ -110,7 +109,7 @@ class RssHub {
 
 
     Uri uri = await Uri.parse(url).expanding();
-    String html = await getContentByUrl(uri);
+    String html = ""; //await getContentByUrl(uri);
     try {
       String expression = """
       getPageRSSHub({
@@ -125,8 +124,8 @@ class RssHub {
       var jsResult = jsContext.flutterJs.evaluate(expression);
       var result = jsResult.stringResult;
       return Radar.listFromJson(json.decode(result));
-    } on PlatformException catch (e) {
-      print('ERRO: ${e.details}');
+    } catch (e) {
+      print('ERRO: $e');
     }
     return null;
   }

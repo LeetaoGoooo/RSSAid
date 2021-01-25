@@ -54,14 +54,16 @@ class _HomePageState extends State<HomePage> {
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   StreamSubscription _intentDataStreamSubscription;
+  TextEditingController _inputUrlController = new TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchRules();
-        // For sharing or opening urls/text coming from outside the app while the app is in the memory
-    _intentDataStreamSubscription =
-        ReceiveSharingIntent.getTextStream().where((event) => event!=null).listen(_detectUrlFromShare, onError: (err) {
+    // For sharing or opening urls/text coming from outside the app while the app is in the memory
+    _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream()
+        .where((event) => event != null)
+        .listen(_detectUrlFromShare, onError: (err) {
       print("getLinkStream error: $err");
     });
 
@@ -90,8 +92,8 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  @override 
-  void dispose(){
+  @override
+  void dispose() {
     _intentDataStreamSubscription.cancel();
     super.dispose();
   }
@@ -100,78 +102,93 @@ class _HomePageState extends State<HomePage> {
     await RssHub.fetchRules();
   }
 
-  Future<void> _detectUrlFromShare(String text) async{
-    
+  Future<void> _detectUrlFromShare(String text) async {
     if (text == null || text.isEmpty) {
       return;
     }
 
-    setState(() {_currentUrl = ''; _configVisible = false; _notUrlDetected = false;});
-      var links = linkify(text.trim(), options: LinkifyOptions(humanize: false),
-          linkifiers: [UrlLinkifier()]).where((element) => element is LinkableElement);
-      if(links.isNotEmpty)
-        {_radarList = _detectUrl(links.first.text);
-        setState(() => _currentUrl = links.first.text);
-        _radarList.then((value) {
-          if (value.length > 0) {
-            setState(() {
-              _configVisible = true;
-              _notUrlDetected = false;
-            });
-          } else {
-            setState(() {
-              _notUrlDetected = true;
-            });
-          }
-        });
+    setState(() {
+      _currentUrl = '';
+      _configVisible = false;
+      _notUrlDetected = false;
+    });
+    var links = linkify(text.trim(),
+            options: LinkifyOptions(humanize: false),
+            linkifiers: [UrlLinkifier()])
+        .where((element) => element is LinkableElement);
+    if (links.isNotEmpty) {
+      _radarList = _detectUrl(links.first.text);
+      setState(() => _currentUrl = links.first.text);
+      _radarList.then((value) {
+        if (value.length > 0) {
+          setState(() {
+            _configVisible = true;
+            _notUrlDetected = false;
+          });
+        } else {
+          setState(() {
+            _notUrlDetected = true;
+          });
         }
-        else{
-          _scaffoldKey.currentState.showSnackBar(SnackBar(
-          elevation: 0,
-          behavior: SnackBarBehavior.floating,
-          content: Text('分享没有发现链接')));
-        }
-  }
-
-  Future<void> _detectUrlByClipboard() async {
-    setState(() {_currentUrl = ''; _configVisible = false; _notUrlDetected = false;});
-    ClipboardData data = await Clipboard.getData(Clipboard.kTextPlain);
-    if (data != null && data.text != null) {
-      var links = linkify(data.text.trim(), options: LinkifyOptions(humanize: false),
-          linkifiers: [UrlLinkifier()]).where((element) => element is LinkableElement);
-      if(links.isNotEmpty){
-        _callRadar(links.first.text);}        
-      else{
-          _scaffoldKey.currentState.showSnackBar(SnackBar(
-          elevation: 0,
-          behavior: SnackBarBehavior.floating,
-          content: Text('剪贴板没有发现链接')));
-        }
+      });
     } else {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
           elevation: 0,
           behavior: SnackBarBehavior.floating,
-          content: Text('这个世界那么空,你的剪贴板也很空')));
+          content: Text('分享没有发现链接')));
     }
   }
 
-  void _callRadar(String url){
+  Future<void> _detectUrlByClipboard() async {
+    setState(() {
+      _currentUrl = '';
+      _configVisible = false;
+      _notUrlDetected = false;
+    });
+    ClipboardData data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (data != null && data.text != null) {
+      var link = _verifyLink(data.text);
+      if (link != null) {
+        _callRadar(link);
+      } else {
+        _showSnackBar("报告主人，剪贴板没有发现链接");
+      }
+    } else {
+      _showSnackBar("报告主人，剪贴板空空的，我的心也很空");
+    }
+  }
+
+  /// verify link return link
+  /// else return null
+  String _verifyLink(String url) {
+    var links = linkify(url.trim(),
+            options: LinkifyOptions(humanize: false),
+            linkifiers: [UrlLinkifier()])
+        .where((element) => element is LinkableElement);
+    if (links.isEmpty) {
+      return null;
+    }
+    return links.first.text;
+  }
+
+  void _callRadar(String url) {
     _radarList = _detectUrl(url);
-        setState(() => _currentUrl = url);
-        _addRecord(url);
-        _radarList.then((value) {
-          if (value.length > 0) {
-            setState(() {
-              _configVisible = true;
-              _notUrlDetected = false;
-            });
-          } else {
-            setState(() {
-              _notUrlDetected = true;
-            });
-          }
-        },
-      );
+    setState(() => _currentUrl = url);
+    _addRecord(url);
+    _radarList.then(
+      (value) {
+        if (value.length > 0) {
+          setState(() {
+            _configVisible = true;
+            _notUrlDetected = false;
+          });
+        } else {
+          setState(() {
+            _notUrlDetected = true;
+          });
+        }
+      },
+    );
   }
 
   Future<List<Radar>> _detectUrl(String url) async {
@@ -185,20 +202,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// Add new record at the top of the list
-  Future<void> _addRecord(String url) async{
+  Future<void> _addRecord(String url) async {
     final prefs = await SharedPreferences.getInstance();
     var historyList = prefs.getStringList('historyListKey') ?? [];
     historyList.remove(url);
     historyList.insert(0, url);
     await prefs.setStringList('historyListKey', historyList);
   }
-  
+
   /// Save history records after user delete one
-  Future<void> _setRecord(List<String> history) async{
+  Future<void> _setRecord(List<String> history) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('historyListKey', history);
-    if(mounted) setState(() {
-    });
+    if (mounted) setState(() {});
   }
 
   @override
@@ -228,7 +244,7 @@ class _HomePageState extends State<HomePage> {
             )
           : null,
       body: SafeArea(
-              child: SingleChildScrollView(
+        child: SingleChildScrollView(
             controller: _scrollViewController,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -249,9 +265,21 @@ class _HomePageState extends State<HomePage> {
                         label: Text("从剪贴板读取",
                             style: TextStyle(color: Colors.orange)),
                         onPressed: _detectUrlByClipboard)),
+                Padding(
+                    padding:
+                        EdgeInsets.only(left: 24, right: 24, top: 0, bottom: 8),
+                    child: FlatButton.icon(
+                        minWidth: double.infinity,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        color: Color.fromARGB(255, 242, 242, 247),
+                        icon: Icon(Icons.input, color: Colors.orange),
+                        label: Text("手动输入一下",
+                            style: TextStyle(color: Colors.orange)),
+                        onPressed: _showInputDialog)),
                 _createRadarList(context),
-                if(_currentUrl == '')
-                _historyList()
+                if (_currentUrl == '') _historyList()
               ],
             )),
       ),
@@ -286,30 +314,44 @@ class _HomePageState extends State<HomePage> {
                     height: 30,
                     child: Row(
                       children: [
-                      Expanded(
-                        child: Text(_currentUrl, 
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-                      ),
-                      if(!(_configVisible || _notUrlDetected))
-                      SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      else 
-                      IconButton(padding: EdgeInsets.zero, splashRadius: 20,
-                      icon: Icon(Icons.close), onPressed: () {setState(() {
-                        _currentUrl = ""; _configVisible = false; _notUrlDetected = false;
-                        _radarList = null;});})
-                    ],),
-                  ),
-                  if(_configVisible)
-                  FlutterLinkPreview(
-                    key: ValueKey(_currentUrl),
-                    url: _currentUrl.trim(),
-                    titleStyle: TextStyle(
-                      color: Colors.orange,
-                      fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Text(_currentUrl,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: Colors.orange,
+                                  fontWeight: FontWeight.bold)),
+                        ),
+                        if (!(_configVisible || _notUrlDetected))
+                          SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2))
+                        else
+                          IconButton(
+                              padding: EdgeInsets.zero,
+                              splashRadius: 20,
+                              icon: Icon(Icons.close),
+                              onPressed: () {
+                                setState(() {
+                                  _currentUrl = "";
+                                  _configVisible = false;
+                                  _notUrlDetected = false;
+                                  _radarList = null;
+                                });
+                              })
+                      ],
                     ),
                   ),
+                  if (_configVisible)
+                    FlutterLinkPreview(
+                      key: ValueKey(_currentUrl),
+                      url: _currentUrl.trim(),
+                      titleStyle: TextStyle(
+                        color: Colors.orange,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                 ],
               )));
     }
@@ -377,7 +419,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildRssWidget(Radar radar) {
     return Card(
-        margin: EdgeInsets.only(left: 24, right: 24, bottom: 8),
+        margin: EdgeInsets.only(left: 24, right: 24, bottom: 8, top: 16),
         color: Color.fromARGB(255, 242, 242, 247),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
@@ -459,62 +501,108 @@ class _HomePageState extends State<HomePage> {
   ///History recoeds list widget
   Widget _historyList() {
     return FutureBuilder<List<String>>(
-      future: _getHistoryList(),
-      builder: (context, snapshot){
-         if(snapshot.hasData && snapshot.data.isNotEmpty){ 
-           var history = snapshot.data; 
-           return Column(
-             children: [
-               SizedBox(height: 20),
-               ListView.builder(
-                shrinkWrap: true,
-                itemCount: history.length,
-                physics: NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index){
-                  return Dismissible(
-                    key: ValueKey(history[index]),
-                    onDismissed: (direction) {
-                      setState(() => history.removeAt(index));
-                      _setRecord(history);
-                    },
-                    child: Card(
-                        margin: EdgeInsets.only(left: 24, right: 24, bottom: 12),
-                        color: Color.fromARGB(255, 242, 242, 247),
-                        shape: RoundedRectangleBorder(
-                           borderRadius: BorderRadius.circular(10.0)),
-                        elevation: 0,
-                        child: InkWell(
-                          onTap: () => _callRadar(history[index]),
-                          borderRadius: BorderRadius.circular(10.0),
+        future: _getHistoryList(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data.isNotEmpty) {
+            var history = snapshot.data;
+            return Column(
+              children: [
+                SizedBox(height: 20),
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: history.length,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return Dismissible(
+                      key: ValueKey(history[index]),
+                      onDismissed: (direction) {
+                        setState(() => history.removeAt(index));
+                        _setRecord(history);
+                      },
+                      child: Card(
+                          margin:
+                              EdgeInsets.only(left: 24, right: 24, bottom: 12),
+                          color: Color.fromARGB(255, 242, 242, 247),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0)),
+                          elevation: 0,
+                          child: InkWell(
+                            onTap: () => _callRadar(history[index]),
+                            borderRadius: BorderRadius.circular(10.0),
                             child: Padding(
-                             padding: EdgeInsets.all(16),
-                             child: Text(history[index], maxLines: 1,
-                               overflow: TextOverflow.ellipsis,
-                               style:TextStyle(color: Colors.orange)),
-                    ),
-                    )),  
-                  );
-                },
-          ),
-          Padding(
-            padding:
-                EdgeInsets.only(left: 24, right: 24, top: 0, bottom: 8),
-            child: FlatButton.icon(
-                minWidth: double.infinity,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                              padding: EdgeInsets.all(16),
+                              child: Text(history[index],
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: Colors.orange)),
+                            ),
+                          )),
+                    );
+                  },
                 ),
-                color: Color.fromARGB(255, 242, 242, 247),
-                icon: Icon(Icons.clear_all_outlined, color: Colors.orange),
-                label: Text("清除所有",
-                    style: TextStyle(color: Colors.orange)),
-                onPressed:() {_setRecord([]);}
-                )),
-             ],
-           );
-        }
-        return Center();
-      }
-    );
+                Padding(
+                    padding:
+                        EdgeInsets.only(left: 24, right: 24, top: 0, bottom: 8),
+                    child: FlatButton.icon(
+                        minWidth: double.infinity,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        color: Color.fromARGB(255, 242, 242, 247),
+                        icon: Icon(Icons.clear_all_outlined,
+                            color: Colors.orange),
+                        label: Text("清除所有",
+                            style: TextStyle(color: Colors.orange)),
+                        onPressed: () {
+                          _setRecord([]);
+                        })),
+              ],
+            );
+          }
+          return Center();
+        });
+  }
+
+  /// 显示输入地址框
+  Future<void> _showInputDialog() async {
+    return showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("输入要检测的链接"),
+            content: Container(
+              child: TextField(
+                controller: _inputUrlController,
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    var url = _inputUrlController.text.trim();
+                    if (url.length > 0) {
+                      var link = _verifyLink(url);
+                      if (link != null) {
+                        _callRadar(link);
+                        return;
+                      } else {
+                        _showSnackBar("报告主人，链接好像出问题了");
+                      }
+                    } else {
+                      _showSnackBar("报告主人，链接空空的");
+                    }
+                  },
+                  child: Text("确认"))
+            ],
+          );
+        });
+  }
+
+  _showSnackBar(String text) {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+        elevation: 0,
+        behavior: SnackBarBehavior.floating,
+        content: Text(text)));
   }
 }

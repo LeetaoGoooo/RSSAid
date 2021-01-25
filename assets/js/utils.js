@@ -1,4 +1,5 @@
 function ruleHandler(rule, params, url, html) {
+    // console.log("rule: "+rule+" params:"+ params +" url:"+url +" html:"+html);
     const run = () => {
         let reaultWithParams;
         if (typeof rule.target === 'function') {
@@ -43,6 +44,7 @@ function parseRules(rules) {
 
 function getPageRSSHub(data) {
     const { url, host, path, html } = data;
+    console.log("url: "+url+" host:"+ host +" path:"+path +" html:"+html);
     const rules = parseRules(data.rules);
     const parsedDomain = psl.parse(host);
     if (parsedDomain && parsedDomain.domain) {
