@@ -171,7 +171,7 @@ packages:
     source: hosted
     version: "1.2.0"
   html:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: html
       url: "https://pub.flutter-io.cn"

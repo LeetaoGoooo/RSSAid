@@ -1,4 +1,7 @@
+import 'dart:collection';
 import 'dart:convert';
+import 'package:html/dom.dart';
+import 'package:html/parser.dart' show parse;
 import 'dart:io';
 
 import 'package:rssaid/models/radar.dart';
@@ -98,6 +101,10 @@ class RssHub {
   }
 
   static Future<List<Radar>> detecting(String url) async {
+    return [...await detectByRssHub(url), ...await detectByUrl(url)];
+  }
+
+  static Future<List<Radar>> detectByRssHub(String url) async {
     await fetchRules();
     await jsContext.evaluateScript('assets/js/url.min.js');
     await jsContext.evaluateScript('assets/js/psl.min.js');
@@ -107,9 +114,10 @@ class RssHub {
     await jsContext.evaluateScript('assets/js/utils.js');
     await jsContext.evaluateScript('assets/js/url.js');
 
+    List<Radar> radarList = List<Radar>();
 
     Uri uri = await Uri.parse(url).expanding();
-    String html = ""; //await getContentByUrl(uri);
+    String html = await getContentByUrl(uri);
     try {
       String expression = """
       getPageRSSHub({
@@ -123,10 +131,51 @@ class RssHub {
       jsContext.flutterJs.enableHandlePromises();
       var jsResult = jsContext.flutterJs.evaluate(expression);
       var result = jsResult.stringResult;
-      return Radar.listFromJson(json.decode(result));
+      radarList = Radar.listFromJson(json.decode(result));
     } catch (e) {
       print('ERRO: $e');
     }
-    return null;
+    return radarList;
+  }
+
+  static Future<List<Radar>> detectByUrl(String url) async {
+    List<Radar> radarList = List<Radar>();
+    String html = await getContentByUrl(Uri.parse(url));
+    Document document = parse(html);
+    try {
+      radarList = await parseKnowedRss(document);
+    } catch (e) {
+      print("parseKnowedRss error:$e");
+    }
+    return radarList;
+  }
+
+  /// 获取在<head>的<link>元素中，已经声明为RSS的链接
+  static Future<List<Radar>> parseKnowedRss(Document document) async {
+    List<Radar> radarList = List<Radar>();
+    List<Element> links = document.getElementsByTagName("link");
+    for (var i = 0; i < links.length; i++) {
+      var link = links[i];
+      if (link != null) {
+        LinkedHashMap attrs = link.attributes;
+        String linkHref = attrs['href'];
+        String linkType = attrs['type'];
+        String linkTitle = attrs.containsKey("title")
+            ? attrs['title']
+            : document.getElementsByTagName("title")[0].text;
+        RegExp rssPattern = new RegExp(r'.+\/(rss|rdf|atom)');
+        RegExp xmlPattern = new RegExp(r'^text\/xml$');
+        if (linkType != null &&
+            linkType.isNotEmpty &&
+            (rssPattern.hasMatch(linkType) || xmlPattern.hasMatch(linkType))) {
+          print("符合条件的链接:$linkHref,主题:$linkTitle");
+          Radar radar =
+              new Radar.fromJson({"title": linkTitle, "_url": linkHref});
+          radarList.add(radar);
+        }
+      }
+    }
+    print("解析结果:$radarList");
+    return radarList;
   }
 }
