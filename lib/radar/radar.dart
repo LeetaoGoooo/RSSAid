@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:rssaid/models/radar.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_js/flutter_js.dart';
+import 'package:rssaid/radar/rules.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_proxy/system_proxy.dart';
 
@@ -101,6 +102,11 @@ class RssHub {
   }
 
   static Future<List<Radar>> detecting(String url) async {
+    var specialRadar = Rules.detectUrl(url);
+    if (specialRadar != null) {
+      return specialRadar;
+    }
+
     return [...await detectByRssHub(url), ...await detectByUrl(url)];
   }
 
