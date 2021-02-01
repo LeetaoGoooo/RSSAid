@@ -452,18 +452,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       onPressed: () async {
                         final SharedPreferences prefs = await _prefs;
-                        var host = "https://rsshub.app/";
-                        if (prefs.containsKey("RSSHUB")) {
-                          host = prefs.getString("RSSHUB");
-                        }
-                        var url = "$host${radar.path}";
-                        if (prefs.containsKey("currentParams")) {
-                          url += prefs.getString("currentParams");
-                        } else {
-                          url += prefs.containsKey("defaultParams")
-                              ? prefs.getString("defaultParams")
-                              : "";
-                        }
+                        var url = await _getSubscriptionUrl(radar);
                         Clipboard.setData(ClipboardData(text: url));
                         if (prefs.containsKey("currentParams")) {
                           prefs.remove("currentParams");
@@ -483,13 +472,8 @@ class _HomePageState extends State<HomePage> {
                       icon: Icon(Icons.done, color: Colors.orange),
                       label: Text("订阅", style: TextStyle(color: Colors.orange)),
                       onPressed: () async {
-                        final SharedPreferences prefs = await _prefs;
-                        var host = "https://rsshub.app/";
-                        if (prefs.containsKey("RSSHUB")) {
-                          host = prefs.getString("RSSHUB");
-                        }
-                        Share.share('$host${radar.path}',
-                            subject: '${radar.title}');
+                        var url = await _getSubscriptionUrl(radar);
+                        Share.share('$url', subject: '${radar.title}');
                       },
                     )),
                   ],
@@ -604,5 +588,27 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
         behavior: SnackBarBehavior.floating,
         content: Text(text)));
+  }
+
+  _getSubscriptionUrl(Radar radar) async {
+    final SharedPreferences prefs = await _prefs;
+    var host = "https://rsshub.app/";
+    if (prefs.containsKey("RSSHUB")) {
+      host = prefs.getString("RSSHUB");
+    }
+    var url = "$host${radar.path}";
+    print("isRssHub:${radar.isRssHub}");
+    if (!radar.isRssHub) {
+      url = radar.path;
+    }
+
+    if (prefs.containsKey("currentParams")) {
+      url += prefs.getString("currentParams");
+    } else {
+      url += prefs.containsKey("defaultParams")
+          ? prefs.getString("defaultParams")
+          : "";
+    }
+    return url;
   }
 }

@@ -5,7 +5,7 @@ class Weibo implements RuleStrategy {
   @override
   List<Radar> detect(String url) {
     List<Radar> weiboRadars = [
-      Radar.fromJson({"title": "微博热搜榜", "path": "weibo/search/hot"})
+      Radar.fromJson({"title": "微博热搜榜", "path": "/weibo/search/hot"})
     ];
     var radar = parseApp(url);
     if (radar != null) {
@@ -29,13 +29,13 @@ class Weibo implements RuleStrategy {
     var match = pattern.firstMatch(url);
     if (match != null) {
       return Radar.fromJson(
-          {"title": "博主", "path": "weibo/user/${match.group(1)}"});
+          {"title": "博主", "path": "/weibo/user/${match.group(1)}"});
     }
     return null;
   }
 
   Radar parsePC(String url) {
-    return parseUrl(url, RegExp(r'https://weibo.*?/u/(\d+)'));
+    return parseUrl(url, RegExp(r'https://.*weibo.*?/u/(\d+)'));
   }
 
   Radar parseH5(String url) {
@@ -43,6 +43,6 @@ class Weibo implements RuleStrategy {
   }
 
   Radar parseApp(String url) {
-    return parseUrl(url, RegExp(r'https://weibo.*?/u/(\d+)'));
+    return parseUrl(url, RegExp(r'https://.*weibo.*?/u/(\d+)'));
   }
 }

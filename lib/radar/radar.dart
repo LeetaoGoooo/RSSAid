@@ -176,7 +176,8 @@ class RssHub {
             (rssPattern.hasMatch(linkType) || xmlPattern.hasMatch(linkType))) {
           print("符合条件的链接:$linkHref,主题:$linkTitle");
           Radar radar =
-              new Radar.fromJson({"title": linkTitle, "_url": linkHref});
+              new Radar.fromJson({"title": linkTitle, "path": linkHref, "isRssHub": false});
+          print("radar isRssHub:${radar.isRssHub}");
           radarList.add(radar);
         }
       }

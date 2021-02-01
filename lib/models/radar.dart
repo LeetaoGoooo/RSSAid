@@ -3,6 +3,7 @@ class Radar {
   String _url;
   String path;
   bool _isDocs = true;
+  bool isRssHub = true;
 
   Radar.fromJson(Map<String, dynamic> json) {
     if (json == null) return;
@@ -10,6 +11,7 @@ class Radar {
     _url = json['_url'];
     path = json['path'];
     _isDocs = json['_isDocs'];
+    isRssHub = json['isRssHub'];
   }
 
   static List<Radar> listFromJson(List<dynamic> json) {
