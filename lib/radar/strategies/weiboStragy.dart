@@ -7,42 +7,38 @@ class Weibo implements RuleStrategy {
     List<Radar> weiboRadars = [
       Radar.fromJson({"title": "微博热搜榜", "path": "/weibo/search/hot", "isRssHub": true})
     ];
-    var radar = parseApp(url);
-    if (radar != null) {
-      weiboRadars.add(radar);
-      return weiboRadars;
-    }
-    radar = parsePC(url);
-    if (radar != null) {
-      weiboRadars.add(radar);
-      return weiboRadars;
-    }
-    radar = parseH5(url);
-    if (radar != null) {
-      weiboRadars.add(radar);
+    var uid = parseApp(url);
+    uid = uid ==  null ? parsePC(url) : uid;
+    uid = uid ==  null ?  parseH5(url) : uid;
+    if (uid != null) {
+      weiboRadars.addAll([
+        Radar.fromJson({"title":"博主", "path": "/weibo/user/$uid", "isRssHub": true}),
+        Radar.fromJson({"title":"博主 ❗", "path": "https://rssfeed.today/weibo/rss/$uid", "isRssHub": false})
+      ]);
       return weiboRadars;
     }
     return null;
   }
 
-  Radar parseUrl(String url, RegExp pattern) {
+  String parseUrl(String url, RegExp pattern) {
     var match = pattern.firstMatch(url);
     if (match != null) {
-      return Radar.fromJson(
-          {"title": "博主", "path": "/weibo/user/${match.group(1)}", "isRssHub": true});
+      // return Radar.fromJson(
+      //     {"title": "博主", "path": "/weibo/user/${match.group(1)}", "isRssHub": true});
+      return match.group(1);
     }
     return null;
   }
 
-  Radar parsePC(String url) {
+  String parsePC(String url) {
     return parseUrl(url, RegExp(r'https://.*weibo.*?/u/(\d+)'));
   }
 
-  Radar parseH5(String url) {
+  String parseH5(String url) {
     return parseUrl(url, RegExp(r'https://m.weibo.*?/profile/(\d+)'));
   }
 
-  Radar parseApp(String url) {
+  String parseApp(String url) {
     return parseUrl(url, RegExp(r'https://.*weibo.*?/u/(\d+)'));
   }
 }
