@@ -615,7 +615,7 @@ class _HomePageState extends State<HomePage> {
     }
     var url = "$host${radar.path}";
     print("isRssHub:${radar.isRssHub}");
-    if (!radar.isRssHub) {
+    if (radar.isRssHub != null && !radar.isRssHub) {
       url = radar.path;
     }
 
