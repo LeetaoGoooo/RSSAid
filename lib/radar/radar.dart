@@ -149,7 +149,7 @@ class RssHub {
     String html = await getContentByUrl(Uri.parse(url));
     Document document = parse(html);
     try {
-      radarList = await parseKnowedRss(document, '${Uri.parse(url).scheme}://${Uri.parse(url).host}/');
+      radarList = await parseKnowedRss(document, '${Uri.parse(url).scheme}://${Uri.parse(url).host}');
     } catch (e) {
       print("parseKnowedRss error:$e");
     }
