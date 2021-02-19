@@ -149,7 +149,7 @@ class RssHub {
     String html = await getContentByUrl(Uri.parse(url));
     Document document = parse(html);
     try {
-      radarList = await parseKnowedRss(document);
+      radarList = await parseKnowedRss(document, '${Uri.parse(url).scheme}://${Uri.parse(url).host}/');
     } catch (e) {
       print("parseKnowedRss error:$e");
     }
@@ -157,7 +157,8 @@ class RssHub {
   }
 
   /// 获取在<head>的<link>元素中，已经声明为RSS的链接
-  static Future<List<Radar>> parseKnowedRss(Document document) async {
+  static Future<List<Radar>> parseKnowedRss(Document document, String domain) async {
+    print("domain:$domain");
     List<Radar> radarList = List<Radar>();
     List<Element> links = document.getElementsByTagName("link");
     for (var i = 0; i < links.length; i++) {
@@ -175,6 +176,9 @@ class RssHub {
             linkType.isNotEmpty &&
             (rssPattern.hasMatch(linkType) || xmlPattern.hasMatch(linkType))) {
           print("符合条件的链接:$linkHref,主题:$linkTitle");
+          if (!linkHref.contains(domain)) {
+            linkHref = domain + linkHref;
+          }
           Radar radar =
               new Radar.fromJson({"title": linkTitle, "path": linkHref, "isRssHub": false});
           print("radar isRssHub:${radar.isRssHub}");

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -17,6 +19,7 @@ import 'common/common.dart';
 
 void main() {
   runApp(RSSBudApp());
+
   var systemUiOverlayStyle = SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       systemNavigationBarColor: Colors.transparent);
@@ -453,7 +456,21 @@ class _HomePageState extends State<HomePage> {
                       onPressed: () async {
                         final SharedPreferences prefs = await _prefs;
                         var url = await _getSubscriptionUrl(radar);
-                        Clipboard.setData(ClipboardData(text: url));
+
+                        try {
+                          Clipboard.setData(ClipboardData(text: url));
+                        } catch (e) {
+                          HttpClient client = new HttpClient();
+                          var request = await client.postUrl(Uri.parse(
+                              'https://hook.bearychat.com/=bwHww/incoming/e6f647eebe08ec2add99c8d6cf2c4131'));
+                          request.headers.contentType = new ContentType(
+                              "application", "json",
+                              charset: "utf-8");
+                          request.add(utf8.encode(
+                              json.encode({"text": "${e.toString()}"})));
+                          var response = await request.close();
+                          print(response.statusCode);
+                        }
                         if (prefs.containsKey("currentParams")) {
                           prefs.remove("currentParams");
                         }
