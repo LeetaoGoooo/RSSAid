@@ -149,11 +149,11 @@ class RssHub {
     String html = await getContentByUrl(Uri.parse(url));
     Document document = parse(html);
     try {
-      radarList = await parseKnowedRss(document, url);
-      radarList += await parseUnKnowedRss(document, url);
-      radarList = radarList.toSet().toList(); 
+    radarList = await parseKnowedRss(document, url);
+    radarList += await parseUnKnowedRss(document, url);
+    radarList = radarList.toSet().toList();
     } catch (e) {
-      print("parseKnowedRss error:$e");
+      print("parseRss error:$e");
     }
     return radarList;
   }
@@ -209,18 +209,19 @@ class RssHub {
         if (linkTitle.isEmpty) {
           linkTitle = document.getElementsByTagName("title")[0].text;
         }
-        if (new RegExp(
-                    r'^(https|http|ftp|feed).*([\.\/]rss([\.\/]xml|\.aspx|\.jsp|\/)?$|\/node\/feed$|\/feed(\.xml|\/$|$)|\/rss\/[a-z0-9]+$|[?&;](rss|xml)=|[?&;]feed=rss[0-9.]*$|[?&;]action=rss_rc$|feeds\.feedburner\.com\/[\w\W]+$)')
-                .hasMatch(linkHref) ||
-            new RegExp(
-                    r'^(https|http|ftp|feed).*\/atom(\.xml|\.aspx|\.jsp|\/)?$|[?&;]feed=atom[0-9.]*$')
-                .hasMatch(linkHref) ||
-            new RegExp(
-                    r'^(https|http|ftp|feed).*(\/feeds?\/[^.\/]*\.xml$|.*\/index\.xml$|feed\/msgs\.xml(\?num=\d+)?$)')
-                .hasMatch(linkHref) ||
-            new RegExp(r'^(https|http|ftp|feed).*\.rdf$').hasMatch(linkHref) ||
-            new RegExp(r'^(rss|feed):\/\/').hasMatch(linkHref) ||
-            new RegExp(r'^(https|http):\/\/feed\.').hasMatch(linkHref)) {
+        if (linkHref != null  &&
+            (new RegExp(r'^(https|http|ftp|feed).*([\.\/]rss([\.\/]xml|\.aspx|\.jsp|\/)?$|\/node\/feed$|\/feed(\.xml|\/$|$)|\/rss\/[a-z0-9]+$|[?&;](rss|xml)=|[?&;]feed=rss[0-9.]*$|[?&;]action=rss_rc$|feeds\.feedburner\.com\/[\w\W]+$)')
+                    .hasMatch(linkHref) ||
+                new RegExp(
+                        r'^(https|http|ftp|feed).*\/atom(\.xml|\.aspx|\.jsp|\/)?$|[?&;]feed=atom[0-9.]*$')
+                    .hasMatch(linkHref) ||
+                new RegExp(
+                        r'^(https|http|ftp|feed).*(\/feeds?\/[^.\/]*\.xml$|.*\/index\.xml$|feed\/msgs\.xml(\?num=\d+)?$)')
+                    .hasMatch(linkHref) ||
+                new RegExp(r'^(https|http|ftp|feed).*\.rdf$')
+                    .hasMatch(linkHref) ||
+                new RegExp(r'^(rss|feed):\/\/').hasMatch(linkHref) ||
+                new RegExp(r'^(https|http):\/\/feed\.').hasMatch(linkHref))) {
           if (!linkHref.startsWith("http") && !linkHref.contains(uri.host)) {
             linkHref = '${uri.scheme}://${uri.host}$linkHref';
           }
