@@ -149,7 +149,9 @@ class RssHub {
     String html = await getContentByUrl(Uri.parse(url));
     Document document = parse(html);
     try {
-      radarList = await parseKnowedRss(document, '${Uri.parse(url).scheme}://${Uri.parse(url).host}');
+      radarList = await parseKnowedRss(document, url);
+      radarList += await parseUnKnowedRss(document, url);
+      radarList = radarList.toSet().toList(); 
     } catch (e) {
       print("parseKnowedRss error:$e");
     }
@@ -157,8 +159,8 @@ class RssHub {
   }
 
   /// 获取在<head>的<link>元素中，已经声明为RSS的链接
-  static Future<List<Radar>> parseKnowedRss(Document document, String domain) async {
-    print("domain:$domain");
+  static Future<List<Radar>> parseKnowedRss(
+      Document document, String url) async {
     List<Radar> radarList = List<Radar>();
     List<Element> links = document.getElementsByTagName("link");
     for (var i = 0; i < links.length; i++) {
@@ -176,17 +178,59 @@ class RssHub {
             linkType.isNotEmpty &&
             (rssPattern.hasMatch(linkType) || xmlPattern.hasMatch(linkType))) {
           print("符合条件的链接:$linkHref,主题:$linkTitle");
-          if (!linkHref.contains(domain)) {
-            linkHref = domain + linkHref;
+          Uri uri = Uri.parse(url);
+          if (!linkHref.startsWith("http") && !linkHref.contains(uri.host)) {
+            linkHref = '${uri.scheme}://${uri.host}$linkHref';
           }
-          Radar radar =
-              new Radar.fromJson({"title": linkTitle, "path": linkHref, "isRssHub": false});
+          Radar radar = new Radar.fromJson(
+              {"title": linkTitle, "path": linkHref, "isRssHub": false});
           print("radar isRssHub:${radar.isRssHub}");
           radarList.add(radar);
         }
       }
     }
     print("解析结果:$radarList");
+    return radarList;
+  }
+
+  static Future<List<Radar>> parseUnKnowedRss(
+      Document document, String url) async {
+    List<Element> links = document.getElementsByTagName("a");
+    List<Radar> radarList = List<Radar>();
+    Uri uri = Uri.parse(url);
+
+    for (var i = 0; i < links.length; i++) {
+      var link = links[i];
+      if (link != null) {
+        LinkedHashMap attrs = link.attributes;
+        String linkHref = attrs['href'];
+        String linkTitle =
+            attrs.containsKey("title") ? attrs['title'] : link.text;
+        if (linkTitle.isEmpty) {
+          linkTitle = document.getElementsByTagName("title")[0].text;
+        }
+        if (new RegExp(
+                    r'^(https|http|ftp|feed).*([\.\/]rss([\.\/]xml|\.aspx|\.jsp|\/)?$|\/node\/feed$|\/feed(\.xml|\/$|$)|\/rss\/[a-z0-9]+$|[?&;](rss|xml)=|[?&;]feed=rss[0-9.]*$|[?&;]action=rss_rc$|feeds\.feedburner\.com\/[\w\W]+$)')
+                .hasMatch(linkHref) ||
+            new RegExp(
+                    r'^(https|http|ftp|feed).*\/atom(\.xml|\.aspx|\.jsp|\/)?$|[?&;]feed=atom[0-9.]*$')
+                .hasMatch(linkHref) ||
+            new RegExp(
+                    r'^(https|http|ftp|feed).*(\/feeds?\/[^.\/]*\.xml$|.*\/index\.xml$|feed\/msgs\.xml(\?num=\d+)?$)')
+                .hasMatch(linkHref) ||
+            new RegExp(r'^(https|http|ftp|feed).*\.rdf$').hasMatch(linkHref) ||
+            new RegExp(r'^(rss|feed):\/\/').hasMatch(linkHref) ||
+            new RegExp(r'^(https|http):\/\/feed\.').hasMatch(linkHref)) {
+          if (!linkHref.startsWith("http") && !linkHref.contains(uri.host)) {
+            linkHref = '${uri.scheme}://${uri.host}$linkHref';
+          }
+          Radar radar = new Radar.fromJson(
+              {"title": linkTitle, "path": linkHref, "isRssHub": false});
+          print("radar isRssHub:${radar.isRssHub}");
+          radarList.add(radar);
+        }
+      }
+    }
     return radarList;
   }
 }
