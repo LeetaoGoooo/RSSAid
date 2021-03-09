@@ -1,9 +1,9 @@
 class Radar {
-  String title;
-  String _url;
-  String path;
-  bool _isDocs = true;
-  bool isRssHub = true;
+  late String title;
+  late String _url;
+  late String path;
+  late bool _isDocs = true;
+  late bool isRssHub = true;
 
   Radar.fromJson(Map<String, dynamic> json) {
     if (json == null) return;
@@ -16,7 +16,7 @@ class Radar {
 
   static List<Radar> listFromJson(List<dynamic> json) {
     return json == null
-        ? List<Radar>()
+        ? []
         : json.map((value) => Radar.fromJson(value)).toList();
   }
 }

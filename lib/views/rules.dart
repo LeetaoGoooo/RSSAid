@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class RulesDialog extends StatelessWidget {
-  String _rules;
-  Function _refreshCallback;
+  late String _rules;
+  late Function _refreshCallback;
 
   RulesDialog(rules, Function _refreshCallback) {
     this._rules = rules;

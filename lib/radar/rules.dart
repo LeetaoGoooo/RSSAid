@@ -10,7 +10,7 @@ import 'package:rssaid/radar/strategies/weiboStragy.dart';
 ///               https://weibo.com/u/7282705552 （手机 App）
 
 class Rules {
-  static List<Radar> detectUrl(String url) {
+  static List<Radar>? detectUrl(String url) {
     // ignore: avoid_init_to_null
     var ruleStragy = null;
     if (url.contains("weibo")) {

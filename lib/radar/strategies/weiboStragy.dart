@@ -3,7 +3,7 @@ import 'package:rssaid/radar/strategies/ruleStragy.dart';
 
 class Weibo implements RuleStrategy {
   @override
-  List<Radar> detect(String url) {
+  List<Radar>? detect(String url) {
     List<Radar> weiboRadars = [
       Radar.fromJson({"title": "微博热搜榜", "path": "/weibo/search/hot", "isRssHub": true})
     ];
@@ -20,7 +20,7 @@ class Weibo implements RuleStrategy {
     return null;
   }
 
-  String parseUrl(String url, RegExp pattern) {
+  String? parseUrl(String url, RegExp pattern) {
     var match = pattern.firstMatch(url);
     if (match != null) {
       // return Radar.fromJson(
@@ -30,15 +30,15 @@ class Weibo implements RuleStrategy {
     return null;
   }
 
-  String parsePC(String url) {
+  String? parsePC(String url) {
     return parseUrl(url, RegExp(r'https://.*weibo.*?/u/(\d+)'));
   }
 
-  String parseH5(String url) {
+  String? parseH5(String url) {
     return parseUrl(url, RegExp(r'https://m.weibo.*?/profile/(\d+)'));
   }
 
-  String parseApp(String url) {
+  String? parseApp(String url) {
     return parseUrl(url, RegExp(r'https://.*weibo.*?/u/(\d+)'));
   }
 }

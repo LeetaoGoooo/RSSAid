@@ -2,8 +2,8 @@ import 'dart:convert';
 
 class Language {
   Language(this.value, this.name);
-  String value;
-  String name;
+  late String value;
+  late String name;
 
   Language.fromJson(Map<String, dynamic> jsonLanguage) {
     if (jsonLanguage == null) return;
@@ -16,8 +16,8 @@ class Language {
 
 class RssFormat {
   RssFormat(this.value, this.name);
-  String value;
-  String name;
+  late String value;
+  late String name;
 
   RssFormat.fromJson(Map<String, dynamic> jsonRssFormat) {
     if (jsonRssFormat == null) return;
@@ -29,22 +29,22 @@ class RssFormat {
 }
 
 class RadarConfig {
-  String filter;
-  String filterTitle;
-  String filterDescription;
-  String filterAuthor;
-  String filterTime;
-  String filterOut;
-  String filterOutTitle;
-  String filterOutDescription;
-  String filterOutAuthor;
-  bool filterCaseSensitive;
-  String limit;
-  bool mode;
-  String access; // 访问控制
-  bool scihub;
-  Language opencc; // s2t 简体转繁体、t2s 繁体转简体
-  RssFormat format;
+  late String filter;
+  late String filterTitle;
+  late String filterDescription;
+  late String filterAuthor;
+  late String filterTime;
+  late String filterOut;
+  late String filterOutTitle;
+  late String filterOutDescription;
+  late String filterOutAuthor;
+  late bool filterCaseSensitive;
+  late String limit;
+  late bool mode;
+  late String access; // 访问控制
+  late bool scihub;
+  late Language opencc; // s2t 简体转繁体、t2s 繁体转简体
+  late RssFormat format;
 
   RadarConfig();
 
@@ -64,13 +64,13 @@ class RadarConfig {
     mode = jsonRadarConfig['mode'];
     access = jsonRadarConfig['access'];
     scihub = jsonRadarConfig['scihub'];
-    opencc = jsonRadarConfig['opencc'] != null ? Language.fromJson(json.decode(jsonRadarConfig['opencc'])) : null;
-    format = jsonRadarConfig['format'] != null ? RssFormat.fromJson(json.decode(jsonRadarConfig['format'])) : null;
+    opencc = (jsonRadarConfig['opencc'] != null ? Language.fromJson(json.decode(jsonRadarConfig['opencc'])) : null)!;
+    format = (jsonRadarConfig['format'] != null ? RssFormat.fromJson(json.decode(jsonRadarConfig['format'])) : null)!;
   }
 
   static List<RadarConfig> listFromJson(List<dynamic> jsonRadarConfigList) {
     return jsonRadarConfigList == null
-        ? List<RadarConfig>()
+        ? []
         : jsonRadarConfigList
             .map((value) => RadarConfig.fromJson(value))
             .toList();

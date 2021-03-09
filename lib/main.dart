@@ -5,19 +5,31 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_link_preview/flutter_link_preview.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:linkify/linkify.dart';
 import 'package:rssaid/models/radar.dart';
 import 'package:rssaid/radar/radar.dart';
 import 'package:rssaid/views/config.dart';
 import 'package:rssaid/views/settings.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:share/share.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import 'common/common.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (Platform.isAndroid) {
+    await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
+  }
+
   runApp(RSSBudApp());
 
   var systemUiOverlayStyle = SystemUiOverlayStyle(
@@ -40,7 +52,7 @@ class RSSBudApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -48,16 +60,18 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String _currentUrl = "";
-  Future<List<Radar>> _radarList;
+  Future<List<Radar>>? _radarList;
   bool _configVisible = false;
-  ScrollController _scrollViewController;
+  late ScrollController _scrollViewController;
   bool _showAppbar = true;
   bool _isScrollingDown = false;
   bool _notUrlDetected = false;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  StreamSubscription _intentDataStreamSubscription;
+  late StreamSubscription _intentDataStreamSubscription;
   TextEditingController _inputUrlController = new TextEditingController();
+  HeadlessInAppWebView? headlessWebView;
+  InAppWebViewController? webViewController;
 
   @override
   void initState() {
@@ -71,7 +85,8 @@ class _HomePageState extends State<HomePage> {
     });
 
     // For sharing or opening urls/text coming from outside the app while the app is closed
-    ReceiveSharingIntent.getInitialText().then(_detectUrlFromShare);
+    ReceiveSharingIntent.getInitialText()
+        .then((value) => {_detectUrlFromShare(value!)});
 
     _scrollViewController = new ScrollController();
     _scrollViewController.addListener(() {
@@ -93,20 +108,30 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
+
+    headlessWebView = new HeadlessInAppWebView(
+        onConsoleMessage: (controller, consoleMessage) {
+      print("CONSOLE MESSAGE: " + consoleMessage.message);
+    }, onWebViewCreated: (controller) {
+      print("webview created");
+      webViewController = controller;
+    });
   }
 
   @override
   void dispose() {
     _intentDataStreamSubscription.cancel();
     super.dispose();
+    headlessWebView?.dispose();
   }
 
   Future<void> _fetchRules() async {
-    await RssHub.fetchRules();
+    /// 将 rules 加载到 prefres
+    await Common.refreshRules();
   }
 
   Future<void> _detectUrlFromShare(String text) async {
-    if (text == null || text.isEmpty) {
+    if (text.isEmpty) {
       return;
     }
 
@@ -122,7 +147,7 @@ class _HomePageState extends State<HomePage> {
     if (links.isNotEmpty) {
       _radarList = _detectUrl(links.first.text);
       setState(() => _currentUrl = links.first.text);
-      _radarList.then((value) {
+      _radarList!.then((value) {
         if (value.length > 0) {
           setState(() {
             _configVisible = true;
@@ -135,7 +160,7 @@ class _HomePageState extends State<HomePage> {
         }
       });
     } else {
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
+      _scaffoldKey.currentState!.showSnackBar(SnackBar(
           elevation: 0,
           behavior: SnackBarBehavior.floating,
           content: Text('分享没有发现链接')));
@@ -148,9 +173,9 @@ class _HomePageState extends State<HomePage> {
       _configVisible = false;
       _notUrlDetected = false;
     });
-    ClipboardData data = await Clipboard.getData(Clipboard.kTextPlain);
+    ClipboardData data = (await Clipboard.getData(Clipboard.kTextPlain))!;
     if (data != null && data.text != null) {
-      var link = _verifyLink(data.text);
+      var link = _verifyLink(data.text!);
       if (link != null) {
         _callRadar(link);
       } else {
@@ -163,7 +188,7 @@ class _HomePageState extends State<HomePage> {
 
   /// verify link return link
   /// else return null
-  String _verifyLink(String url) {
+  String? _verifyLink(String url) {
     var links = linkify(url.trim(),
             options: LinkifyOptions(humanize: false),
             linkifiers: [UrlLinkifier()])
@@ -178,7 +203,7 @@ class _HomePageState extends State<HomePage> {
     _radarList = _detectUrl(url);
     setState(() => _currentUrl = url);
     _addRecord(url);
-    _radarList.then(
+    _radarList!.then(
       (value) {
         if (value.length > 0) {
           setState(() {
@@ -195,7 +220,38 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Radar>> _detectUrl(String url) async {
-    return await RssHub.detecting(url);
+    final SharedPreferences prefs = await _prefs;
+  
+    await headlessWebView?.run();
+    await webViewController!
+        .loadUrl(urlRequest: URLRequest(url: Uri.parse(url), method: 'GET'));
+    // await headlessWebView?.webViewController.injectJavascriptFileFromAsset(
+    //     assetFilePath: 'assets/js/radar-rules-ios.js');
+    await headlessWebView?.webViewController.evaluateJavascript(source: 'var rules=${prefs.getString("Rules")}');
+    await headlessWebView?.webViewController
+        .injectJavascriptFileFromAsset(assetFilePath: 'assets/js/url.min.js');
+    await headlessWebView?.webViewController
+        .injectJavascriptFileFromAsset(assetFilePath: 'assets/js/psl.min.js');
+    await headlessWebView?.webViewController.injectJavascriptFileFromAsset(
+        assetFilePath: 'assets/js/route-recognizer.min.js');
+    await headlessWebView?.webViewController
+        .injectJavascriptFileFromAsset(assetFilePath: 'assets/js/utils.js');
+    var html = await webViewController!.getHtml();
+    var uri = Uri.parse(url);
+    String expression = """
+      getPageRSSHub({
+                            url: "$url",
+                            host: "${uri.host}",
+                            path: "${uri.path}",
+                            html: `$html`,
+                            rules: rules
+                        });
+      """;
+    var res = await headlessWebView?.webViewController
+        .evaluateJavascript(source: expression);
+    var radarList = Radar.listFromJson(json.decode(res));
+
+    return [...radarList,...await RssPlus.detecting(url)];
   }
 
   /// Get history records
@@ -340,7 +396,7 @@ class _HomePageState extends State<HomePage> {
                                   _currentUrl = "";
                                   _configVisible = false;
                                   _notUrlDetected = false;
-                                  _radarList = null;
+                                  _radarList = [] as Future<List<Radar>>;
                                 });
                               })
                       ],
@@ -365,8 +421,8 @@ class _HomePageState extends State<HomePage> {
     return FutureBuilder(
       future: _radarList,
       builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data.length > 0) {
-          List<Radar> radarList = snapshot.data;
+        if (snapshot.hasData && snapshot.data != null) {
+          List<Radar> radarList = snapshot.data as List<Radar>;
           return ListView.builder(
             physics: NeverScrollableScrollPhysics(),
             shrinkWrap: true,
@@ -474,7 +530,7 @@ class _HomePageState extends State<HomePage> {
                         if (prefs.containsKey("currentParams")) {
                           prefs.remove("currentParams");
                         }
-                        _scaffoldKey.currentState.showSnackBar(SnackBar(
+                        _scaffoldKey.currentState!.showSnackBar(SnackBar(
                             behavior: SnackBarBehavior.floating,
                             content: Text('复制成功')));
                       },
@@ -504,14 +560,14 @@ class _HomePageState extends State<HomePage> {
     return FutureBuilder<List<String>>(
         future: _getHistoryList(),
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data.isNotEmpty) {
+          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             var history = snapshot.data;
             return Column(
               children: [
                 SizedBox(height: 20),
                 ListView.builder(
                   shrinkWrap: true,
-                  itemCount: history.length,
+                  itemCount: history!.length,
                   physics: NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     return Dismissible(
@@ -601,7 +657,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   _showSnackBar(String text) {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(
+    _scaffoldKey.currentState!.showSnackBar(SnackBar(
         elevation: 0,
         behavior: SnackBarBehavior.floating,
         content: Text(text)));

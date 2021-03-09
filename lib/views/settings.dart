@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rssaid/common/common.dart';
-import 'package:rssaid/radar/radar.dart';
 import 'package:rssaid/views/rules.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingPage extends StatefulWidget {
@@ -12,7 +12,7 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   String _domain = "https://rsshub.app/";
-  String _rules;
+  String _rules = "";
 
   void initState() {
     super.initState();
@@ -20,7 +20,7 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _fetchRules() async {
-    await RssHub.fetchRules();
+    await Common.refreshRules();
     setState(() {});
   }
 
@@ -76,10 +76,10 @@ class _SettingPageState extends State<SettingPage> {
 
 // ignore: must_be_immutable
 class CommonRows extends StatelessWidget {
-  String _domain;
-  Function _domainSetCallback;
-  String _rules;
-  Function _refreshRulesCallBack;
+  late String _domain;
+  late Function _domainSetCallback;
+  late String _rules;
+  late Function _refreshRulesCallBack;
   TextEditingController _domainController = new TextEditingController();
 
   CommonRows(String domain, Function domainSetFunc, Function _refreshRules,
@@ -223,8 +223,8 @@ class AboutRows extends StatelessWidget {
           name,
           style: TextStyle(color: Colors.orange),
         ),
-        trailing: trailing != null ? Text(trailing) : null,
-        onTap: url != null
+        trailing: trailing.isNotEmpty ? Text(trailing) : null,
+        onTap: url.isNotEmpty
             ? () async {
                 await Common.launchInBrowser(url);
               }
@@ -238,11 +238,11 @@ class AboutRows extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       children: [
-        _buildAboutItem("当前版本", Icons.info, "v1.4.4", null),
-        _buildAboutItem("Github 项目主页", Icons.favorite, null,
+        _buildAboutItem("当前版本", Icons.info, "v1.5.0", ""),
+        _buildAboutItem("Github 项目主页", Icons.favorite, "",
             "https://github.com/lt94/RSSAid"),
         _buildAboutItem(
-            'Telegram 群组', Icons.group, null, "https://t.me/rssaid"),
+            'Telegram 群组', Icons.group, "", "https://t.me/rssaid"),
       ],
     );
   }

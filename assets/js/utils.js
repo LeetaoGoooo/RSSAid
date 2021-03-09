@@ -3,8 +3,8 @@ function ruleHandler(rule, params, url, html) {
     const run = () => {
         let reaultWithParams;
         if (typeof rule.target === 'function') {
-            const parser = new DomParser();
-            const document = parser.parseFromString(html);
+            const parser = new DOMParser();
+            const document = parser.parseFromString(html, 'text/html');
             try {
                 reaultWithParams = rule.target(params, url, document);
             } catch (error) {
@@ -44,7 +44,7 @@ function parseRules(rules) {
 
 function getPageRSSHub(data) {
     const { url, host, path, html } = data;
-    console.log("url: "+url+" host:"+ host +" path:"+path +" html:"+html);
+    // console.log("url: "+url+" host:"+ host +" path:"+path +" html:"+html);
     const rules = parseRules(data.rules);
     const parsedDomain = psl.parse(host);
     if (parsedDomain && parsedDomain.domain) {

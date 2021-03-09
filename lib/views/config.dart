@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:rssaid/common/common.dart';
 import 'package:rssaid/models/radar_config.dart';
 import 'package:flutter/material.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfigDialog extends StatefulWidget {
@@ -33,12 +34,12 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   bool _timeValidate = true;
   bool _mode = false;
   bool _outScihub = false;
-  Language _selectLanguage;
+  late Language _selectLanguage;
   List<Language> languages = <Language>[
     Language("s2t", "简体到繁体"),
     Language("t2s", "繁体到简体"),
   ];
-  RssFormat _selectRssFormat;
+  late RssFormat _selectRssFormat;
   List<RssFormat> rssFormats = <RssFormat>[
     RssFormat(".atom", "Atom"),
     RssFormat(".rss", "RSS 2.0")
@@ -157,7 +158,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   });
                                 },
                                 validator: (v) {
-                                  if (v.trim().isEmpty) {
+                                  if (v!.trim().isEmpty) {
                                     return null;
                                   }
                                   return Common.isNumeric(v)
@@ -223,7 +224,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   });
                                 },
                                 validator: (v) {
-                                  if (v.trim().isEmpty) {
+                                  if (v!.trim().isEmpty) {
                                     return null;
                                   }
                                   return Common.isNumeric(v) ? null : "仅支持数字";
@@ -246,9 +247,9 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                               ),
                               hint: Text("中文简繁体转换"),
                               value: _selectLanguage,
-                              onChanged: (Language value) {
+                              onChanged: (value) {
                                 setState(() {
-                                  _selectLanguage = value;
+                                  _selectLanguage = value!;
                                 });
                               },
                               items: languages.map((Language language) {
@@ -264,9 +265,9 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                               ),
                               hint: Text("输出格式"),
                               value: _selectRssFormat,
-                              onChanged: (RssFormat value) {
+                              onChanged: (value) {
                                 setState(() {
-                                  _selectRssFormat = value;
+                                  _selectRssFormat = value!;
                                 });
                               },
                               items: rssFormats.map((RssFormat rssFormat) {
@@ -282,7 +283,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   Checkbox(
                                     value: _onlyOnce,
                                     onChanged: (value) {
-                                      setState(() => _onlyOnce = value);
+                                      setState(() => _onlyOnce = value!);
                                     },
                                     activeColor: Colors.orange,
                                   ),
@@ -316,7 +317,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                     final SharedPreferences prefs =
                                         await _prefs;
                                     prefs.clear();
-                                    _scaffoldKey.currentState.showSnackBar(
+                                    _scaffoldKey.currentState!.showSnackBar(
                                         SnackBar(
                                             behavior: SnackBarBehavior.floating,
                                             content: Text('重置配置成功!')));
@@ -337,9 +338,9 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   }
 
   _saveConfig() async {
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState!.validate()) {
       await _parseConfig();
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
+      _scaffoldKey.currentState!.showSnackBar(SnackBar(
           behavior: SnackBarBehavior.floating, content: Text('保存配置成功!')));
     }
   }
@@ -364,6 +365,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
       radarConfig.scihub = _outScihub;
     }
     // 中文简繁体转换
+    // ignore: unnecessary_null_comparison
     if (_selectLanguage != null) {
       params += "opencc=${_selectLanguage.value}&";
       radarConfig.opencc = _selectLanguage;
@@ -374,60 +376,58 @@ class _ConfigStateDialog extends State<ConfigDialog> {
       radarConfig.mode = true;
     }
     // 条数限制
-    // ignore: null_aware_in_condition
-    if (_countController.text?.trim()?.isNotEmpty) {
+    if (_countController.text.trim().isNotEmpty) {
       params += "limit=${_countController.text.trim()}&";
       radarConfig.limit = _countController.text.trim();
     }
+
     // 访问控制
-    // ignore: null_aware_in_condition
-    if (_accessController.text?.trim()?.isNotEmpty) {
+    if (_accessController.text.trim().isNotEmpty) {
       params += "${_accessController.text.trim()}&";
       radarConfig.access = _accessController.text.trim();
     }
+
     // 匹配标题和描述
-    // ignore: null_aware_in_condition
-    if (_filterController.text?.trim()?.isNotEmpty) {
+    if (_filterController.text.trim().isNotEmpty) {
       params += "filter=${_filterController.text.trim()}&";
       radarConfig.filter = _filterController.text.trim();
     }
-    // ignore: null_aware_in_condition
-    if (_filterTitleController.text?.trim()?.isNotEmpty) {
+
+    if (_filterTitleController.text.trim().isNotEmpty) {
       params += "filter_title=${_filterTitleController.text.trim()}&";
       radarConfig.filterTitle = _filterTitleController.text.trim();
     }
-    // ignore: null_aware_in_condition
-    if (_filterDescriptionController.text?.trim()?.isNotEmpty) {
+    if (_filterDescriptionController.text.trim().isNotEmpty) {
       params +=
           "filter_description=${_filterDescriptionController.text.trim()}&";
       radarConfig.filterDescription = _filterDescriptionController.text.trim();
     }
     // 匹配作者
     // ignore: null_aware_in_condition
-    if (_filterAuthorController.text?.trim()?.isNotEmpty) {
+    if (_filterAuthorController.text.trim().isNotEmpty) {
       params += "filter_author=${_filterAuthorController.text.trim()}&";
       radarConfig.filterAuthor = _filterAuthorController.text.trim();
     }
     // 匹配时间
     // ignore: null_aware_in_condition
-    if (_filterTimeController.text?.trim()?.isNotEmpty) {
+    if (_filterTimeController.text.trim().isNotEmpty) {
       params += "filter_time=${_filterTimeController.text.trim()}&";
       radarConfig.filterTime = _filterTimeController.text.trim();
     }
 
     // 过滤标题和内容
     // ignore: null_aware_in_condition
-    if (_filterOutController.text?.trim()?.isNotEmpty) {
+    if (_filterOutController.text.trim().isNotEmpty) {
       params += "filterout=${_filterOutController.text.trim()}&";
       radarConfig.filterOut = _filterOutController.text.trim();
     }
     // ignore: null_aware_in_condition
-    if (_filterTitleOutController.text?.trim()?.isNotEmpty) {
+    if (_filterTitleOutController.text.trim().isNotEmpty) {
       params += "filterout_title=${_filterTitleOutController.text.trim()}&";
       radarConfig.filterOutTitle = _filterTitleOutController.text.trim();
     }
     // ignore: null_aware_in_condition
-    if (_filterDescriptionOutController.text?.trim()?.isNotEmpty) {
+    if (_filterDescriptionOutController.text.trim().isNotEmpty) {
       params +=
           "filterout_description=${_filterDescriptionOutController.text.trim()}&";
       radarConfig.filterOutDescription =
@@ -436,7 +436,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
 
     // 过滤作者
     // ignore: null_aware_in_condition
-    if (_filterAuthorOutController.text?.trim()?.isNotEmpty) {
+    if (_filterAuthorOutController.text.trim().isNotEmpty) {
       params += "filterout_author=${_filterAuthorOutController.text.trim()}&";
       radarConfig.filterOutAuthor = _filterAuthorOutController.text.trim();
     }
@@ -463,10 +463,13 @@ class _ConfigStateDialog extends State<ConfigDialog> {
       // 其他
       _selectLanguage = radarConfig.opencc;
       _selectRssFormat = radarConfig.format;
+      // ignore: unnecessary_null_comparison
       _caseSensitive = radarConfig.filterCaseSensitive != null
           ? radarConfig.filterCaseSensitive
           : false;
+      // ignore: unnecessary_null_comparison
       _mode = radarConfig.mode != null ? radarConfig.mode : false;
+      // ignore: unnecessary_null_comparison
       _outScihub = radarConfig.scihub != null ? radarConfig.scihub : false;
       _countController.text = radarConfig.limit;
       _accessController.text = radarConfig.access;
