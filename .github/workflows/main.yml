@@ -27,7 +27,7 @@ jobs:
         uses: subosito/flutter-action@v1.4.0
         with:
           channel: "stable"
-          flutter-version: "1.22.4"
+          flutter-version: "2.0.1"
       # 下载项目依赖
       - run: flutter pub get
       - run: echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
