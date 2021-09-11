@@ -1,0 +1,2 @@
+根据系统设置自动切换 RSSAid 的语言
+Automatically switch the language of RSSAid according to the system settings
