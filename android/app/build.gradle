@@ -78,6 +78,19 @@ android {
             signingConfig signingConfigs.release
         }
     }
+
+    flavorDimensions "deploy"
+
+    productFlavors {
+        github {
+            dimension "deploy"
+            signingConfig signingConfigs.release
+        }
+        fdroid {
+            dimension "deploy"
+            signingConfig null
+        }
+    }
 }
 
 flutter {
