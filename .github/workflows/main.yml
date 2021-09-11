@@ -34,7 +34,7 @@ jobs:
         env:
           ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
       # 打包 APK
-      - run: flutter build apk --release --no-sound-null-safety --flavor=play
+      - run: flutter build apk --release --no-sound-null-safety --flavor=github
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
