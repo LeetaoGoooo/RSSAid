@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_link_preview/flutter_link_preview.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:linkify/linkify.dart';
 import 'package:rssaid/models/radar.dart';
@@ -21,7 +22,7 @@ import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'common/common.dart';
 
 Future<void> main() async {
@@ -43,6 +44,15 @@ class RSSBudApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('en', ''), // English, no country code
+        Locale('zh', ''), // Chinese, no country code
+      ],
       theme: ThemeData(
           brightness: Brightness.light, //指定亮度主题，有白色/黑色两种可选。
           primaryColor: Colors.orange, //这里我们选蓝色为基准色值。
@@ -165,7 +175,7 @@ class _HomePageState extends State<HomePage> {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
           elevation: 0,
           behavior: SnackBarBehavior.floating,
-          content: Text('分享没有发现链接')));
+          content: Text(AppLocalizations.of(context).notfoundinshare)));
     }
   }
 
@@ -181,10 +191,10 @@ class _HomePageState extends State<HomePage> {
       if (link != null) {
         _callRadar(link);
       } else {
-        _showSnackBar("报告主人，剪贴板没有发现链接");
+        _showSnackBar(AppLocalizations.of(context).notfoundinClipboard);
       }
     } else {
-      _showSnackBar("报告主人，剪贴板空空的，我的心也很空");
+      _showSnackBar(AppLocalizations.of(context).notfoundinClipboard);
     }
   }
 
@@ -223,13 +233,14 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<Radar>> _detectUrl(String url) async {
     final SharedPreferences prefs = await _prefs;
-  
+
     await headlessWebView?.run();
-    await webViewController
-        .loadUrl(urlRequest: URLRequest(url: Uri.parse(url), method: 'GET'));
+    await webViewController.loadUrl(
+        urlRequest: URLRequest(url: Uri.parse(url), method: 'GET'));
     // await headlessWebView?.webViewController.injectJavascriptFileFromAsset(
     //     assetFilePath: 'assets/js/radar-rules-ios.js');
-    await headlessWebView.webViewController.evaluateJavascript(source: 'var rules=${prefs.getString("Rules")}');
+    await headlessWebView.webViewController
+        .evaluateJavascript(source: 'var rules=${prefs.getString("Rules")}');
     await headlessWebView.webViewController
         .injectJavascriptFileFromAsset(assetFilePath: 'assets/js/url.min.js');
     await headlessWebView.webViewController
@@ -253,7 +264,7 @@ class _HomePageState extends State<HomePage> {
         .evaluateJavascript(source: expression);
     var radarList = Radar.listFromJson(json.decode(res));
 
-    return [...radarList,...await RssPlus.detecting(url)];
+    return [...radarList, ...await RssPlus.detecting(url)];
   }
 
   /// Get history records
@@ -323,7 +334,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         color: Color.fromARGB(255, 242, 242, 247),
                         icon: Icon(Icons.copy_outlined, color: Colors.orange),
-                        label: Text("从剪贴板读取",
+                        label: Text(AppLocalizations.of(context).fromClipboard,
                             style: TextStyle(color: Colors.orange)),
                         onPressed: _detectUrlByClipboard)),
                 Padding(
@@ -336,7 +347,8 @@ class _HomePageState extends State<HomePage> {
                         ),
                         color: Color.fromARGB(255, 242, 242, 247),
                         icon: Icon(Icons.input, color: Colors.orange),
-                        label: Text("手动输入一下",
+                        label: Text(
+                            AppLocalizations.of(context).inputbyKeyboard,
                             style: TextStyle(color: Colors.orange)),
                         onPressed: _showInputDialog)),
                 _createRadarList(context),
@@ -346,7 +358,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: _configVisible
           ? FloatingActionButton(
-              tooltip: "添加配置",
+              tooltip: AppLocalizations.of(context).addConfig,
               child: Icon(Icons.post_add, color: Colors.white),
               onPressed: () {
                 Navigator.of(context).push(new MaterialPageRoute<Null>(
@@ -438,7 +450,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Image.asset('assets/imgs/404.png'),
                   Text(
-                    "报告主人，真的没有啦o(╥﹏╥)o",
+                    AppLocalizations.of(context).notfound,
                     style: TextStyle(fontSize: 12),
                   ),
                   Padding(
@@ -450,7 +462,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           color: Color.fromARGB(255, 242, 242, 247),
                           icon: Icon(Icons.support, color: Colors.orange),
-                          label: Text("看看支持什么规则",
+                          label: Text(AppLocalizations.of(context).whichSupport,
                               style: TextStyle(color: Colors.orange)),
                           onPressed: () async {
                             await Common.launchInBrowser(
@@ -465,7 +477,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                           color: Color.fromARGB(255, 242, 242, 247),
                           icon: Icon(Icons.cloud_upload, color: Colors.orange),
-                          label: Text("提交新的规则",
+                          label: Text(
+                              AppLocalizations.of(context).submitNewRules,
                               style: TextStyle(color: Colors.orange)),
                           onPressed: () async {
                             await Common.launchInBrowser(
@@ -508,7 +521,7 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.orange,
                       ),
                       label: Text(
-                        "复制",
+                        AppLocalizations.of(context).copy,
                         style: TextStyle(color: Colors.orange),
                       ),
                       onPressed: () async {
@@ -534,7 +547,9 @@ class _HomePageState extends State<HomePage> {
                         }
                         _scaffoldKey.currentState.showSnackBar(SnackBar(
                             behavior: SnackBarBehavior.floating,
-                            content: Text('复制成功')));
+                            content: Text(
+                              AppLocalizations.of(context).copySuccess,
+                            )));
                       },
                     )),
                     Padding(padding: EdgeInsets.only(left: 6, right: 6)),
@@ -545,7 +560,8 @@ class _HomePageState extends State<HomePage> {
                       ),
                       color: Colors.white,
                       icon: Icon(Icons.done, color: Colors.orange),
-                      label: Text("订阅", style: TextStyle(color: Colors.orange)),
+                      label: Text(AppLocalizations.of(context).subscribe,
+                          style: TextStyle(color: Colors.orange)),
                       onPressed: () async {
                         var url = await _getSubscriptionUrl(radar);
                         Share.share('$url', subject: '${radar.title}');
@@ -610,7 +626,7 @@ class _HomePageState extends State<HomePage> {
                         color: Color.fromARGB(255, 242, 242, 247),
                         icon: Icon(Icons.clear_all_outlined,
                             color: Colors.orange),
-                        label: Text("清除所有",
+                        label: Text(AppLocalizations.of(context).clear,
                             style: TextStyle(color: Colors.orange)),
                         onPressed: () {
                           _setRecord([]);
@@ -629,7 +645,9 @@ class _HomePageState extends State<HomePage> {
         barrierDismissible: true,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("输入要检测的链接"),
+            title: Text(
+              AppLocalizations.of(context).inputLinkChecked,
+            ),
             content: Container(
               child: TextField(
                 controller: _inputUrlController,
@@ -646,13 +664,15 @@ class _HomePageState extends State<HomePage> {
                         _callRadar(link);
                         return;
                       } else {
-                        _showSnackBar("报告主人，链接好像出问题了");
+                        _showSnackBar(AppLocalizations.of(context).linkError);
                       }
                     } else {
-                      _showSnackBar("报告主人，链接空空的");
+                      _showSnackBar(AppLocalizations.of(context).notfound);
                     }
                   },
-                  child: Text("确认"))
+                  child: Text(
+                    AppLocalizations.of(context).sure,
+                  ))
             ],
           );
         });

@@ -4,6 +4,7 @@ import 'package:rssaid/common/common.dart';
 import 'package:rssaid/views/rules.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingPage extends StatefulWidget {
   @override
@@ -53,7 +54,7 @@ class _SettingPageState extends State<SettingPage> {
         appBar: AppBar(
             backgroundColor: Colors.white,
             centerTitle: true,
-            title: Text("设置", style: Theme.of(context).textTheme.headline6),
+            title: Text(AppLocalizations.of(context).settings, style: Theme.of(context).textTheme.headline6),
             leading: IconButton(
                 icon: Icon(Icons.arrow_back_ios, color: Colors.black),
                 onPressed: () {
@@ -65,9 +66,9 @@ class _SettingPageState extends State<SettingPage> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("通用"),
+              Text(AppLocalizations.of(context).common),
               CommonRows(_domain, setDomain, _fetchRules, _rules),
-              Text("关于"),
+              Text(AppLocalizations.of(context).about),
               AboutRows()
             ],
           ),
@@ -97,7 +98,7 @@ class CommonRows extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       children: [
-        _buildHowUseSoftware(),
+        _buildHowUseSoftware(context),
         _buildRssHubDomain(context),
         _buildRules(context)
       ],
@@ -125,7 +126,7 @@ class CommonRows extends StatelessWidget {
     );
   }
 
-  Widget _buildHowUseSoftware() {
+  Widget _buildHowUseSoftware(BuildContext context) {
     return Card(
       margin: EdgeInsets.only(left: 24, right: 24, bottom: 8),
       clipBehavior: Clip.hardEdge,
@@ -136,7 +137,7 @@ class CommonRows extends StatelessWidget {
       child: ListTile(
         leading: Icon(Icons.apps, color: Colors.orange),
         title: Text(
-          "食用手册",
+          AppLocalizations.of(context).user_manual,
           style: TextStyle(color: Colors.orange),
         ),
         onTap: () {
@@ -157,7 +158,7 @@ class CommonRows extends StatelessWidget {
       child: ListTile(
         leading: Icon(Icons.note, color: Colors.orange),
         title: Text(
-          "规则",
+          "Rules",
           style: TextStyle(color: Colors.orange),
         ),
         onTap: () {
@@ -186,13 +187,13 @@ class CommonRows extends StatelessWidget {
                 ),
                 actions: <Widget>[
                   new FlatButton(
-                      child: const Text('取消',
+                      child: Text(AppLocalizations.of(context).cancel,
                           style: TextStyle(color: Colors.orange)),
                       onPressed: () {
                         Navigator.pop(context);
                       }),
                   new FlatButton(
-                      child: const Text('保存',
+                      child: Text(AppLocalizations.of(context).sure,
                           style: TextStyle(color: Colors.orange)),
                       onPressed: () {
                         if (_domainController.text != _domain) {
@@ -239,11 +240,11 @@ class AboutRows extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       children: [
-        _buildAboutItem("当前版本", Icons.info, "v1.5.0", ""),
-        _buildAboutItem("Github 项目主页", Icons.favorite, "",
+        _buildAboutItem("Version", Icons.info, "v1.5.0", ""),
+        _buildAboutItem("Github", Icons.favorite, "",
             "https://github.com/lt94/RSSAid"),
         _buildAboutItem(
-            'Telegram 群组', Icons.group, "", "https://t.me/rssaid"),
+            'Telegram', Icons.group, "", "https://t.me/rssaid"),
       ],
     );
   }

@@ -6,6 +6,8 @@ import 'package:rssaid/models/radar_config.dart';
 import 'package:flutter/material.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class ConfigDialog extends StatefulWidget {
   @override
@@ -35,11 +37,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   bool _timeValidate = true;
   bool _mode = false;
   bool _outScihub = false;
-  Language _selectLanguage;
-  List<Language> languages = <Language>[
-    Language("s2t", "简体到繁体"),
-    Language("t2s", "繁体到简体"),
-  ];
+  String _selectLanguage = "s2t";
   RssFormat _selectRssFormat;
   List<RssFormat> rssFormats = <RssFormat>[
     RssFormat(".atom", "Atom"),
@@ -58,7 +56,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
       key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text("通用配置"),
+        title: Text(AppLocalizations.of(context).gc),
       ),
       body: SingleChildScrollView(
           child: Card(
@@ -76,12 +74,12 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              "内容筛选",
+                              AppLocalizations.of(context).contentFilter,
                               style: TextStyle(
                                   fontSize: 12, color: Colors.grey[400]),
                             ),
                             ListTile(
-                              leading: Text("是否大小写敏感"),
+                              leading: Text(AppLocalizations.of(context).caseSensitive),
                               trailing: Switch(
                                   value: _caseSensitive,
                                   onChanged: (value) {
@@ -91,17 +89,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   }),
                             ),
                             ListTile(
-                              leading: Text("全文输出"),
-                              trailing: Switch(
-                                  value: _outScihub,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _outScihub = value;
-                                    });
-                                  }),
-                            ),
-                            ListTile(
-                              leading: Text("输出 Sci-hub 链接"),
+                              leading: Text(AppLocalizations.of(context).fullText),
                               trailing: Switch(
                                   value: _mode,
                                   onChanged: (value) {
@@ -110,41 +98,51 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                     });
                                   }),
                             ),
-                            Text("匹配符合条件的内容(支持正则表达式)",
+                            ListTile(
+                              leading: Text(AppLocalizations.of(context).sci_hub_link),
+                              trailing: Switch(
+                                  value: _outScihub,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _outScihub = value;
+                                    });
+                                  }),
+                            ),
+                            Text(AppLocalizations.of(context).filtering,
                                 style: TextStyle(
                                     fontSize: 12, color: Colors.grey[400])),
                             TextFormField(
                               autofocus: true,
                               controller: _filterController,
                               decoration: InputDecoration(
-                                  labelText: "标题和描述", icon: Icon(Icons.list)),
+                                  labelText: AppLocalizations.of(context).filter, icon: Icon(Icons.list)),
                             ),
                             TextFormField(
                               autofocus: true,
                               controller: _filterTitleController,
                               decoration: InputDecoration(
-                                  labelText: "标题", icon: Icon(Icons.title)),
+                                  labelText: AppLocalizations.of(context).filter_title, icon: Icon(Icons.title)),
                             ),
                             TextFormField(
                               autofocus: true,
                               controller: _filterDescriptionController,
                               decoration: InputDecoration(
-                                  labelText: "描述",
+                                  labelText: AppLocalizations.of(context).filter_description,
                                   icon: Icon(Icons.description)),
                             ),
                             TextFormField(
                               autofocus: true,
                               controller: _filterAuthorController,
                               decoration: InputDecoration(
-                                  labelText: "作者", icon: Icon(Icons.person)),
+                                  labelText: AppLocalizations.of(context).filter_author, icon: Icon(Icons.person)),
                             ),
                             TextFormField(
                                 autofocus: true,
                                 controller: _filterTimeController,
                                 decoration: InputDecoration(
-                                  labelText: "时间",
-                                  hintText: "仅支持数字，单位为秒",
-                                  errorText: _timeValidate ? null : "仅支持数字",
+                                  labelText: AppLocalizations.of(context).filter_time,
+                                  hintText: AppLocalizations.of(context).filter_time_hints,
+                                  errorText: _timeValidate ? null : AppLocalizations.of(context).limit_entries_hint,
                                   icon: Icon(Icons.timeline),
                                 ),
                                 onChanged: (value) {
@@ -164,12 +162,12 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   }
                                   return Common.isNumeric(v)
                                       ? null
-                                      : "时间仅支持为数字";
+                                      : AppLocalizations.of(context).limit_entries_hint;
                                 }),
                             Padding(
                               padding: EdgeInsets.only(top: 8),
                               child: Text(
-                                "过滤符合条件的内容(支持正则表达式)",
+                                AppLocalizations.of(context).filterout,
                                 style: TextStyle(
                                     fontSize: 12, color: Colors.grey[400]),
                               ),
@@ -178,31 +176,31 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                               autofocus: true,
                               controller: _filterOutController,
                               decoration: InputDecoration(
-                                  labelText: "标题和描述", icon: Icon(Icons.list)),
+                                  labelText: AppLocalizations.of(context).filterout_default, icon: Icon(Icons.list)),
                             ),
                             TextFormField(
                               autofocus: true,
                               controller: _filterTitleOutController,
                               decoration: InputDecoration(
-                                  labelText: "标题", icon: Icon(Icons.title)),
+                                  labelText: AppLocalizations.of(context).filterout_title, icon: Icon(Icons.title)),
                             ),
                             TextFormField(
                               autofocus: true,
                               controller: _filterDescriptionOutController,
                               decoration: InputDecoration(
-                                  labelText: "描述",
+                                  labelText: AppLocalizations.of(context).filter_description,
                                   icon: Icon(Icons.description)),
                             ),
                             TextFormField(
                               autofocus: true,
                               controller: _filterAuthorOutController,
                               decoration: InputDecoration(
-                                  labelText: "作者", icon: Icon(Icons.person)),
+                                  labelText: AppLocalizations.of(context).filterout_author, icon: Icon(Icons.person)),
                             ),
                             Padding(
                                 padding: EdgeInsets.only(top: 8),
                                 child: Text(
-                                  "其他",
+                                  AppLocalizations.of(context).filter_others,
                                   style: TextStyle(
                                       fontSize: 12, color: Colors.grey[400]),
                                 )),
@@ -210,8 +208,8 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                 autofocus: true,
                                 controller: _countController,
                                 decoration: InputDecoration(
-                                    labelText: "条数限制",
-                                    errorText: _countValidate ? null : "仅支持数字",
+                                    labelText: AppLocalizations.of(context).limit_entries,
+                                    errorText: _countValidate ? null : AppLocalizations.of(context).limit_entries_hint,
                                     icon: Icon(Icons.filter_9_plus)),
                                 onChanged: (v) {
                                   if (v.trim().isEmpty) {
@@ -228,13 +226,13 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   if (v.trim().isEmpty) {
                                     return null;
                                   }
-                                  return Common.isNumeric(v) ? null : "仅支持数字";
+                                  return Common.isNumeric(v) ? null :  AppLocalizations.of(context).limit_entries_hint;
                                 }),
                             TextFormField(
                                 autofocus: true,
                                 controller: _accessController,
                                 decoration: InputDecoration(
-                                    labelText: "访问控制",
+                                    labelText:  AppLocalizations.of(context).access_control,
                                     icon: Icon(Icons.lock),
                                     suffixIcon: IconButton(
                                         icon: Icon(Icons.help),
@@ -242,29 +240,27 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                           Common.launchInBrowser(
                                               "https://docs.rsshub.app/install/#pei-zhi-fang-wen-kong-zhi-pei-zhi");
                                         }))),
-                            DropdownButtonFormField<Language>(
+                            DropdownButtonFormField(
                               decoration: InputDecoration(
                                 icon: Icon(Icons.language),
                               ),
-                              hint: Text("中文简繁体转换"),
+                              hint: Text( AppLocalizations.of(context).csAts),
                               value: _selectLanguage,
                               onChanged: (value) {
                                 setState(() {
                                   _selectLanguage = value;
                                 });
                               },
-                              items: languages.map((Language language) {
-                                return DropdownMenuItem<Language>(
-                                  value: language,
-                                  child: Text(language.name),
-                                );
-                              }).toList(),
+                              items:[
+                                DropdownMenuItem(child: Text(AppLocalizations.of(context).s2t), value: 's2t'),
+                                DropdownMenuItem(child: Text(AppLocalizations.of(context).t2s), value: 't2s'),
+                              ],
                             ),
                             DropdownButtonFormField<RssFormat>(
                               decoration: InputDecoration(
                                 icon: Icon(Icons.rss_feed),
                               ),
-                              hint: Text("输出格式"),
+                              hint: Text(AppLocalizations.of(context).output_format),
                               value: _selectRssFormat,
                               onChanged: (value) {
                                 setState(() {
@@ -288,7 +284,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                     },
                                     activeColor: Colors.orange,
                                   ),
-                                  Text("仅对本次规则生效")
+                                  Text(AppLocalizations.of(context).rule_only_once)
                                 ]),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -301,7 +297,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   ),
                                   onPressed: _saveConfig,
                                   label: Text(
-                                    "保存",
+                                    AppLocalizations.of(context).sure,
                                     style: TextStyle(color: Colors.white),
                                   ),
                                   shape: RoundedRectangleBorder(
@@ -321,10 +317,10 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                     _scaffoldKey.currentState.showSnackBar(
                                         SnackBar(
                                             behavior: SnackBarBehavior.floating,
-                                            content: Text('重置配置成功!')));
+                                            content: Text(AppLocalizations.of(context).reset_config_hint)));
                                   },
                                   label: Text(
-                                    "重置",
+                                    AppLocalizations.of(context).reset,
                                     style: TextStyle(color: Colors.white),
                                   ),
                                   shape: RoundedRectangleBorder(
@@ -342,7 +338,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
     if (_formKey.currentState.validate()) {
       await _parseConfig();
       _scaffoldKey.currentState.showSnackBar(SnackBar(
-          behavior: SnackBarBehavior.floating, content: Text('保存配置成功!')));
+          behavior: SnackBarBehavior.floating, content: Text(AppLocalizations.of(context).save_config_hint)));
     }
   }
 
@@ -368,7 +364,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
     // 中文简繁体转换
     // ignore: unnecessary_null_comparison
     if (_selectLanguage != null) {
-      params += "opencc=${_selectLanguage.value}&";
+      params += "opencc=$_selectLanguage&";
       radarConfig.opencc = _selectLanguage;
     }
     // 是否全文输出

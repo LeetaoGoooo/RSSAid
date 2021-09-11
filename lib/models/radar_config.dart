@@ -45,7 +45,7 @@ class RadarConfig {
   bool mode;
   String access; // 访问控制
   bool scihub;
-  Language opencc; // s2t 简体转繁体、t2s 繁体转简体
+  String opencc; // s2t 简体转繁体、t2s 繁体转简体
   RssFormat format;
 
   RadarConfig();
@@ -66,9 +66,7 @@ class RadarConfig {
     mode = jsonRadarConfig['mode'];
     access = jsonRadarConfig['access'];
     scihub = jsonRadarConfig['scihub'];
-    opencc = (jsonRadarConfig['opencc'] != null
-        ? Language.fromJson(json.decode(jsonRadarConfig['opencc']))
-        : null);
+    opencc = jsonRadarConfig['opencc'];
     format = (jsonRadarConfig['format'] != null
         ? RssFormat.fromJson(json.decode(jsonRadarConfig['format']))
         : null);
@@ -97,7 +95,7 @@ class RadarConfig {
         'mode': mode,
         'access': access,
         'scihub': scihub,
-        'opencc': opencc != null ? opencc.toJson() : null,
+        'opencc': opencc,
         'format': format != null ? format.toJson() : null
       };
 }
