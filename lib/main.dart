@@ -32,7 +32,7 @@ Future<void> main() async {
     await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
   }
 
-  runApp(RSSBudApp());
+  runApp(RSSAidApp());
 
   var systemUiOverlayStyle = SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -40,14 +40,14 @@ Future<void> main() async {
   SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
 }
 
-class RSSBudApp extends StatelessWidget {
+class RSSAidApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       localizationsDelegates: [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: [
         Locale('en', ''), // English, no country code
@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _detectUrlFromShare(String text) async {
-    if (text.isEmpty) {
+    if (text == null || text.isEmpty) {
       return;
     }
 
