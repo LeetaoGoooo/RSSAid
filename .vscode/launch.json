@@ -8,7 +8,11 @@
             "name": "rssbud",
             "request": "launch",
             "type": "dart",
-            "cwd": "D:\\workspace\\ft\\rssbud"
+            "cwd": "D:\\workspace\\ft\\rssbud",
+            "args": [
+                "--flavor",
+                "github"
+            ]
         }
     ]
 }
