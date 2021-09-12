@@ -41,8 +41,8 @@
 - [x] 手动输入规则
 - [x] 历史记录保存
 - [x] rss+ 规则
-- [ ] 自动更新
-- [ ] 简易 rss 订阅
+- [x] fdroid
+- [x] English version 
 
 
 ## 参与 Beta 测试
