@@ -1,1 +1,1 @@
-RSSAid is a RSSHub assist tool built with flutter.
+RSSAid is a RSSHub assist tool built with flutter. Smilar with RSSHub Radar, it can help you to find and subscribe RSS instantly, it also support common configs(filters, full content export, etc)
