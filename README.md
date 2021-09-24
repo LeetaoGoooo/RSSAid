@@ -10,13 +10,13 @@
 
 [Telegram 群](https://t.me/rssaid_group) | [Telegram 频道](https://t.me/rssaid)
 
-<center>
-<figure>
+<p float='left'>
 <img src="screenshots/home.png"  width="375">
 <img src="screenshots/config.png"  width="375">
 <img src="screenshots/settings.png" width="375">
-</figure>
-</center>
+<img src="screenshots/en-home.png" width="375">
+<img src="screenshots/en-settings.png" width="375">
+</p>
 
 ## 下载
 
