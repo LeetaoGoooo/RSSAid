@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _fetchRules();
+    // _fetchRules();
     // For sharing or opening urls/text coming from outside the app while the app is in the memory
     _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream()
         .where((event) => event != null)
@@ -237,10 +237,10 @@ class _HomePageState extends State<HomePage> {
     await headlessWebView?.run();
     await webViewController.loadUrl(
         urlRequest: URLRequest(url: Uri.parse(url), method: 'GET'));
-    // await headlessWebView?.webViewController.injectJavascriptFileFromAsset(
-    //     assetFilePath: 'assets/js/radar-rules-ios.js');
-    await headlessWebView.webViewController
-        .evaluateJavascript(source: 'var rules=${prefs.getString("Rules")}');
+    await headlessWebView.webViewController.injectJavascriptFileFromAsset(
+        assetFilePath: 'assets/js/radar-rules.js');
+    // await headlessWebView.webViewController
+    //     .evaluateJavascript(source: 'var rules=${prefs.getString("Rules")}');
     await headlessWebView.webViewController
         .injectJavascriptFileFromAsset(assetFilePath: 'assets/js/url.min.js');
     await headlessWebView.webViewController
@@ -252,6 +252,7 @@ class _HomePageState extends State<HomePage> {
     var html = await webViewController.getHtml();
     var uri = Uri.parse(url);
     String expression = """
+      console.log(rules);
       getPageRSSHub({
                             url: "$url",
                             host: "${uri.host}",
@@ -260,7 +261,7 @@ class _HomePageState extends State<HomePage> {
                             rules: rules
                         });
       """;
-    var res = await headlessWebView?.webViewController
+    var res = await headlessWebView.webViewController
         .evaluateJavascript(source: expression);
     var radarList = Radar.listFromJson(json.decode(res));
 

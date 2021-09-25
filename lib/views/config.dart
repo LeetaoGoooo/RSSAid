@@ -241,6 +241,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                               "https://docs.rsshub.app/install/#pei-zhi-fang-wen-kong-zhi-pei-zhi");
                                         }))),
                             DropdownButtonFormField(
+                              isExpanded: true,
                               decoration: InputDecoration(
                                 icon: Icon(Icons.language),
                               ),
@@ -252,8 +253,8 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                 });
                               },
                               items:[
-                                DropdownMenuItem(child: Text(AppLocalizations.of(context).s2t), value: 's2t'),
-                                DropdownMenuItem(child: Text(AppLocalizations.of(context).t2s), value: 't2s'),
+                                DropdownMenuItem(child: Text(AppLocalizations.of(context).s2t, overflow: TextOverflow.ellipsis), value: 's2t'),
+                                DropdownMenuItem(child: Text(AppLocalizations.of(context).t2s, overflow: TextOverflow.ellipsis), value: 't2s'),
                               ],
                             ),
                             DropdownButtonFormField<RssFormat>(

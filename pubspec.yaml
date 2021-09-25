@@ -61,6 +61,7 @@ flutter:
     - assets/js/url.min.js
     - assets/js/utils.js
     - assets/js/radar-rules.js
+    - assets/js/radar-rules-ios.js
     - assets/imgs/404.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
