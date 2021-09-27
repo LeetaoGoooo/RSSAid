@@ -61,8 +61,8 @@ class Common {
   static refreshRules() async{
     final SharedPreferences prefs = await _prefs;
     var url =
-        'https://raw.githubusercontent.com/DIYgod/RSSHub/d77a039f052badb45bdf31aa614a73d7cee40b03/assets/radar-rules.js';
+        'https://raw.githubusercontent.com/DIYgod/RSSHub/master/assets/radar-rules.js';
     var jsCode = await getContentByUrl(Uri.parse(url));
-    prefs.setString("Rules", "$jsCode");
+    await prefs.setString("Rules", "$jsCode");
   }
 }

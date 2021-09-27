@@ -29,7 +29,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isAndroid) {
-    await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
+    await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(false);
   }
 
   runApp(RSSAidApp());
@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // _fetchRules();
+    _fetchRules();
     // For sharing or opening urls/text coming from outside the app while the app is in the memory
     _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream()
         .where((event) => event != null)
@@ -233,14 +233,15 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<Radar>> _detectUrl(String url) async {
     final SharedPreferences prefs = await _prefs;
-
+    if (!prefs.containsKey("Rules") || prefs.getString("Rules").trim().length == 0) {
+      print("加载 Rules");
+      await _fetchRules();
+    }
     await headlessWebView?.run();
     await webViewController.loadUrl(
         urlRequest: URLRequest(url: Uri.parse(url), method: 'GET'));
-    await headlessWebView.webViewController.injectJavascriptFileFromAsset(
-        assetFilePath: 'assets/js/radar-rules.js');
-    // await headlessWebView.webViewController
-    //     .evaluateJavascript(source: 'var rules=${prefs.getString("Rules")}');
+    // await headlessWebView.webViewController.injectJavascriptFileFromAsset(
+    //     assetFilePath: 'assets/js/radar-rules.js');
     await headlessWebView.webViewController
         .injectJavascriptFileFromAsset(assetFilePath: 'assets/js/url.min.js');
     await headlessWebView.webViewController
@@ -249,6 +250,8 @@ class _HomePageState extends State<HomePage> {
         assetFilePath: 'assets/js/route-recognizer.min.js');
     await headlessWebView.webViewController
         .injectJavascriptFileFromAsset(assetFilePath: 'assets/js/utils.js');
+    await headlessWebView.webViewController
+        .evaluateJavascript(source: 'var rules=${prefs.getString("Rules")}');
     var html = await webViewController.getHtml();
     var uri = Uri.parse(url);
     String expression = """
