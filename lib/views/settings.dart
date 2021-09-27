@@ -240,9 +240,9 @@ class AboutRows extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       children: [
-        _buildAboutItem("Version", Icons.info, "v1.6.0", ""),
+        _buildAboutItem("Version", Icons.info, "v1.6.2", ""),
         _buildAboutItem("Github", Icons.favorite, "",
-            "https://github.com/lt94/RSSAid"),
+            "https://github.com/LeetaoGoooo/RSSAid"),
         _buildAboutItem(
             'Telegram', Icons.group, "", "https://t.me/rssaid"),
       ],
