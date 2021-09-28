@@ -46,3 +46,4 @@ app.*.map.json
 /android/app/release
 
 bundletool-all-1.4.0.jar
+/android/app/keystore.jks
