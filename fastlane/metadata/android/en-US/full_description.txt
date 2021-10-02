@@ -1,1 +1,3 @@
-RSSAid is a RSSHub assist tool built with flutter. Smilar with RSSHub Radar, it can help you to find and subscribe RSS instantly, it also support common configs(filters, full content export, etc)
+<i>RSSAid</i> is a client app for RSSHub. <a href='https://github.com/DIYgod/RSSHub'>RSSHub</a> is an open source project to generate RSS links for websites that don't support rss, then you can use the rss link in your own RSS reader to subscribe.
+
+You can deloy the RSSHub service on your own server or use the free service provided by the project author. What <i>RSSAid</i> does is simple: it is just a tool not a RSS reader, you input a link like https://www.reddit.com/r/Fedora/, then <i>RSSAid</i> can generate the RSS link according to RSSHub rules and base url (RSSHub service hostname).

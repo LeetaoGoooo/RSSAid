@@ -1,1 +1,1 @@
-RSSAid 是一个由 Flutter 构建的 RSSHub 的辅助 App，和 RSSHub Radar 类似，他可以帮助你快速发现和订阅网站的 RSS。此外，他还支持 RSSHub 的通用参数 (实现过滤、获取全文等功能)。
+<i>RSSAid</i> 是一个由 Flutter 构建的 <a href='https://github.com/DIYgod/RSSHub'>RSSHub</a> 的辅助 App，和 <a href='https://github.com/DIYgod/RSSHub-Radar'>RSSHub Radar</a> 类似，它可以帮助你快速发现和订阅网站的 RSS。此外，它还支持 RSSHub 的通用参数 (实现过滤、获取全文等功能)。
