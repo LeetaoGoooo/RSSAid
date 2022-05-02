@@ -61,7 +61,7 @@ class Common {
   static refreshRules() async{
     final SharedPreferences prefs = await _prefs;
     var url =
-        'https://raw.githubusercontent.com/DIYgod/RSSHub/master/assets/radar-rules.js';
+        'https://raw.githubusercontent.com/Cay-Zhang/RSSBudRules/main/radar-rules.js';
     var jsCode = await getContentByUrl(Uri.parse(url));
     await prefs.setString("Rules", "$jsCode");
   }
