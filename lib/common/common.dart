@@ -15,7 +15,6 @@ extension HttpClientExtension on HttpClient {
     var proxy = "DIRECT";
     if (sysProxy != null) {
       proxy = "PROXY ${sysProxy['host']}:${sysProxy['port']}; DIRECT";
-      print("find proxy $proxy");
     }
     this.findProxy = (uri) {
       return proxy;

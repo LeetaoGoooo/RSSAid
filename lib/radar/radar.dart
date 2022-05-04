@@ -55,19 +55,16 @@ class RssPlus {
         if (linkType != null &&
             linkType.isNotEmpty &&
             (rssPattern.hasMatch(linkType) || xmlPattern.hasMatch(linkType))) {
-          print("符合条件的链接:$linkHref,主题:$linkTitle");
           Uri uri = Uri.parse(url);
           if (!linkHref.startsWith("http") && !linkHref.contains(uri.host)) {
             linkHref = '${uri.scheme}://${uri.host}$linkHref';
           }
           Radar radar = new Radar.fromJson(
               {"title": linkTitle, "path": linkHref, "isRssHub": false});
-          print("radar isRssHub:${radar.isRssHub}");
           radarList.add(radar);
         }
       }
     }
-    print("解析结果:$radarList");
     return radarList;
   }
 
@@ -105,7 +102,6 @@ class RssPlus {
           }
           Radar radar = new Radar.fromJson(
               {"title": linkTitle, "path": linkHref, "isRssHub": false});
-          print("radar isRssHub:${radar.isRssHub}");
           radarList.add(radar);
         }
       }

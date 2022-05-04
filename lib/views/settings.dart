@@ -13,7 +13,7 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPageState extends State<SettingPage> {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  String _domain = "https://rsshub.app/";
+  String _domain = "https://rsshub.app";
   String _rules = "";
 
   void initState() {
@@ -39,7 +39,6 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   void setDomain(String domain) async {
-    print("callback...$domain");
     final SharedPreferences prefs = await _prefs;
     setState(() {
       _domain = domain;
@@ -240,7 +239,7 @@ class AboutRows extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       children: [
-        _buildAboutItem("Version", Icons.info, "v1.6.2", ""),
+        _buildAboutItem("Version", Icons.info, "v1.6.4", ""),
         _buildAboutItem("Github", Icons.favorite, "",
             "https://github.com/LeetaoGoooo/RSSAid"),
         _buildAboutItem(

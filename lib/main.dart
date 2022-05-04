@@ -92,7 +92,6 @@ class _HomePageState extends State<HomePage> {
     _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream()
         .where((event) => event != null)
         .listen(_detectUrlFromShare, onError: (err) {
-      print("getLinkStream error: $err");
     });
 
     // For sharing or opening urls/text coming from outside the app while the app is closed
@@ -124,7 +123,6 @@ class _HomePageState extends State<HomePage> {
         onConsoleMessage: (controller, consoleMessage) {
       print("CONSOLE MESSAGE: " + consoleMessage.message);
     }, onWebViewCreated: (controller) {
-      print("webview created");
       webViewController = controller;
     });
   }
@@ -234,7 +232,6 @@ class _HomePageState extends State<HomePage> {
   Future<List<Radar>> _detectUrl(String url) async {
     final SharedPreferences prefs = await _prefs;
     if (!prefs.containsKey("Rules") || prefs.getString("Rules").trim().length == 0) {
-      print("加载 Rules");
       await _fetchRules();
     }
     await headlessWebView?.run();
@@ -255,7 +252,6 @@ class _HomePageState extends State<HomePage> {
     var html = await webViewController.getHtml();
     var uri = Uri.parse(url);
     String expression = """
-      console.log(rules);
       getPageRSSHub({
                             url: "$url",
                             host: "${uri.host}",
@@ -543,8 +539,7 @@ class _HomePageState extends State<HomePage> {
                               charset: "utf-8");
                           request.add(utf8.encode(
                               json.encode({"text": "${e.toString()}"})));
-                          var response = await request.close();
-                          print(response.statusCode);
+                          await request.close();
                         }
                         if (prefs.containsKey("currentParams")) {
                           prefs.remove("currentParams");
@@ -696,7 +691,6 @@ class _HomePageState extends State<HomePage> {
       host = prefs.getString("RSSHUB");
     }
     var url = "$host${radar.path}";
-    print("isRssHub:${radar.isRssHub}");
     if (radar.isRssHub != null && !radar.isRssHub) {
       url = radar.path;
     }
