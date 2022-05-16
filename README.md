@@ -18,6 +18,10 @@
 
 ## Install
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/com.gmail.cn.leetao94.rssaid/)
+
 The latest build for Android can be found in [the releases](https://github.com/lt94/RSSAid/releases).
 
 Join our [Telegram channel](https://t.me/rssaid_group) to keep updated.
