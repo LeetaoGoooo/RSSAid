@@ -1,14 +1,12 @@
-// @dart=2.9
-
 import 'dart:convert';
 
 class Language {
   Language(this.value, this.name);
-  String value;
-  String name;
+  String? value;
+  String? name;
 
   Language.fromJson(Map<String, dynamic> jsonLanguage) {
-    if (jsonLanguage == null) return;
+    if (jsonLanguage.isEmpty) return;
     value = jsonLanguage['value'];
     name = jsonLanguage['name'];
   }
@@ -18,11 +16,11 @@ class Language {
 
 class RssFormat {
   RssFormat(this.value, this.name);
-  String value;
-  String name;
+  String? value;
+  String? name;
 
   RssFormat.fromJson(Map<String, dynamic> jsonRssFormat) {
-    if (jsonRssFormat == null) return;
+    if (jsonRssFormat.isEmpty) return;
     value = jsonRssFormat['value'];
     name = jsonRssFormat['name'];
   }
@@ -31,22 +29,22 @@ class RssFormat {
 }
 
 class RadarConfig {
-  String filter;
-  String filterTitle;
-  String filterDescription;
-  String filterAuthor;
-  String filterTime;
-  String filterOut;
-  String filterOutTitle;
-  String filterOutDescription;
-  String filterOutAuthor;
-  bool filterCaseSensitive;
-  String limit;
-  bool mode;
-  String access; // 访问控制
-  bool scihub;
-  String opencc; // s2t 简体转繁体、t2s 繁体转简体
-  RssFormat format;
+  String? filter;
+  String? filterTitle;
+  String? filterDescription;
+  String? filterAuthor;
+  String? filterTime;
+  String? filterOut;
+  String? filterOutTitle;
+  String? filterOutDescription;
+  String? filterOutAuthor;
+  bool? filterCaseSensitive;
+  String? limit;
+  bool? mode;
+  String? access; // 访问控制
+  bool? scihub;
+  String? opencc; // s2t 简体转繁体、t2s 繁体转简体
+  RssFormat? format;
 
   RadarConfig();
 
@@ -96,6 +94,6 @@ class RadarConfig {
         'access': access,
         'scihub': scihub,
         'opencc': opencc,
-        'format': format != null ? format.toJson() : null
+        'format': format != null ? format?.toJson() : null
       };
 }

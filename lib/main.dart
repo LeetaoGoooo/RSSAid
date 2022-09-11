@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -7,23 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-// ignore: import_of_legacy_library_into_null_safe
-import 'package:flutter_link_preview/flutter_link_preview.dart';
+import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:linkify/linkify.dart';
 import 'package:rssaid/models/radar.dart';
 import 'package:rssaid/radar/radar.dart';
 import 'package:rssaid/views/config.dart';
 import 'package:rssaid/views/settings.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:share/share.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'common/common.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,7 +58,7 @@ class RSSAidApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -71,32 +66,33 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String _currentUrl = "";
-  Future<List<Radar>> _radarList;
+  Future<List<Radar>>? _radarList;
   bool _configVisible = false;
-  ScrollController _scrollViewController;
+  late ScrollController _scrollViewController;
   bool _showAppbar = true;
   bool _isScrollingDown = false;
   bool _notUrlDetected = false;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  StreamSubscription _intentDataStreamSubscription;
+  late StreamSubscription _intentDataStreamSubscription;
   TextEditingController _inputUrlController = new TextEditingController();
-  HeadlessInAppWebView headlessWebView;
-  InAppWebViewController webViewController;
+  late HeadlessInAppWebView headlessWebView;
+  late InAppWebViewController webViewController;
+  PreviewData previewData = new PreviewData();
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
   void initState() {
     super.initState();
-    _fetchRules();
+    // _fetchRules();
     // For sharing or opening urls/text coming from outside the app while the app is in the memory
     _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream()
-        .where((event) => event != null)
-        .listen(_detectUrlFromShare, onError: (err) {
-    });
+        .where((event) => event.isNotEmpty)
+        .listen(_detectUrlFromShare, onError: (err) {});
 
     // For sharing or opening urls/text coming from outside the app while the app is closed
-    ReceiveSharingIntent.getInitialText()
-        .then((value) => {_detectUrlFromShare(value)});
+    ReceiveSharingIntent.getInitialText().then((value) => {
+          if (value != null) {_detectUrlFromShare(value)}
+        });
 
     _scrollViewController = new ScrollController();
     _scrollViewController.addListener(() {
@@ -131,16 +127,11 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _intentDataStreamSubscription.cancel();
     super.dispose();
-    headlessWebView?.dispose();
-  }
-
-  Future<void> _fetchRules() async {
-    /// 将 rules 加载到 prefres
-    await Common.refreshRules();
+    headlessWebView.dispose();
   }
 
   Future<void> _detectUrlFromShare(String text) async {
-    if (text == null || text.isEmpty) {
+    if (text.isEmpty) {
       return;
     }
 
@@ -155,8 +146,9 @@ class _HomePageState extends State<HomePage> {
         .where((element) => element is LinkableElement);
     if (links.isNotEmpty) {
       _radarList = _detectUrl(links.first.text);
+      print(_radarList);
       setState(() => _currentUrl = links.first.text);
-      _radarList.then((value) {
+      _radarList!.then((value) {
         if (value.length > 0) {
           setState(() {
             _configVisible = true;
@@ -170,10 +162,10 @@ class _HomePageState extends State<HomePage> {
       });
     } else {
       // ignore: deprecated_member_use
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
+      _scaffoldKey.currentState!.showSnackBar(SnackBar(
           elevation: 0,
           behavior: SnackBarBehavior.floating,
-          content: Text(AppLocalizations.of(context).notfoundinshare)));
+          content: Text(AppLocalizations.of(context)!.notfoundinshare)));
     }
   }
 
@@ -183,23 +175,23 @@ class _HomePageState extends State<HomePage> {
       _configVisible = false;
       _notUrlDetected = false;
     });
-    ClipboardData data = (await Clipboard.getData(Clipboard.kTextPlain));
-    if (data != null && data.text != null) {
+    ClipboardData? data = (await Clipboard.getData(Clipboard.kTextPlain));
+    if (data!.text != null) {
       var link = _verifyLink(data.text);
-      if (link != null) {
+      if (link != null && link.isNotEmpty) {
         _callRadar(link);
       } else {
-        _showSnackBar(AppLocalizations.of(context).notfoundinClipboard);
+        _showSnackBar(AppLocalizations.of(context)!.notfoundinClipboard);
       }
     } else {
-      _showSnackBar(AppLocalizations.of(context).notfoundinClipboard);
+      _showSnackBar(AppLocalizations.of(context)!.notfoundinClipboard);
     }
   }
 
   /// verify link return link
   /// else return null
-  String _verifyLink(String url) {
-    var links = linkify(url.trim(),
+  String? _verifyLink(String? url) {
+    var links = linkify(url!.trim(),
             options: LinkifyOptions(humanize: false),
             linkifiers: [UrlLinkifier()])
         .where((element) => element is LinkableElement);
@@ -213,7 +205,7 @@ class _HomePageState extends State<HomePage> {
     _radarList = _detectUrl(url);
     setState(() => _currentUrl = url);
     _addRecord(url);
-    _radarList.then(
+    _radarList!.then(
       (value) {
         if (value.length > 0) {
           setState(() {
@@ -230,11 +222,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Radar>> _detectUrl(String url) async {
-    final SharedPreferences prefs = await _prefs;
-    if (!prefs.containsKey("Rules") || prefs.getString("Rules").trim().length == 0) {
-      await _fetchRules();
-    }
-    await headlessWebView?.run();
+    await headlessWebView.run();
     await webViewController.loadUrl(
         urlRequest: URLRequest(url: Uri.parse(url), method: 'GET'));
     // await headlessWebView.webViewController.injectJavascriptFileFromAsset(
@@ -247,8 +235,9 @@ class _HomePageState extends State<HomePage> {
         assetFilePath: 'assets/js/route-recognizer.min.js');
     await headlessWebView.webViewController
         .injectJavascriptFileFromAsset(assetFilePath: 'assets/js/utils.js');
+    String rules = await Common.getRules();
     await headlessWebView.webViewController
-        .evaluateJavascript(source: 'var rules=${prefs.getString("Rules")}');
+        .evaluateJavascript(source: 'var rules=$rules');
     var html = await webViewController.getHtml();
     var uri = Uri.parse(url);
     String expression = """
@@ -262,7 +251,10 @@ class _HomePageState extends State<HomePage> {
       """;
     var res = await headlessWebView.webViewController
         .evaluateJavascript(source: expression);
-    var radarList = Radar.listFromJson(json.decode(res));
+    var radarList = [];
+    if (res != null) {
+      radarList = Radar.listFromJson(json.decode(res));
+    }
 
     return [...radarList, ...await RssPlus.detecting(url)];
   }
@@ -334,7 +326,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         color: Color.fromARGB(255, 242, 242, 247),
                         icon: Icon(Icons.copy_outlined, color: Colors.orange),
-                        label: Text(AppLocalizations.of(context).fromClipboard,
+                        label: Text(AppLocalizations.of(context)!.fromClipboard,
                             style: TextStyle(color: Colors.orange)),
                         onPressed: _detectUrlByClipboard)),
                 Padding(
@@ -348,7 +340,7 @@ class _HomePageState extends State<HomePage> {
                         color: Color.fromARGB(255, 242, 242, 247),
                         icon: Icon(Icons.input, color: Colors.orange),
                         label: Text(
-                            AppLocalizations.of(context).inputbyKeyboard,
+                            AppLocalizations.of(context)!.inputbyKeyboard,
                             style: TextStyle(color: Colors.orange)),
                         onPressed: _showInputDialog)),
                 _createRadarList(context),
@@ -358,7 +350,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: _configVisible
           ? FloatingActionButton(
-              tooltip: AppLocalizations.of(context).addConfig,
+              tooltip: AppLocalizations.of(context)!.addConfig,
               child: Icon(Icons.post_add, color: Colors.white),
               onPressed: () {
                 Navigator.of(context).push(new MaterialPageRoute<Null>(
@@ -410,20 +402,27 @@ class _HomePageState extends State<HomePage> {
                                   _currentUrl = "";
                                   _configVisible = false;
                                   _notUrlDetected = false;
-                                  _radarList = [] as Future<List<Radar>>;
+                                  _radarList = null;
                                 });
                               })
                       ],
                     ),
                   ),
                   if (_configVisible)
-                    FlutterLinkPreview(
-                      key: ValueKey(_currentUrl),
-                      url: _currentUrl.trim(),
-                      titleStyle: TextStyle(
+                    LinkPreview(
+                      enableAnimation: true,
+                      text: _currentUrl.trim(),
+                      onPreviewDataFetched: (data) {
+                        setState(() {
+                          previewData = data;
+                        });
+                      },
+                      previewData: previewData,
+                      textStyle: TextStyle(
                         color: Colors.orange,
                         fontWeight: FontWeight.bold,
                       ),
+                      width: MediaQuery.of(context).size.width,
                     ),
                 ],
               )));
@@ -450,7 +449,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Image.asset('assets/imgs/404.png'),
                   Text(
-                    AppLocalizations.of(context).notfound,
+                    AppLocalizations.of(context)!.notfound,
                     style: TextStyle(fontSize: 12),
                   ),
                   Padding(
@@ -462,7 +461,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                           color: Color.fromARGB(255, 242, 242, 247),
                           icon: Icon(Icons.support, color: Colors.orange),
-                          label: Text(AppLocalizations.of(context).whichSupport,
+                          label: Text(
+                              AppLocalizations.of(context)!.whichSupport,
                               style: TextStyle(color: Colors.orange)),
                           onPressed: () async {
                             await Common.launchInBrowser(
@@ -478,7 +478,7 @@ class _HomePageState extends State<HomePage> {
                           color: Color.fromARGB(255, 242, 242, 247),
                           icon: Icon(Icons.cloud_upload, color: Colors.orange),
                           label: Text(
-                              AppLocalizations.of(context).submitNewRules,
+                              AppLocalizations.of(context)!.submitNewRules,
                               style: TextStyle(color: Colors.orange)),
                           onPressed: () async {
                             await Common.launchInBrowser(
@@ -505,7 +505,7 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(radar.title,
+                Text(radar.title!,
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center),
                 Row(
@@ -521,7 +521,7 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.orange,
                       ),
                       label: Text(
-                        AppLocalizations.of(context).copy,
+                        AppLocalizations.of(context)!.copy,
                         style: TextStyle(color: Colors.orange),
                       ),
                       onPressed: () async {
@@ -544,10 +544,10 @@ class _HomePageState extends State<HomePage> {
                         if (prefs.containsKey("currentParams")) {
                           prefs.remove("currentParams");
                         }
-                        _scaffoldKey.currentState.showSnackBar(SnackBar(
+                        _scaffoldKey.currentState!.showSnackBar(SnackBar(
                             behavior: SnackBarBehavior.floating,
                             content: Text(
-                              AppLocalizations.of(context).copySuccess,
+                              AppLocalizations.of(context)!.copySuccess,
                             )));
                       },
                     )),
@@ -559,7 +559,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       color: Colors.white,
                       icon: Icon(Icons.done, color: Colors.orange),
-                      label: Text(AppLocalizations.of(context).subscribe,
+                      label: Text(AppLocalizations.of(context)!.subscribe,
                           style: TextStyle(color: Colors.orange)),
                       onPressed: () async {
                         var url = await _getSubscriptionUrl(radar);
@@ -577,14 +577,14 @@ class _HomePageState extends State<HomePage> {
     return FutureBuilder<List<String>>(
         future: _getHistoryList(),
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data.isNotEmpty) {
+          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             var history = snapshot.data;
             return Column(
               children: [
                 SizedBox(height: 20),
                 ListView.builder(
                   shrinkWrap: true,
-                  itemCount: history.length,
+                  itemCount: history!.length,
                   physics: NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     return Dismissible(
@@ -625,7 +625,7 @@ class _HomePageState extends State<HomePage> {
                         color: Color.fromARGB(255, 242, 242, 247),
                         icon: Icon(Icons.clear_all_outlined,
                             color: Colors.orange),
-                        label: Text(AppLocalizations.of(context).clear,
+                        label: Text(AppLocalizations.of(context)!.clear,
                             style: TextStyle(color: Colors.orange)),
                         onPressed: () {
                           _setRecord([]);
@@ -645,7 +645,7 @@ class _HomePageState extends State<HomePage> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(
-              AppLocalizations.of(context).inputLinkChecked,
+              AppLocalizations.of(context)!.inputLinkChecked,
             ),
             content: Container(
               child: TextField(
@@ -663,14 +663,14 @@ class _HomePageState extends State<HomePage> {
                         _callRadar(link);
                         return;
                       } else {
-                        _showSnackBar(AppLocalizations.of(context).linkError);
+                        _showSnackBar(AppLocalizations.of(context)!.linkError);
                       }
                     } else {
-                      _showSnackBar(AppLocalizations.of(context).notfound);
+                      _showSnackBar(AppLocalizations.of(context)!.notfound);
                     }
                   },
                   child: Text(
-                    AppLocalizations.of(context).sure,
+                    AppLocalizations.of(context)!.sure,
                   ))
             ],
           );
@@ -678,7 +678,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   _showSnackBar(String text) {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(
+    _scaffoldKey.currentState!.showSnackBar(SnackBar(
         elevation: 0,
         behavior: SnackBarBehavior.floating,
         content: Text(text)));
@@ -688,19 +688,19 @@ class _HomePageState extends State<HomePage> {
     final SharedPreferences prefs = await _prefs;
     var host = "https://rsshub.app/";
     if (prefs.containsKey("RSSHUB")) {
-      host = prefs.getString("RSSHUB");
+      host = prefs.getString("RSSHUB")!;
     }
     var url = "$host${radar.path}";
-    if (radar.isRssHub != null && !radar.isRssHub) {
-      url = radar.path;
+    if (!radar.isRssHub) {
+      url = radar.path!;
     }
 
     if (prefs.containsKey("currentParams")) {
-      url += prefs.getString("currentParams");
+      url += prefs.getString("currentParams")!;
     } else {
-      url += prefs.containsKey("defaultParams")
+      url += (prefs.containsKey("defaultParams")
           ? prefs.getString("defaultParams")
-          : "";
+          : "")!;
     }
     return url;
   }

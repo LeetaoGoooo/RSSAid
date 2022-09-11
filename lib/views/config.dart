@@ -1,10 +1,8 @@
-// @dart=2.9
 import 'dart:convert';
 
 import 'package:rssaid/common/common.dart';
 import 'package:rssaid/models/radar_config.dart';
 import 'package:flutter/material.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -38,7 +36,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   bool _mode = false;
   bool _outScihub = false;
   String _selectLanguage = "s2t";
-  RssFormat _selectRssFormat;
+  late RssFormat _selectRssFormat;
   List<RssFormat> rssFormats = <RssFormat>[
     RssFormat(".atom", "Atom"),
     RssFormat(".rss", "RSS 2.0")
@@ -56,7 +54,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
       key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text(AppLocalizations.of(context).gc),
+        title: Text(AppLocalizations.of(context)!.gc),
       ),
       body: SingleChildScrollView(
           child: Card(
@@ -74,12 +72,12 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              AppLocalizations.of(context).contentFilter,
+                              AppLocalizations.of(context)!.contentFilter,
                               style: TextStyle(
                                   fontSize: 12, color: Colors.grey[400]),
                             ),
                             ListTile(
-                              leading: Text(AppLocalizations.of(context).caseSensitive),
+                              leading: Text(AppLocalizations.of(context)!.caseSensitive),
                               trailing: Switch(
                                   value: _caseSensitive,
                                   onChanged: (value) {
@@ -89,7 +87,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   }),
                             ),
                             ListTile(
-                              leading: Text(AppLocalizations.of(context).fullText),
+                              leading: Text(AppLocalizations.of(context)!.fullText),
                               trailing: Switch(
                                   value: _mode,
                                   onChanged: (value) {
@@ -99,7 +97,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   }),
                             ),
                             ListTile(
-                              leading: Text(AppLocalizations.of(context).sci_hub_link),
+                              leading: Text(AppLocalizations.of(context)!.sci_hub_link),
                               trailing: Switch(
                                   value: _outScihub,
                                   onChanged: (value) {
@@ -108,41 +106,41 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                     });
                                   }),
                             ),
-                            Text(AppLocalizations.of(context).filtering,
+                            Text(AppLocalizations.of(context)!.filtering,
                                 style: TextStyle(
                                     fontSize: 12, color: Colors.grey[400])),
                             TextFormField(
                               autofocus: true,
                               controller: _filterController,
                               decoration: InputDecoration(
-                                  labelText: AppLocalizations.of(context).filter, icon: Icon(Icons.list)),
+                                  labelText: AppLocalizations.of(context)!.filter, icon: Icon(Icons.list)),
                             ),
                             TextFormField(
                               autofocus: true,
                               controller: _filterTitleController,
                               decoration: InputDecoration(
-                                  labelText: AppLocalizations.of(context).filter_title, icon: Icon(Icons.title)),
+                                  labelText: AppLocalizations.of(context)!.filter_title, icon: Icon(Icons.title)),
                             ),
                             TextFormField(
                               autofocus: true,
                               controller: _filterDescriptionController,
                               decoration: InputDecoration(
-                                  labelText: AppLocalizations.of(context).filter_description,
+                                  labelText: AppLocalizations.of(context)!.filter_description,
                                   icon: Icon(Icons.description)),
                             ),
                             TextFormField(
                               autofocus: true,
                               controller: _filterAuthorController,
                               decoration: InputDecoration(
-                                  labelText: AppLocalizations.of(context).filter_author, icon: Icon(Icons.person)),
+                                  labelText: AppLocalizations.of(context)!.filter_author, icon: Icon(Icons.person)),
                             ),
                             TextFormField(
                                 autofocus: true,
                                 controller: _filterTimeController,
                                 decoration: InputDecoration(
-                                  labelText: AppLocalizations.of(context).filter_time,
-                                  hintText: AppLocalizations.of(context).filter_time_hints,
-                                  errorText: _timeValidate ? null : AppLocalizations.of(context).limit_entries_hint,
+                                  labelText: AppLocalizations.of(context)!.filter_time,
+                                  hintText: AppLocalizations.of(context)!.filter_time_hints,
+                                  errorText: _timeValidate ? null : AppLocalizations.of(context)!.limit_entries_hint,
                                   icon: Icon(Icons.timeline),
                                 ),
                                 onChanged: (value) {
@@ -157,17 +155,17 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   });
                                 },
                                 validator: (v) {
-                                  if (v.trim().isEmpty) {
+                                  if (v!.trim().isEmpty) {
                                     return null;
                                   }
                                   return Common.isNumeric(v)
                                       ? null
-                                      : AppLocalizations.of(context).limit_entries_hint;
+                                      : AppLocalizations.of(context)!.limit_entries_hint;
                                 }),
                             Padding(
                               padding: EdgeInsets.only(top: 8),
                               child: Text(
-                                AppLocalizations.of(context).filterout,
+                                AppLocalizations.of(context)!.filterout,
                                 style: TextStyle(
                                     fontSize: 12, color: Colors.grey[400]),
                               ),
@@ -176,31 +174,31 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                               autofocus: true,
                               controller: _filterOutController,
                               decoration: InputDecoration(
-                                  labelText: AppLocalizations.of(context).filterout_default, icon: Icon(Icons.list)),
+                                  labelText: AppLocalizations.of(context)!.filterout_default, icon: Icon(Icons.list)),
                             ),
                             TextFormField(
                               autofocus: true,
                               controller: _filterTitleOutController,
                               decoration: InputDecoration(
-                                  labelText: AppLocalizations.of(context).filterout_title, icon: Icon(Icons.title)),
+                                  labelText: AppLocalizations.of(context)!.filterout_title, icon: Icon(Icons.title)),
                             ),
                             TextFormField(
                               autofocus: true,
                               controller: _filterDescriptionOutController,
                               decoration: InputDecoration(
-                                  labelText: AppLocalizations.of(context).filter_description,
+                                  labelText: AppLocalizations.of(context)!.filter_description,
                                   icon: Icon(Icons.description)),
                             ),
                             TextFormField(
                               autofocus: true,
                               controller: _filterAuthorOutController,
                               decoration: InputDecoration(
-                                  labelText: AppLocalizations.of(context).filterout_author, icon: Icon(Icons.person)),
+                                  labelText: AppLocalizations.of(context)!.filterout_author, icon: Icon(Icons.person)),
                             ),
                             Padding(
                                 padding: EdgeInsets.only(top: 8),
                                 child: Text(
-                                  AppLocalizations.of(context).filter_others,
+                                  AppLocalizations.of(context)!.filter_others,
                                   style: TextStyle(
                                       fontSize: 12, color: Colors.grey[400]),
                                 )),
@@ -208,8 +206,8 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                 autofocus: true,
                                 controller: _countController,
                                 decoration: InputDecoration(
-                                    labelText: AppLocalizations.of(context).limit_entries,
-                                    errorText: _countValidate ? null : AppLocalizations.of(context).limit_entries_hint,
+                                    labelText: AppLocalizations.of(context)!.limit_entries,
+                                    errorText: _countValidate ? null : AppLocalizations.of(context)!.limit_entries_hint,
                                     icon: Icon(Icons.filter_9_plus)),
                                 onChanged: (v) {
                                   if (v.trim().isEmpty) {
@@ -223,16 +221,16 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   });
                                 },
                                 validator: (v) {
-                                  if (v.trim().isEmpty) {
+                                  if (v!.trim().isEmpty) {
                                     return null;
                                   }
-                                  return Common.isNumeric(v) ? null :  AppLocalizations.of(context).limit_entries_hint;
+                                  return Common.isNumeric(v) ? null :  AppLocalizations.of(context)!.limit_entries_hint;
                                 }),
                             TextFormField(
                                 autofocus: true,
                                 controller: _accessController,
                                 decoration: InputDecoration(
-                                    labelText:  AppLocalizations.of(context).access_control,
+                                    labelText:  AppLocalizations.of(context)!.access_control,
                                     icon: Icon(Icons.lock),
                                     suffixIcon: IconButton(
                                         icon: Icon(Icons.help),
@@ -245,33 +243,33 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                               decoration: InputDecoration(
                                 icon: Icon(Icons.language),
                               ),
-                              hint: Text( AppLocalizations.of(context).csAts),
+                              hint: Text( AppLocalizations.of(context)!.csAts),
                               value: _selectLanguage,
-                              onChanged: (value) {
+                              onChanged: (String? value) {
                                 setState(() {
-                                  _selectLanguage = value;
+                                  _selectLanguage = value!;
                                 });
                               },
                               items:[
-                                DropdownMenuItem(child: Text(AppLocalizations.of(context).s2t, overflow: TextOverflow.ellipsis), value: 's2t'),
-                                DropdownMenuItem(child: Text(AppLocalizations.of(context).t2s, overflow: TextOverflow.ellipsis), value: 't2s'),
+                                DropdownMenuItem(child: Text(AppLocalizations.of(context)!.s2t, overflow: TextOverflow.ellipsis), value: 's2t'),
+                                DropdownMenuItem(child: Text(AppLocalizations.of(context)!.t2s, overflow: TextOverflow.ellipsis), value: 't2s'),
                               ],
                             ),
                             DropdownButtonFormField<RssFormat>(
                               decoration: InputDecoration(
                                 icon: Icon(Icons.rss_feed),
                               ),
-                              hint: Text(AppLocalizations.of(context).output_format),
+                              hint: Text(AppLocalizations.of(context)!.output_format),
                               value: _selectRssFormat,
-                              onChanged: (value) {
+                              onChanged: (RssFormat? value) {
                                 setState(() {
-                                  _selectRssFormat = value;
+                                  _selectRssFormat = value!;
                                 });
                               },
                               items: rssFormats.map((RssFormat rssFormat) {
                                 return DropdownMenuItem<RssFormat>(
                                   value: rssFormat,
-                                  child: Text(rssFormat.name),
+                                  child: Text(rssFormat.name!),
                                 );
                               }).toList(),
                             ),
@@ -281,11 +279,11 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   Checkbox(
                                     value: _onlyOnce,
                                     onChanged: (value) {
-                                      setState(() => _onlyOnce = value);
+                                      setState(() => _onlyOnce = value!);
                                     },
                                     activeColor: Colors.orange,
                                   ),
-                                  Text(AppLocalizations.of(context).rule_only_once)
+                                  Text(AppLocalizations.of(context)!.rule_only_once)
                                 ]),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -298,7 +296,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   ),
                                   onPressed: _saveConfig,
                                   label: Text(
-                                    AppLocalizations.of(context).sure,
+                                    AppLocalizations.of(context)!.sure,
                                     style: TextStyle(color: Colors.white),
                                   ),
                                   shape: RoundedRectangleBorder(
@@ -315,13 +313,13 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                     final SharedPreferences prefs =
                                         await _prefs;
                                     prefs.clear();
-                                    _scaffoldKey.currentState.showSnackBar(
+                                    _scaffoldKey.currentState!.showSnackBar(
                                         SnackBar(
                                             behavior: SnackBarBehavior.floating,
-                                            content: Text(AppLocalizations.of(context).reset_config_hint)));
+                                            content: Text(AppLocalizations.of(context)!.reset_config_hint)));
                                   },
                                   label: Text(
-                                    AppLocalizations.of(context).reset,
+                                    AppLocalizations.of(context)!.reset,
                                     style: TextStyle(color: Colors.white),
                                   ),
                                   shape: RoundedRectangleBorder(
@@ -336,10 +334,10 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   }
 
   _saveConfig() async {
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState!.validate()) {
       await _parseConfig();
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-          behavior: SnackBarBehavior.floating, content: Text(AppLocalizations.of(context).save_config_hint)));
+      _scaffoldKey.currentState!.showSnackBar(SnackBar(
+          behavior: SnackBarBehavior.floating, content: Text(AppLocalizations.of(context)!.save_config_hint)));
     }
   }
 
@@ -349,7 +347,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
     var params = "?";
     // 输出格式
     if (_selectRssFormat != null) {
-      params += _selectRssFormat.value;
+      params += _selectRssFormat.value!;
       radarConfig.format = _selectRssFormat;
     }
     // 是否大小写敏感
@@ -455,35 +453,35 @@ class _ConfigStateDialog extends State<ConfigDialog> {
     if (!prefs.containsKey("config")) {
       return;
     }
-    String configStr = prefs.getString("config");
+    String configStr = prefs.getString("config")!;
     RadarConfig radarConfig = RadarConfig.fromJson(json.decode(configStr));
     setState(() {
       // 其他
-      _selectLanguage = radarConfig.opencc;
-      _selectRssFormat = radarConfig.format;
+      _selectLanguage = radarConfig.opencc!;
+      _selectRssFormat = radarConfig.format!;
       // ignore: unnecessary_null_comparison
-      _caseSensitive = radarConfig.filterCaseSensitive != null
+      _caseSensitive = (radarConfig.filterCaseSensitive != null
           ? radarConfig.filterCaseSensitive
-          : false;
+          : false)!;
       // ignore: unnecessary_null_comparison
-      _mode = radarConfig.mode != null ? radarConfig.mode : false;
+      _mode = (radarConfig.mode != null ? radarConfig.mode : false)!;
       // ignore: unnecessary_null_comparison
-      _outScihub = radarConfig.scihub != null ? radarConfig.scihub : false;
-      _countController.text = radarConfig.limit;
-      _accessController.text = radarConfig.access;
+      _outScihub = (radarConfig.scihub != null ? radarConfig.scihub : false)!;
+      _countController.text = radarConfig.limit!;
+      _accessController.text = radarConfig.access!;
 
       // 匹配
-      _filterController.text = radarConfig.filter;
-      _filterAuthorController.text = radarConfig.filterAuthor;
-      _filterDescriptionController.text = radarConfig.filterDescription;
-      _filterTitleController.text = radarConfig.filterTitle;
-      _filterTimeController.text = radarConfig.filterTime;
+      _filterController.text = radarConfig.filter!;
+      _filterAuthorController.text = radarConfig.filterAuthor!;
+      _filterDescriptionController.text = radarConfig.filterDescription!;
+      _filterTitleController.text = radarConfig.filterTitle!;
+      _filterTimeController.text = radarConfig.filterTime!;
 
       // 过滤
-      _filterOutController.text = radarConfig.filterOut;
-      _filterTitleOutController.text = radarConfig.filterOutTitle;
-      _filterDescriptionOutController.text = radarConfig.filterOutDescription;
-      _filterAuthorOutController.text = radarConfig.filterOutAuthor;
+      _filterOutController.text = radarConfig.filterOut!;
+      _filterTitleOutController.text = radarConfig.filterOutTitle!;
+      _filterDescriptionOutController.text = radarConfig.filterOutDescription!;
+      _filterAuthorOutController.text = radarConfig.filterOutAuthor!;
     });
   }
 }

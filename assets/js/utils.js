@@ -1,5 +1,5 @@
 function ruleHandler(rule, params, url, html) {
-    // console.log("rule: "+rule+" params:"+ params +" url:"+url +" html:"+html);
+    console.log("rule: "+rule+" params:"+ params +" url:"+url +" html:"+html);
     const run = () => {
         let reaultWithParams;
         if (typeof rule.target === 'function') {

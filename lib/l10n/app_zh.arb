@@ -49,5 +49,6 @@
   "user_manual": "使用手册",
   "settings": "设置",
   "common": "通用",
-  "about": "关于"
+  "about": "关于",
+  "refreshRules":"更新规则"
 }

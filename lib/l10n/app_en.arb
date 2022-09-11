@@ -49,5 +49,6 @@
   "user_manual": "User Manual",
   "settings": "Settings",
   "common": "General",
-  "about": "About"
+  "about": "About",
+  "refreshRules":"Refresh Rules"
 }

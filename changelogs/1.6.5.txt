@@ -1,0 +1,3 @@
+fix [#34](https://github.com/LeetaoGoooo/RSSAid/issues/34)
+fix [#37](https://github.com/LeetaoGoooo/RSSAid/issues/37)
+fix [#38](https://github.com/LeetaoGoooo/RSSAid/issues/38)

@@ -1,7 +1,5 @@
-// @dart=2.9
-
 import 'package:rssaid/models/radar.dart';
-import 'package:rssaid/radar/strategies/weiboStragy.dart';
+import 'package:rssaid/radar/strategies/weiboStrategy.dart';
 
 /// 对一些特殊网页进行适配
 /// weibo 手机端：
@@ -12,14 +10,13 @@ import 'package:rssaid/radar/strategies/weiboStragy.dart';
 ///               https://weibo.com/u/7282705552 （手机 App）
 
 class Rules {
-  static List<Radar> detectUrl(String url) {
-    // ignore: avoid_init_to_null
-    var ruleStragy = null;
+  static List<Radar>? detectUrl(String url) {
+    var ruleStrategy;
     if (url.contains("weibo")) {
-      ruleStragy = Weibo();
+      ruleStrategy = Weibo();
     }
-    if (ruleStragy != null) {
-      return ruleStragy.detect(url);
+    if (ruleStrategy != null) {
+      return ruleStrategy.detect(url);
     }
     return null;
   }

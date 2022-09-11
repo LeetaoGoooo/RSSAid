@@ -1,17 +1,13 @@
-// @dart=2.9
-
 import 'dart:convert';
 import 'dart:io';
 
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:system_proxy/system_proxy.dart';
 
 extension HttpClientExtension on HttpClient {
   Future<HttpClient> autoProxy() async {
-    Map<String, String> sysProxy = await SystemProxy.getProxySettings();
+    Map<String, String>? sysProxy = await SystemProxy.getProxySettings();
     var proxy = "DIRECT";
     if (sysProxy != null) {
       proxy = "PROXY ${sysProxy['host']}:${sysProxy['port']}; DIRECT";
@@ -24,7 +20,6 @@ extension HttpClientExtension on HttpClient {
 }
 
 class Common {
-
   static Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   static Future<void> launchInBrowser(String url) async {
@@ -33,15 +28,15 @@ class Common {
     }
   }
 
-  static bool isNumeric(String s) {
+  static bool isNumeric(String? s) {
     if (s == null) {
       return false;
     }
     return double.tryParse(s) != null;
   }
 
-  static Future<String> getContentByUrl(Uri uri) async {
-    var content = "";
+  static Future<String?> getContentByUrl(Uri uri) async {
+    String? content;
     try {
       var httpClient = await new HttpClient().autoProxy();
       httpClient.connectionTimeout = Duration(seconds: 10);
@@ -57,11 +52,35 @@ class Common {
     return content;
   }
 
-  static refreshRules() async{
+  static refreshRules() async {
     final SharedPreferences prefs = await _prefs;
+    if (prefs.containsKey("Rules")) {
+      return;
+    }
     var url =
-        'https://raw.githubusercontent.com/Cay-Zhang/RSSBudRules/main/radar-rules.js';
+        'https://raw.githubusercontent.com/Cay-Zhang/RSSBudRules/main/rules/radar-rules.js';
+
+    if (prefs.containsKey("ruleSource")) {
+      url = prefs.getString("ruleSource")!;
+    }
+
     var jsCode = await getContentByUrl(Uri.parse(url));
-    await prefs.setString("Rules", "$jsCode");
+    if (jsCode != null) {
+      bool setRules = await prefs.setString("Rules", "$jsCode");
+      if (setRules) {
+        print('成功加载规则文件!');
+      }
+    }
+  }
+
+  static Future<String> getRules() async {
+    await Common.refreshRules();
+    final SharedPreferences prefs = await _prefs;
+    return prefs.getString("Rules")!;
+  }
+
+  static Future<bool> setRuleSource(String source) async {
+    final SharedPreferences prefs = await _prefs;
+    return await prefs.setString("ruleSource", source);
   }
 }

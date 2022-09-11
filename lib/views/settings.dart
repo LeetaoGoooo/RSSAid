@@ -1,8 +1,6 @@
-// @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:rssaid/common/common.dart';
 import 'package:rssaid/views/rules.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -14,28 +12,19 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   String _domain = "https://rsshub.app";
-  String _rules = "";
 
   void initState() {
     super.initState();
     init();
   }
 
-  Future<void> _fetchRules() async {
-    await Common.refreshRules();
-    setState(() {});
-  }
-
   Future<void> init() async {
     final SharedPreferences prefs = await _prefs;
     if (prefs.containsKey("RSSHUB")) {
       setState(() {
-        _domain = prefs.getString("RSSHUB");
+        _domain = prefs.getString("RSSHUB")!;
       });
     }
-    setState(() {
-      _rules = prefs.getString("Rules");
-    });
   }
 
   void setDomain(String domain) async {
@@ -53,7 +42,8 @@ class _SettingPageState extends State<SettingPage> {
         appBar: AppBar(
             backgroundColor: Colors.white,
             centerTitle: true,
-            title: Text(AppLocalizations.of(context).settings, style: Theme.of(context).textTheme.headline6),
+            title: Text(AppLocalizations.of(context)!.settings,
+                style: Theme.of(context).textTheme.headline6),
             leading: IconButton(
                 icon: Icon(Icons.arrow_back_ios, color: Colors.black),
                 onPressed: () {
@@ -65,9 +55,9 @@ class _SettingPageState extends State<SettingPage> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppLocalizations.of(context).common),
-              CommonRows(_domain, setDomain, _fetchRules, _rules),
-              Text(AppLocalizations.of(context).about),
+              Text(AppLocalizations.of(context)!.common),
+              CommonRows(_domain, setDomain),
+              Text(AppLocalizations.of(context)!.about),
               AboutRows()
             ],
           ),
@@ -77,19 +67,14 @@ class _SettingPageState extends State<SettingPage> {
 
 // ignore: must_be_immutable
 class CommonRows extends StatelessWidget {
-  String _domain;
-  Function _domainSetCallback;
-  String _rules;
-  Function _refreshRulesCallBack;
+  String? _domain;
+  Function? _domainSetCallback;
   TextEditingController _domainController = new TextEditingController();
 
-  CommonRows(String domain, Function domainSetFunc, Function _refreshRules,
-      String rules) {
+  CommonRows(String domain, Function domainSetFunc) {
     this._domain = domain;
     this._domainController.text = domain;
     this._domainSetCallback = domainSetFunc;
-    this._refreshRulesCallBack = _refreshRules;
-    this._rules = rules;
   }
 
   @override
@@ -136,7 +121,7 @@ class CommonRows extends StatelessWidget {
       child: ListTile(
         leading: Icon(Icons.apps, color: Colors.orange),
         title: Text(
-          AppLocalizations.of(context).user_manual,
+          AppLocalizations.of(context)!.user_manual,
           style: TextStyle(color: Colors.orange),
         ),
         onTap: () {
@@ -161,9 +146,8 @@ class CommonRows extends StatelessWidget {
           style: TextStyle(color: Colors.orange),
         ),
         onTap: () {
-          Navigator.of(context).push(
-              new MaterialPageRoute<Null>(builder: (BuildContext context) {
-            return new RulesDialog(_rules, _refreshRulesCallBack);
+          Navigator.push(context, MaterialPageRoute<Null>(builder: (_) {
+            return new RulesDialog();
           }));
         },
       ),
@@ -186,17 +170,17 @@ class CommonRows extends StatelessWidget {
                 ),
                 actions: <Widget>[
                   new FlatButton(
-                      child: Text(AppLocalizations.of(context).cancel,
+                      child: Text(AppLocalizations.of(context)!.cancel,
                           style: TextStyle(color: Colors.orange)),
                       onPressed: () {
                         Navigator.pop(context);
                       }),
                   new FlatButton(
-                      child: Text(AppLocalizations.of(context).sure,
+                      child: Text(AppLocalizations.of(context)!.sure,
                           style: TextStyle(color: Colors.orange)),
                       onPressed: () {
                         if (_domainController.text != _domain) {
-                          _domainSetCallback(_domainController.text);
+                          _domainSetCallback!(_domainController.text);
                         }
                         Navigator.pop(context);
                       })
@@ -239,11 +223,10 @@ class AboutRows extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       children: [
-        _buildAboutItem("Version", Icons.info, "v1.6.4", ""),
+        _buildAboutItem("Version", Icons.info, "v1.6.5", ""),
         _buildAboutItem("Github", Icons.favorite, "",
             "https://github.com/LeetaoGoooo/RSSAid"),
-        _buildAboutItem(
-            'Telegram', Icons.group, "", "https://t.me/rssaid"),
+        _buildAboutItem('Telegram', Icons.group, "", "https://t.me/rssaid"),
       ],
     );
   }
