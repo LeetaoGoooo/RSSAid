@@ -24,10 +24,10 @@ jobs:
           java-version: "12.x"
       # 建立 Flutter 环境
       - name: Flutter action
-        uses: subosito/flutter-action@v1.4.0
+        uses: subosito/flutter-action@v1.4.1
         with:
           channel: "stable"
-          flutter-version: "2.0.1"
+          flutter-version: "3.0.0"
       # 下载项目依赖
       - run: flutter pub get
       - run: echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
