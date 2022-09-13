@@ -1,8 +1,8 @@
 <h1 align=center>RSSAid</h1>
 
 <p align=center>
-<a href="https://developer.apple.com/swift"><img src="https://img.shields.io/badge/flutter-1.22.4-fe562e?style=flat-square"></a>
-<a href="https://developer.apple.com/ios"><img src="https://img.shields.io/badge/SdkVersion-21%2B-blue?style=flat-square"></a>
+<a href="https://developer.apple.com/swift"><img src="https://img.shields.io/badge/flutter-3.0.0-fe562e?style=flat-square"></a>
+<a href="https://developer.apple.com/ios"><img src="https://img.shields.io/badge/SdkVersion-30%2B-blue?style=flat-square"></a>
 <img src="https://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat-square">
 </p>
 
