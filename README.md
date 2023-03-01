@@ -61,27 +61,6 @@ If you wish to submit new rules for RSSHub Radar and RSSAid, see [how](https://d
 
 > Some pages have different URLs for mobile and PC, but rules on RSSHub Radar only supports PC-style URLs. RSSAid will try to convert mobile-specific URLs, but if you find a URL that is valid on RSSHub Radar but not on RSSAid, try using the URL for PC, and report the issue on Telegram.
 
-## Sponsor
-
-RSSAid is a open-source project under MIT license. It's completely free to use it.
-
-If you like our project, you can donate to our project.
-
-### Periodic sponsorship
-
-Periodic sponsorship have additional benefits: your issues on GitHub will be responded faster, your name will appear in our GitHub repository.
-
-*   [Donate using Afdian](https://afdian.net/@leetao)
-
-*   Mail to leetao@email.cn for sponsorship-related support.
-
-### One-time sponsorship
-
-You can donate with Alipay or WeChat.
-
-*   [Alipay](http://ww1.sinaimg.cn/large/006wYWbGly1fm10itkjb6j30aj0a9t8w.jpg)
-
-*   [WeChat Pay](http://ww1.sinaimg.cn/large/006wYWbGly1fm10jihygsj309r09tglw.jpg)
 
 ## Author
 
