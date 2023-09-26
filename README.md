@@ -9,8 +9,6 @@
 > RSSAid is a complementary app for [RSSHub](https://github.com/DIYgod/RSSHub) built with Flutter, similar to [RSSHub Radar](https://github.com/DIYgod/RSSHub-Radar), which helps you quickly discover and subscribe to RSS feeds from websites, and supports common parameters of RSSHub (for filtering, getting full text, etc.)
 > [ChineseVersion](README_CN.md)
 
-[Telegram group](https://t.me/rssaid_group) | [Telegram channel](https://t.me/rssaid)
-
 <p float='left'>
 <img src="screenshots/en-home.png" width="375">
 <img src="screenshots/en-settings.png" width="375">
