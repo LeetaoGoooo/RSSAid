@@ -32,10 +32,11 @@ dependencies:
   share: ^2.0.0
   html: ^0.15.0
   system_proxy: ^0.1.0
-  flutter_inappwebview: ^5.1.0+2
+  flutter_inappwebview: ^6.0.0
   flutter_localizations: 
     sdk: flutter
-  intl: ^0.17.0
+  intl: ^0.18.1
+  oktoast: ^3.4.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
 

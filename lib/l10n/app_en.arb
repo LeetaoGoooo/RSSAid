@@ -9,6 +9,7 @@
   "whichSupport": "View supported rules",
   "copy": "Copy",
   "copySuccess": "Copied!",
+  "copyFailed": "Copy Failed!",
   "subscribe": "Subscribe",
   "clear": "Clear",
   "inputLinkChecked": "Enter the link to detect",

@@ -9,6 +9,7 @@
   "whichSupport": "看看支持什么规则",
   "copy": "复制",
   "copySuccess": "复制成功",
+  "copyFailed": "复制失败",
   "subscribe": "订阅",
   "clear": "清除所有",
   "inputLinkChecked": "输入要检测的链接",

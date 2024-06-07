@@ -98,13 +98,13 @@ class _RulesDialog extends State<RulesDialog> {
                   ),
                 ),
                 actions: <Widget>[
-                  new FlatButton(
+                  new TextButton(
                       child: Text(AppLocalizations.of(context)!.cancel,
                           style: TextStyle(color: Colors.orange)),
                       onPressed: () {
                         Navigator.pop(context);
                       }),
-                  new FlatButton(
+                  new TextButton(
                       child: Text(AppLocalizations.of(context)!.sure,
                           style: TextStyle(color: Colors.orange)),
                       onPressed: () async {

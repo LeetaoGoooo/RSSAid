@@ -51,13 +51,19 @@ class _SettingPageState extends State<SettingPage> {
                 })),
         body: Container(
           margin: EdgeInsets.only(top: 16),
+
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(AppLocalizations.of(context)!.common),
+              Padding(padding:  EdgeInsets.only(left: 24, right: 24, bottom: 8),
+              child: Text(AppLocalizations.of(context)!.common, style: Theme.of(context).textTheme.titleMedium,),
+              ),
               CommonRows(_domain, setDomain),
-              Text(AppLocalizations.of(context)!.about),
+              Padding(padding:  EdgeInsets.only(left: 24, right: 24, bottom: 8),
+                child: Text(AppLocalizations.of(context)!.about, style: Theme.of(context).textTheme.titleMedium,),
+              ),
               AboutRows()
             ],
           ),
@@ -96,7 +102,7 @@ class CommonRows extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
-      elevation: 0,
+      elevation: 1,
       child: ListTile(
         leading: Icon(Icons.domain, color: Colors.orange),
         title: Text(
@@ -117,7 +123,7 @@ class CommonRows extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
-      elevation: 0,
+      elevation: 1,
       child: ListTile(
         leading: Icon(Icons.apps, color: Colors.orange),
         title: Text(
@@ -138,7 +144,7 @@ class CommonRows extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
-      elevation: 0,
+      elevation: 1,
       child: ListTile(
         leading: Icon(Icons.note, color: Colors.orange),
         title: Text(
@@ -169,13 +175,13 @@ class CommonRows extends StatelessWidget {
                   ),
                 ),
                 actions: <Widget>[
-                  new FlatButton(
+                   TextButton(
                       child: Text(AppLocalizations.of(context)!.cancel,
                           style: TextStyle(color: Colors.orange)),
                       onPressed: () {
                         Navigator.pop(context);
                       }),
-                  new FlatButton(
+                  ElevatedButton(
                       child: Text(AppLocalizations.of(context)!.sure,
                           style: TextStyle(color: Colors.orange)),
                       onPressed: () {
@@ -201,7 +207,7 @@ class AboutRows extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
-      elevation: 0,
+      elevation: 1,
       child: ListTile(
         leading: Icon(icon, color: Colors.orange),
         title: Text(
@@ -225,8 +231,7 @@ class AboutRows extends StatelessWidget {
       children: [
         _buildAboutItem("Version", Icons.info, "v1.6.5", ""),
         _buildAboutItem("Github", Icons.favorite, "",
-            "https://github.com/LeetaoGoooo/RSSAid"),
-        _buildAboutItem('Telegram', Icons.group, "", "https://t.me/rssaid"),
+            "https://github.com/LeetaoGoooo/RSSAid")
       ],
     );
   }
