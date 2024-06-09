@@ -19,9 +19,9 @@ jobs:
       - uses: actions/checkout@v2
       # 建立 java 环境
       - name: Setup Java JDK
-        uses: actions/setup-java@v1.4.3
+        uses: actions/setup-java@v4
         with:
-          java-version: "12.x"
+          java-version: "21"
       # 建立 Flutter 环境
       - name: Flutter action
         uses: subosito/flutter-action@v2
