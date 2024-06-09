@@ -22,8 +22,6 @@
 
 The latest build for Android can be found in [the releases](https://github.com/lt94/RSSAid/releases).
 
-Join our [Telegram channel](https://t.me/rssaid_group) to keep updated.
-
 ## Build
 
 If you wish to build the application from source, please refer to the [official documentation by Flutter](https://flutter.cn/docs/deployment/android).
@@ -43,11 +41,6 @@ If you wish to build the application from source, please refer to the [official 
 - [x] RSS+ rules
 - [x] Available on FDroid
 - [x] English version
-
-
-## Join beta program
-
-Join our [Telegram group](https://t.me/rssaid_group) for latest information.
 
 ## Rules
 

@@ -9,8 +9,6 @@
 > RSSAid 是一个由 Flutter 构建的 [RSSHub](https://github.com/DIYgod/RSSHub) 的辅助 App，和 [RSSHub Radar](https://github.com/DIYgod/RSSHub-Radar) 类似，他可以帮助你快速发现网站的 RSS。此外，他还支持 RSSHub 的通用参数 (实现过滤、获取全文等功能)。
 > [英文版本](README.md)
 
-[Telegram 群](https://t.me/rssaid_group) | [Telegram 频道](https://t.me/rssaid)
-
 <p float='left'>
 <img src="screenshots/home.png"  width="375">
 <img src="screenshots/config.png"  width="375">
@@ -20,8 +18,6 @@
 ## 下载
 
 下载最新版本 [RSSAid](https://github.com/lt94/RSSAid/releases)
-
-订阅 [Telegram 频道](https://t.me/rssaid_group) 以获取更新信息。
 
 ## 打包
 
@@ -41,13 +37,7 @@
 - [x] 历史记录保存
 - [x] rss+ 规则
 - [x] fdroid
-- [x] English version 
-
-
-## 参与 Beta 测试
-
-加入 [Telegram 群](https://t.me/rssaid_group) 以获得最新详情。
-
+- [x] English version
 
 ## 规则
 
@@ -58,28 +48,6 @@ RSSAid 和 [RSSHub Radar](https://github.com/DIYgod/RSSHub-Radar) 使用同一�
 > 请注意，在 `target` 中使用 `document` 的规则并不适用 RSSAid。RSSAid 并不是一个浏览器插件，它只获取并分析网站的 URL。
 
 > 一些网站的移动端和电脑端页面 URL 不同。由于 RSSHub Radar 的规则是适配电脑端的，在你发现 RSSAid 无法识别 RSSHub Radar 可以识别的网站时，可以尝试使用电脑端的 URL 并在 Telegram 向作者反馈。
-
-## 支持 RSSAid
-
-RSSAid 是采用 MIT 许可的开源项目，使用完全免费。
-
-觉得不错的话，可以通过下列的方法来赞助 RSSAid 的开发.
-
-### 周期性赞助
-
-周期性赞助可以获得额外的回报，比如更快的 GitHub 响应或者你的名字会出现在 RSSAid 的 GitHub 仓库.
-
-*   通过 [爱发电](https://afdian.net/@leetao) 赞助
-
-*   给我们发邮件联系赞助事宜: leetao@email.cn
-
-### 一次性赞助
-
-我们通过以下方式接受赞助:
-
-*   [支付宝](http://ww1.sinaimg.cn/large/006wYWbGly1fm10itkjb6j30aj0a9t8w.jpg)
-
-*   [微信支付](http://ww1.sinaimg.cn/large/006wYWbGly1fm10jihygsj309r09tglw.jpg)
 
 ## 作者
 
