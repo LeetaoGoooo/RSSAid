@@ -21,7 +21,9 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
-          java-version: "21"
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
       # 建立 Flutter 环境
       - name: Flutter action
         uses: subosito/flutter-action@v2
