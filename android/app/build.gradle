@@ -66,6 +66,8 @@ android {
         release {
             signingConfig signingConfigs.release
         }
+        debug {
+        }
     }
 
     flavorDimensions "deploy"
@@ -77,7 +79,7 @@ android {
         }
         fdroid {
             dimension "deploy"
-            signingConfig null
+            signingConfig signingConfigs.debug
         }
     }
 }
