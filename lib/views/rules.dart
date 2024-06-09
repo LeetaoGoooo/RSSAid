@@ -19,7 +19,7 @@ class _RulesDialog extends State<RulesDialog> {
     _ruleSourcecontroller.text = _ruleSource;
     Common.getRules().then((value) {
       setState(() {
-        _rules = value;
+        _rules = value ?? "";
       });
     });
   }
@@ -32,7 +32,7 @@ class _RulesDialog extends State<RulesDialog> {
           centerTitle: true,
           title: Text(
             "Rules",
-            style: Theme.of(context).textTheme.headline6,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios, color: Colors.black),

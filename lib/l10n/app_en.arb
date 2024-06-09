@@ -7,6 +7,7 @@
   "addConfig": "Create configuration",
   "submitNewRules": "Submit new rules",
   "whichSupport": "View supported rules",
+  "loadRulesFailed": "Please verify if the rules have been loaded successfully on the config page!",
   "copy": "Copy",
   "copySuccess": "Copied!",
   "copyFailed": "Copy Failed!",

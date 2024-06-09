@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rssaid/common/common.dart';
 import 'package:rssaid/views/rules.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +13,14 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   String _domain = "https://rsshub.app";
+  PackageInfo packageInfo = PackageInfo(
+    appName: 'RSSAid',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+    installerStore: 'Unknown',
+  );
 
   void initState() {
     super.initState();
@@ -25,6 +34,10 @@ class _SettingPageState extends State<SettingPage> {
         _domain = prefs.getString("RSSHUB")!;
       });
     }
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      packageInfo = info;
+    });
   }
 
   void setDomain(String domain) async {
@@ -43,7 +56,7 @@ class _SettingPageState extends State<SettingPage> {
             backgroundColor: Colors.white,
             centerTitle: true,
             title: Text(AppLocalizations.of(context)!.settings,
-                style: Theme.of(context).textTheme.headline6),
+                style: Theme.of(context).textTheme.titleLarge),
             leading: IconButton(
                 icon: Icon(Icons.arrow_back_ios, color: Colors.black),
                 onPressed: () {
@@ -64,7 +77,7 @@ class _SettingPageState extends State<SettingPage> {
               Padding(padding:  EdgeInsets.only(left: 24, right: 24, bottom: 8),
                 child: Text(AppLocalizations.of(context)!.about, style: Theme.of(context).textTheme.titleMedium,),
               ),
-              AboutRows()
+              AboutRows(version: packageInfo.version,)
             ],
           ),
         ));
@@ -199,6 +212,10 @@ class CommonRows extends StatelessWidget {
 }
 
 class AboutRows extends StatelessWidget {
+  final String version;
+
+  const AboutRows({Key? key, required this.version}) : super(key: key);
+
   Widget _buildAboutItem(
       String name, IconData icon, String trailing, String url) {
     return Card(
@@ -229,9 +246,10 @@ class AboutRows extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       children: [
-        _buildAboutItem("Version", Icons.info, "v1.6.5", ""),
+        _buildAboutItem("Version", Icons.info, version, ""),
         _buildAboutItem("Github", Icons.favorite, "",
-            "https://github.com/LeetaoGoooo/RSSAid")
+            "https://github.com/LeetaoGoooo/RSSAid"),
+        _buildAboutItem("Author", Icons.person, "", "https://x.com/LeetaoGoooo")
       ],
     );
   }

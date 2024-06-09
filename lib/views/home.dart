@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:linkify/linkify.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/common/common.dart';
 import 'package:rssaid/common/link_helper.dart';
 import 'package:rssaid/models/radar.dart';
@@ -47,13 +48,15 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     // _fetchRules();
     // For sharing or opening urls/text coming from outside the app while the app is in the memory
-    _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream()
+    _intentDataStreamSubscription = ReceiveSharingIntent.instance.getMediaStream()
         .where((event) => event.isNotEmpty)
         .listen(_detectUrlFromShare, onError: (err) {});
 
     // For sharing or opening urls/text coming from outside the app while the app is closed
-    ReceiveSharingIntent.getInitialText().then((value) => {
-      if (value != null) {_detectUrlFromShare(value)}
+    ReceiveSharingIntent.instance.getInitialMedia().then((value) => {
+      {
+        _detectUrlFromShare(value)
+    }
     });
 
     _scrollViewController = new ScrollController();
@@ -92,10 +95,17 @@ class _HomePageState extends State<HomePage> {
     headlessWebView.dispose();
   }
 
-  Future<void> _detectUrlFromShare(String text) async {
-    if (text.isEmpty) {
+  Future<void> _detectUrlFromShare(List<SharedMediaFile>  mediaFiles) async {
+    if (mediaFiles.isEmpty) {
       return;
     }
+
+    if (mediaFiles.first.type != SharedMediaType.url) {
+      return;
+    }
+
+    String text = mediaFiles.first.path;
+
 
     setState(() {
       _currentUrl = '';
@@ -183,7 +193,11 @@ class _HomePageState extends State<HomePage> {
         assetFilePath: 'assets/js/route-recognizer.min.js');
     await headlessWebView.webViewController
         ?.injectJavascriptFileFromAsset(assetFilePath: 'assets/js/utils.js');
-    String rules = await Common.getRules();
+    String? rules = await Common.getRules();
+    if (rules == null || rules.isEmpty) {
+      showToast(AppLocalizations.of(context)!.loadRulesFailed);
+      return [];
+    }
     await headlessWebView.webViewController
         ?.evaluateJavascript(source: 'var rules=$rules');
     var html = await webViewController.getHtml();

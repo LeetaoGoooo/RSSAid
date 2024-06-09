@@ -15,7 +15,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPrefs().init();
   if (Platform.isAndroid) {
-    await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(false);
+    await InAppWebViewController.setWebContentsDebuggingEnabled(false);
   }
 
   runApp(RSSAidApp());
