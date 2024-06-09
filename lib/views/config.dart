@@ -14,7 +14,7 @@ class ConfigDialog extends StatefulWidget {
 
 class _ConfigStateDialog extends State<ConfigDialog> {
   final _formKey = new GlobalKey<FormState>();
-  final _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final _scaffoldKey = new GlobalKey<ScaffoldMessengerState>();
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   TextEditingController _filterController = new TextEditingController();
   TextEditingController _filterTitleController = new TextEditingController();
@@ -289,7 +289,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                FlatButton.icon(
+                                ElevatedButton.icon(
                                   icon: Icon(
                                     Icons.save,
                                     color: Colors.white,
@@ -299,12 +299,8 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                     AppLocalizations.of(context)!.sure,
                                     style: TextStyle(color: Colors.white),
                                   ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  color: Colors.orange,
                                 ),
-                                FlatButton.icon(
+                                ElevatedButton.icon(
                                   icon: Icon(
                                     Icons.delete,
                                     color: Colors.white,
@@ -322,10 +318,6 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                     AppLocalizations.of(context)!.reset,
                                     style: TextStyle(color: Colors.white),
                                   ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  color: Colors.orange,
                                 ),
                               ],
                             )

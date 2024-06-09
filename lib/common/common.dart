@@ -73,10 +73,10 @@ class Common {
     }
   }
 
-  static Future<String> getRules() async {
+  static Future<String?> getRules()  async {
     await Common.refreshRules();
     final SharedPreferences prefs = await _prefs;
-    return prefs.getString("Rules")!;
+    return await prefs.getString("Rules");
   }
 
   static Future<bool> setRuleSource(String source) async {
