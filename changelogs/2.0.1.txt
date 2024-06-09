@@ -1,0 +1,1 @@
+fix [#29](https://github.com/LeetaoGoooo/RSSAid/issues/29)
