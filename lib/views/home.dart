@@ -11,7 +11,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/common/common.dart';
 import 'package:rssaid/common/link_helper.dart';
 import 'package:rssaid/models/radar.dart';
-import 'package:rssaid/radar/radar.dart';
+import 'package:rssaid/radar/rss_plus.dart';
 import 'package:rssaid/shared_prefs.dart';
 import 'package:rssaid/views/config.dart';
 import 'package:rssaid/views/settings.dart';

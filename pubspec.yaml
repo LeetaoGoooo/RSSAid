@@ -33,17 +33,19 @@ dependencies:
   html: ^0.15.0
   system_proxy: ^0.1.0
   flutter_inappwebview: ^6.0.0
-  flutter_localizations: 
-    sdk: flutter
   intl: ^0.19.0
   oktoast: ^3.4.0
   package_info_plus: ^8.0.0
+  flutter_localization: ^0.2.0
+  tldts: ^0.0.1-beta
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
 
 dev_dependencies:
+  build_runner: ^2.4.11
   flutter_test:
     sdk: flutter
+  json_serializable: ^6.8.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

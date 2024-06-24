@@ -24,11 +24,15 @@ class SharedPrefs {
   }
 
   /// Save history records after user delete one
-  set  historyList(List<String> history) => _sharedPrefs.setStringList('historyListKey', history);
+  set historyList(List<String> history) => _sharedPrefs.setStringList('historyListKey', history);
 
   Future<void> removeIfExist(String key) async {
     if (_sharedPrefs.containsKey(key)) {
       await _sharedPrefs.remove(key);
     }
   }
+
+  set rules(String rules) => _sharedPrefs.setString("Rules", rules);
+
+  String get rules => _sharedPrefs.getString("Rules") ?? "";
 }
