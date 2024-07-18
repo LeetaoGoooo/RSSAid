@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -42,8 +41,7 @@ class RSSAidApp extends StatelessWidget {
       theme: ThemeData(
           useMaterial3: true,
           brightness: Brightness.light, //指定亮度主题，有白色/黑色两种可选。
-          primaryColor: Colors.orange, //这里我们选蓝色为基准色值。
-          hintColor: Colors.orange[100]), //这里我们选浅蓝色为强调色值。
+      ), //这里我们选浅蓝色为强调色值。
       home: HomePage(),
     ));
   }
