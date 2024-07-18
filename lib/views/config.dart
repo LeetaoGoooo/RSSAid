@@ -36,13 +36,14 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   bool _mode = false;
   bool _outScihub = false;
   String _selectLanguage = "s2t";
-  late RssFormat _selectRssFormat;
+  RssFormat? _selectRssFormat;
   List<RssFormat> rssFormats = <RssFormat>[
     RssFormat(".atom", "Atom"),
     RssFormat(".rss", "RSS 2.0")
   ];
   bool _onlyOnce = true; // 配置只对当前生效
 
+  @override
   void initState() {
     super.initState();
     _loadConfig();
@@ -292,18 +293,15 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                 ElevatedButton.icon(
                                   icon: Icon(
                                     Icons.save,
-                                    color: Colors.white,
                                   ),
                                   onPressed: _saveConfig,
                                   label: Text(
                                     AppLocalizations.of(context)!.sure,
-                                    style: TextStyle(color: Colors.white),
                                   ),
                                 ),
                                 ElevatedButton.icon(
                                   icon: Icon(
                                     Icons.delete,
-                                    color: Colors.white,
                                   ),
                                   onPressed: () async {
                                     final SharedPreferences prefs =
@@ -316,7 +314,6 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                   },
                                   label: Text(
                                     AppLocalizations.of(context)!.reset,
-                                    style: TextStyle(color: Colors.white),
                                   ),
                                 ),
                               ],
@@ -339,7 +336,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
     var params = "?";
     // 输出格式
     if (_selectRssFormat != null) {
-      params += _selectRssFormat.value!;
+      params += _selectRssFormat!.value!;
       radarConfig.format = _selectRssFormat;
     }
     // 是否大小写敏感
@@ -441,6 +438,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   }
 
   _loadConfig() async {
+    _selectRssFormat = rssFormats.first;
     final SharedPreferences prefs = await _prefs;
     if (!prefs.containsKey("config")) {
       return;
@@ -450,7 +448,6 @@ class _ConfigStateDialog extends State<ConfigDialog> {
     setState(() {
       // 其他
       _selectLanguage = radarConfig.opencc!;
-      _selectRssFormat = radarConfig.format!;
       // ignore: unnecessary_null_comparison
       _caseSensitive = (radarConfig.filterCaseSensitive != null
           ? radarConfig.filterCaseSensitive

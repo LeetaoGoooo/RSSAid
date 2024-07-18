@@ -11,12 +11,17 @@ import 'package:rssaid/radar/strategies/weiboStrategy.dart';
 
 class Rules {
   static List<Radar>? detectUrl(String url) {
-    var ruleStrategy;
-    if (url.contains("weibo")) {
-      ruleStrategy = Weibo();
-    }
-    if (ruleStrategy != null) {
-      return ruleStrategy.detect(url);
+    try {
+      var ruleStrategy;
+      if (url.contains("weibo")) {
+        ruleStrategy = Weibo();
+      }
+      if (ruleStrategy != null) {
+        return ruleStrategy.detect(url);
+      }
+    } catch (e) {
+      print('detectUrl url failed:$e');
+      return null;
     }
     return null;
   }

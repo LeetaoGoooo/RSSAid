@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:linkify/linkify.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/common/common.dart';
@@ -18,7 +18,6 @@ import 'package:rssaid/views/settings.dart';
 import 'package:share/share.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -41,7 +40,6 @@ class _HomePageState extends State<HomePage> {
   TextEditingController _inputUrlController = new TextEditingController();
   late HeadlessInAppWebView headlessWebView;
   late InAppWebViewController webViewController;
-  PreviewData previewData = new PreviewData();
 
   @override
   void initState() {
@@ -166,6 +164,7 @@ class _HomePageState extends State<HomePage> {
     _radarList!.then(
           (value) {
         if (value.length > 0) {
+          print("_radarList length > 0, set _configVisible is true");
           setState(() {
             _configVisible = true;
             _notUrlDetected = false;
@@ -338,22 +337,16 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                  if (_configVisible)
-                    LinkPreview(
-                      enableAnimation: true,
-                      text: _currentUrl.trim(),
-                      onPreviewDataFetched: (data) {
-                        setState(() {
-                          previewData = data;
-                        });
-                      },
-                      previewData: previewData,
-                      textStyle: TextStyle(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      width: MediaQuery.of(context).size.width,
+                  AnyLinkPreview(
+                    link: _currentUrl.trim(),
+                    displayDirection: UIDirection.uiDirectionHorizontal,
+                    cache: Duration(hours: 1),
+                    backgroundColor: Colors.grey[300],
+                    errorWidget: Container(
+                      color: Colors.grey[300],
+                      child: Text('Oops!'),
                     ),
+                  ),
                 ],
               )));
     }
