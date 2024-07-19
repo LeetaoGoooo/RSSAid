@@ -54,7 +54,6 @@ class _ConfigStateDialog extends State<ConfigDialog> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: Text(AppLocalizations.of(context)!.gc),
       ),
       body: SingleChildScrollView(
@@ -75,7 +74,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                             Text(
                               AppLocalizations.of(context)!.contentFilter,
                               style: TextStyle(
-                                  fontSize: 12, color: Colors.grey[400]),
+                                  fontSize: 12),
                             ),
                             ListTile(
                               leading: Text(AppLocalizations.of(context)!.caseSensitive),
@@ -109,7 +108,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                             ),
                             Text(AppLocalizations.of(context)!.filtering,
                                 style: TextStyle(
-                                    fontSize: 12, color: Colors.grey[400])),
+                                    fontSize: 12)),
                             TextFormField(
                               autofocus: true,
                               controller: _filterController,
@@ -168,7 +167,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                               child: Text(
                                 AppLocalizations.of(context)!.filterout,
                                 style: TextStyle(
-                                    fontSize: 12, color: Colors.grey[400]),
+                                    fontSize: 12),
                               ),
                             ),
                             TextFormField(
@@ -201,7 +200,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                 child: Text(
                                   AppLocalizations.of(context)!.filter_others,
                                   style: TextStyle(
-                                      fontSize: 12, color: Colors.grey[400]),
+                                      fontSize: 12),
                                 )),
                             TextFormField(
                                 autofocus: true,
@@ -282,7 +281,6 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                     onChanged: (value) {
                                       setState(() => _onlyOnce = value!);
                                     },
-                                    activeColor: Colors.orange,
                                   ),
                                   Text(AppLocalizations.of(context)!.rule_only_once)
                                 ]),

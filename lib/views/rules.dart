@@ -28,21 +28,20 @@ class _RulesDialog extends State<RulesDialog> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
           centerTitle: true,
           title: Text(
             "Rules",
             style: Theme.of(context).textTheme.titleMedium,
           ),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+            icon: Icon(Icons.arrow_back_ios),
             onPressed: () {
               Navigator.pop(context);
             },
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.settings, color: Colors.black),
+              icon: Icon(Icons.settings),
               onPressed: () {
                 _showDialog(context);
               },
@@ -52,14 +51,13 @@ class _RulesDialog extends State<RulesDialog> {
         body: SingleChildScrollView(child: Container(child: Text(_rules))),
         floatingActionButton: FloatingActionButton(
           tooltip: AppLocalizations.of(context)!.refreshRules,
-          child: Icon(Icons.refresh, color: Colors.white),
+          child: Icon(Icons.refresh),
           onPressed: () {
             _refreshRules(context);
             Future.delayed(Duration(seconds: 3), () {
               Navigator.pop(context);
             });
           },
-          backgroundColor: Colors.orange,
         ));
   }
 
@@ -99,14 +97,12 @@ class _RulesDialog extends State<RulesDialog> {
                 ),
                 actions: <Widget>[
                   new TextButton(
-                      child: Text(AppLocalizations.of(context)!.cancel,
-                          style: TextStyle(color: Colors.orange)),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                       onPressed: () {
                         Navigator.pop(context);
                       }),
                   new TextButton(
-                      child: Text(AppLocalizations.of(context)!.sure,
-                          style: TextStyle(color: Colors.orange)),
+                      child: Text(AppLocalizations.of(context)!.sure),
                       onPressed: () async {
                         if (_ruleSourcecontroller.text.isNotEmpty) {
                           bool result = await Common.setRuleSource(
