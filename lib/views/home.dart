@@ -105,10 +105,7 @@ class _HomePageState extends State<HomePage> {
         }
       });
     } else {
-      showToastWidget(SnackBar(
-          elevation: 0,
-          behavior: SnackBarBehavior.floating,
-          content: Text(AppLocalizations.of(context)!.notfoundinshare)));
+      showToastWidget(Text(AppLocalizations.of(context)!.notfoundinshare));
     }
   }
 

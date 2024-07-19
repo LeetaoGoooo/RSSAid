@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/common/common.dart';
 import 'package:rssaid/models/radar_config.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,6 @@ class ConfigDialog extends StatefulWidget {
 
 class _ConfigStateDialog extends State<ConfigDialog> {
   final _formKey = new GlobalKey<FormState>();
-  final _scaffoldKey = new GlobalKey<ScaffoldMessengerState>();
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   TextEditingController _filterController = new TextEditingController();
   TextEditingController _filterTitleController = new TextEditingController();
@@ -52,7 +52,6 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.gc),
       ),
@@ -305,10 +304,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                     final SharedPreferences prefs =
                                         await _prefs;
                                     prefs.clear();
-                                    _scaffoldKey.currentState!.showSnackBar(
-                                        SnackBar(
-                                            behavior: SnackBarBehavior.floating,
-                                            content: Text(AppLocalizations.of(context)!.reset_config_hint)));
+                                    showToastWidget(Text(AppLocalizations.of(context)!.reset_config_hint));
                                   },
                                   label: Text(
                                     AppLocalizations.of(context)!.reset,
@@ -323,8 +319,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   _saveConfig() async {
     if (_formKey.currentState!.validate()) {
       await _parseConfig();
-      _scaffoldKey.currentState!.showSnackBar(SnackBar(
-          behavior: SnackBarBehavior.floating, content: Text(AppLocalizations.of(context)!.save_config_hint)));
+      showToastWidget(Text(AppLocalizations.of(context)!.save_config_hint));
     }
   }
 

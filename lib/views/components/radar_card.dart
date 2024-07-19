@@ -40,29 +40,24 @@ class RadarCard extends StatelessWidget {
                           label: Text(AppLocalizations.of(context)!.copy,),
                           onPressed: () async {
                             var url = await LinkHelper.getSubscriptionUrl(radar);
-
                             try {
                               Clipboard.setData(ClipboardData(text: url));
                             } catch (e) {
-                              showToastWidget(SnackBar(
-                                  behavior: SnackBarBehavior.floating,
-                                  content: Text(
+                              showToastWidget( Text(
                                     '${AppLocalizations.of(context)!.copyFailed}: ${e.toString()}',
-                                  )));
+                                  ));
                               return;
                             }
                             await prefs.removeIfExist("currentParams");
-                            showToastWidget(SnackBar(
-                                behavior: SnackBarBehavior.floating,
-                                content: Text(
+                            showToastWidget(Text(
                                   AppLocalizations.of(context)!.copySuccess,
-                                )));
+                                ));
                           },
                         )),
                     Padding(padding: EdgeInsets.only(left: 6, right: 6)),
                     Expanded(
                         child: ElevatedButton.icon(
-                          icon: Icon(Icons.subdirectory_arrow_right),
+                          icon: Icon(Icons.shortcut),
                           label: Text(AppLocalizations.of(context)!.subscribe),
                           onPressed: () async {
                             var url = await LinkHelper.getSubscriptionUrl(radar);

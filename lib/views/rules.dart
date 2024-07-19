@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/common/common.dart';
 
 class RulesDialog extends StatefulWidget {
@@ -108,12 +109,7 @@ class _RulesDialog extends State<RulesDialog> {
                           bool result = await Common.setRuleSource(
                               _ruleSourcecontroller.text.trim());
                           if (result) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(AppLocalizations.of(context)!
-                                  .save_config_hint),
-                              elevation: 0,
-                              behavior: SnackBarBehavior.floating,
-                            ));
+                            showToastWidget(Text(AppLocalizations.of(context)!.save_config_hint),);
                           }
                         }
                         Navigator.pop(context);
