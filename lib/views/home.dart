@@ -334,37 +334,7 @@ class _HomePageState extends State<HomePage> {
           );
         }
         return _notUrlDetected
-            ? Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset('assets/imgs/404.png'),
-                  Text(
-                    AppLocalizations.of(context)!.notfound,
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  Padding(
-                      padding: EdgeInsets.only(left: 24, right: 24, top: 8),
-                      child: ElevatedButton.icon(
-                          icon: Icon(Icons.support),
-                          label: Text(
-                            AppLocalizations.of(context)!.whichSupport,
-                          ),
-                          onPressed: () async {
-                            await Common.launchInBrowser(
-                                'https://docs.rsshub.app/joinus/#ti-jiao-xin-de-rsshub-gui-ze');
-                          })),
-                  Padding(
-                      padding: EdgeInsets.only(left: 24, right: 24),
-                      child: ElevatedButton.icon(
-                          icon: Icon(Icons.cloud_upload),
-                          label: Text(
-                              AppLocalizations.of(context)!.submitNewRules),
-                          onPressed: () async {
-                            await Common.launchInBrowser(
-                                'https://docs.rsshub.app/social-media.html#_755');
-                          })),
-                ],
-              )
+            ? NotFound()
             : Container();
       },
     );
