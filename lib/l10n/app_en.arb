@@ -3,7 +3,7 @@
   "notfoundinClipboard": "No links detected on clipboard",
   "fromClipboard": "Import from clipboard",
   "inputbyKeyboard": "Import from plain text",
-  "notfound": "Not found",
+  "notfound": "Not Found",
   "addConfig": "Create configuration",
   "submitNewRules": "Submit new rules",
   "whichSupport": "View supported rules",
