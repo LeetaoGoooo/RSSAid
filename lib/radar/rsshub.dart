@@ -3,20 +3,22 @@ import 'dart:convert';
 import 'package:rssaid/models/radar.dart';
 import 'package:rssaid/radar/rule_type/page_info.dart';
 import 'package:rssaid/radar/rule_type/rule.dart';
+import 'package:rssaid/radar/source_parser.dart';
 import 'package:rssaid/shared_prefs.dart';
 import 'package:tldts/core/index.dart';
 import 'package:tldts/tldts.dart';
 
-class Rsshub {
+class RssHub {
   final SharedPrefs prefs = SharedPrefs();
 
+  List<Radar> getPageRSSHub(PageInfo pageInfo) {
+    List<Radar> radars = [];
 
-  List<Radar>? getPageRSSHub(PageInfo pageInfo) {
     String stringRules = prefs.rules;
     if (stringRules.isEmpty) {
-      return [];
+      return radars;
     }
-    Map<String,dynamic> rssHubRules = jsonDecode(stringRules);
+    Map<String, dynamic> rssHubRules = jsonDecode(stringRules);
 
     Result? parsedDomain;
 
@@ -24,54 +26,63 @@ class Rsshub {
       parsedDomain = parse(pageInfo.url);
     } on FormatException catch (e) {
       print('Not valid URI:${e}');
-      return [];
+      return radars;
     } on Exception catch (e) {
       print('Unknown exception:${e}');
-      return [];
+      return radars;
     }
+
     String? domain = parsedDomain.domain;
-    String? subdomain = parsedDomain.subdomain;
-    if (domain != null) {
-      if (rssHubRules[domain]) {
-         List<Rule> rules = rssHubRules[domain][subdomain ?? "."];
-         if (rules.isEmpty) {
-           if (subdomain == "www") {
-             rules = rssHubRules[domain]["."];
-           } else if (subdomain!.isEmpty) {
-             rules = rssHubRules[domain]['www'];
-           }
-         }
-         if (rules.isNotEmpty) {
-           var recognized = [];
-           List<String> sources = [];
-           for (var rule in rules) {
-             List<String> oriSources =  rule.source;
-             for (var oriSource in oriSources) {
-               var source = oriSource.replaceAllMapped(
-                   RegExp(r'(/:\w+)\?(?=/|$)'),
-                       (match) => match.group(1)!
-               );
-               sources.add(source);
+    String? subdomain = parsedDomain.subdomain != null && parsedDomain.subdomain!.isNotEmpty ?  parsedDomain.subdomain : null;
 
-               while(true) {
-                 Match? tailMatch = RegExp(r'/:\w+$').firstMatch(source);
-                 if (tailMatch == null) break;
-                 String tail = tailMatch.group(0)!;
-                 source = source.substring(0, source.length - tail.length);
-                 sources.add(source);
-               }
-             }
-           }
+    if (domain == null) {
+      return radars;
+    }
 
-           List<String> sources =  sources.toSet().toList();
-            // TODO
+    if (!rssHubRules.containsKey(domain)) {
+      return radars;
+    }
 
+    List<dynamic> rules = rssHubRules[domain][subdomain ?? "."];
 
-         }
+    if (rules.isEmpty) {
+      if (subdomain == "www") {
+        rules = rssHubRules[domain]["."];
+      } else if (subdomain!.isEmpty) {
+        rules = rssHubRules[domain]['www'];
       }
     }
 
-    return [];
+    if (rules.isEmpty) {
+      return radars;
+    }
 
+    for (var ruleMap in rules) {
+      var rule = Rule.fromJson(ruleMap);
+      Radar radar = Radar(title: rule.title);
+      List<String> paths = [];
+      List<String> oriSources = rule.source;
+      var sourceParser = SourceParser(target: rule.target, url: pageInfo.url);
+      for (var oriSource in oriSources) {
+        String? parsedRule = sourceParser.getRule(oriSource);
+        if (parsedRule != null) {
+          paths.add(parsedRule);
+        }
+      }
+      if (paths.isEmpty) {
+        continue;
+      }
+      if (paths.length > 1) {
+        radar.paths = paths;
+      } else {
+        radar.path = paths.first;
+      }
+      radars.add(radar);
+    }
+    return radars;
+  }
+
+  static List<String> parseSource(String url) {
+    return url.split("/");
   }
 }

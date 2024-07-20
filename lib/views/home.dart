@@ -12,6 +12,8 @@ import 'package:rssaid/common/common.dart';
 import 'package:rssaid/common/link_helper.dart';
 import 'package:rssaid/models/radar.dart';
 import 'package:rssaid/radar/rss_plus.dart';
+import 'package:rssaid/radar/rsshub.dart';
+import 'package:rssaid/radar/rule_type/page_info.dart';
 import 'package:rssaid/shared_prefs.dart';
 import 'package:rssaid/views/config.dart';
 import 'package:rssaid/views/settings.dart';
@@ -29,6 +31,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final SharedPrefs prefs = SharedPrefs();
+  final RssHub rssHub = RssHub();
   String _currentUrl = "";
   Future<List<Radar>>? _radarList;
   bool _configVisible = false;
@@ -180,44 +183,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Radar>> _detectUrl(String url) async {
-    await headlessWebView.run();
-    await webViewController.loadUrl(
-        urlRequest: URLRequest(url: WebUri(url), method: 'GET'));
-    // await headlessWebView.webViewController.injectJavascriptFileFromAsset(
-    //     assetFilePath: 'assets/js/radar-rules.js');
-    await headlessWebView.webViewController
-        ?.injectJavascriptFileFromAsset(assetFilePath: 'assets/js/url.min.js');
-    await headlessWebView.webViewController
-        ?.injectJavascriptFileFromAsset(assetFilePath: 'assets/js/psl.min.js');
-    await headlessWebView.webViewController?.injectJavascriptFileFromAsset(
-        assetFilePath: 'assets/js/route-recognizer.min.js');
-    await headlessWebView.webViewController
-        ?.injectJavascriptFileFromAsset(assetFilePath: 'assets/js/utils.js');
     String? rules = await Common.getRules();
     if (rules == null || rules.isEmpty) {
       showToast(AppLocalizations.of(context)!.loadRulesFailed);
       return [];
     }
-    await headlessWebView.webViewController
-        ?.evaluateJavascript(source: 'var rules=$rules');
-    var html = await webViewController.getHtml();
-    var uri = Uri.parse(url);
-    String expression = """
-      getPageRSSHub({
-                            url: "$url",
-                            host: "${uri.host}",
-                            path: "${uri.path}",
-                            html: `$html`,
-                            rules: rules
-                        });
-      """;
-    var res = await headlessWebView.webViewController
-        ?.evaluateJavascript(source: expression);
-    var radarList = [];
-    if (res != null) {
-      radarList = Radar.listFromJson(json.decode(res));
-    }
-
+    List<Radar> radarList = rssHub.getPageRSSHub(PageInfo(url: url, rules: rules));
     return [...radarList, ...await RssPlus.detecting(url)];
   }
 

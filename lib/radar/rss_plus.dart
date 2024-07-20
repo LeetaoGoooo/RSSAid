@@ -37,15 +37,16 @@ class RssPlus {
     for (var i = 0; i < links.length; i++) {
       var link = links[i];
       LinkedHashMap attrs = link.attributes;
-      String linkHref = attrs['href'];
+      String? linkHref = attrs['href'];
       String? linkType = attrs['type'];
       String linkTitle = attrs.containsKey("title")
           ? attrs['title']
           : document.getElementsByTagName("title")[0].text;
       RegExp rssPattern = new RegExp(r'.+\/(rss|rdf|atom)');
       RegExp xmlPattern = new RegExp(r'^text\/xml$');
-      if (linkType != null &&
-          linkType.isNotEmpty &&
+      if (linkHref != null &&
+          linkHref.isNotEmpty &&
+          linkType != null && linkType.isNotEmpty &&
           (rssPattern.hasMatch(linkType) || xmlPattern.hasMatch(linkType))) {
         Uri uri = Uri.parse(url);
         if (!linkHref.startsWith("http") && !linkHref.contains(uri.host)) {

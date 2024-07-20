@@ -11,7 +11,7 @@ Rule _$RuleFromJson(Map<String, dynamic> json) => Rule(
       docs: json['docs'] as String,
       source:
           (json['source'] as List<dynamic>).map((e) => e as String).toList(),
-      target: json['target'],
+      target: json['target'] as String,
     );
 
 Map<String, dynamic> _$RuleToJson(Rule instance) => <String, dynamic>{

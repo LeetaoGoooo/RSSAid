@@ -46,6 +46,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   json_serializable: ^6.8.0
+  test: ^1.25.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -60,12 +61,6 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/js/psl.min.js
-    - assets/js/route-recognizer.min.js
-    - assets/js/url.min.js
-    - assets/js/utils.js
-    - assets/js/radar-rules.js
-    - assets/js/radar-rules-ios.js
     - assets/imgs/404.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
