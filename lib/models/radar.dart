@@ -1,16 +1,15 @@
 class Radar {
   String? title;
-  String? _url;
   String? path;
-  bool? _isDocs = true;
   bool isRssHub = true;
+  String? docs;
+
+  Radar({required this.title, this.path, this.isRssHub = true, this.docs});
 
   Radar.fromJson(Map<String, dynamic> json) {
     if (json.isEmpty) return;
     title = json['title'];
-    _url = json['_url'];
     path = json['path'];
-    _isDocs = json['_isDocs'];
     isRssHub = json['isRssHub'] == null ? true : json['isRssHub'];
   }
 

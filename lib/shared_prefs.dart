@@ -13,22 +13,49 @@ class SharedPrefs {
 
 
   /// Get history records
-  List<String> get historyList => _sharedPrefs.getStringList('historyListKey') ?? [];
+  List<String> get historyList =>
+      _sharedPrefs.getStringList('historyListKey') ?? [];
 
   /// Add new record at the top of the list
-  set record(String url)  {
+  set record(String url) {
     var historyList = _sharedPrefs.getStringList('historyListKey') ?? [];
     historyList.remove(url);
     historyList.insert(0, url);
     _sharedPrefs.setStringList('historyListKey', historyList);
   }
 
+  set domain(String domain) => _sharedPrefs.setString("RSSHUB", domain);
+
+  String get domain => _sharedPrefs.getString("RSSHUB") ?? "https://rsshub.app";
+
   /// Save history records after user delete one
-  set  historyList(List<String> history) => _sharedPrefs.setStringList('historyListKey', history);
+  set historyList(List<String> history) =>
+      _sharedPrefs.setStringList('historyListKey', history);
 
   Future<void> removeIfExist(String key) async {
     if (_sharedPrefs.containsKey(key)) {
       await _sharedPrefs.remove(key);
     }
   }
+
+  set rules(String rules) => _sharedPrefs.setString("Rules", rules);
+
+  String get rules => _sharedPrefs.getString("Rules") ?? "";
+
+  set currentParams(String currentParams) =>
+      _sharedPrefs.setString("currentParams", currentParams);
+
+
+  String get currentParams => _sharedPrefs.getString("currentParams") ?? "";
+
+  set defaultParams(String defaultParams) =>
+      _sharedPrefs.setString("defaultParams", defaultParams);
+
+  String get defaultParams => _sharedPrefs.getString("defaultParams") ?? "";
+
+  Future<bool> clear() => _sharedPrefs.clear();
+
+  set config(String config) => _sharedPrefs.setString("config", config);
+
+  String get config => _sharedPrefs.getString("config") ?? "";
 }

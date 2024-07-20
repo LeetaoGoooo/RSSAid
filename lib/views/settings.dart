@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rssaid/common/common.dart';
+import 'package:rssaid/shared_prefs.dart';
 import 'package:rssaid/views/rules.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -11,7 +12,8 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final SharedPrefs prefs = SharedPrefs();
+
   String _domain = "https://rsshub.app";
   PackageInfo packageInfo = PackageInfo(
     appName: 'RSSAid',
@@ -28,10 +30,9 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> init() async {
-    final SharedPreferences prefs = await _prefs;
-    if (prefs.containsKey("RSSHUB")) {
+    if (prefs.domain.isNotEmpty) {
       setState(() {
-        _domain = prefs.getString("RSSHUB")!;
+        _domain = prefs.domain;
       });
     }
     final info = await PackageInfo.fromPlatform();
@@ -41,11 +42,10 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   void setDomain(String domain) async {
-    final SharedPreferences prefs = await _prefs;
     setState(() {
       _domain = domain;
     });
-    prefs.setString("RSSHUB", domain);
+    prefs.domain = domain;
   }
 
   @override

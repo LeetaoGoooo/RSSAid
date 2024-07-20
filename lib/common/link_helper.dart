@@ -1,10 +1,9 @@
 import 'package:linkify/linkify.dart';
 import 'package:rssaid/models/radar.dart';
 import 'package:rssaid/shared_prefs.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LinkHelper {
-  final SharedPrefs prefs = SharedPrefs();
+  static final SharedPrefs prefs = SharedPrefs();
   /// verify link return link
   /// else return null
  static String? verifyLink(String? url) {
@@ -53,25 +52,21 @@ class LinkHelper {
     return newUrl;
   }
 
- static getSubscriptionUrl(Radar radar) async {
-   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-   final SharedPreferences prefs = await _prefs;
-   var host = "https://rsshub.app/";
-   if (prefs.containsKey("RSSHUB")) {
-     host = prefs.getString("RSSHUB")!;
-   }
-   var url = "$host${radar.path}";
+ static getSubscriptionUrl(bool isRssHub, String path) async {
+   var host = prefs.domain;
+   var url = "$host/$path";
+
    url = removeDuplicateSlashes(url);
-   if (!radar.isRssHub) {
-     url = radar.path!;
+
+   if (!isRssHub) {
+     url = path;
+     return url;
    }
 
-   if (prefs.containsKey("currentParams")) {
-     url += prefs.getString("currentParams")!;
+   if (prefs.currentParams.isNotEmpty) {
+     url += prefs.currentParams;
    } else {
-     url += (prefs.containsKey("defaultParams")
-         ? prefs.getString("defaultParams")
-         : "")!;
+     url +=  prefs.defaultParams;
    }
    return url;
  }

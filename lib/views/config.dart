@@ -4,7 +4,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/common/common.dart';
 import 'package:rssaid/models/radar_config.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rssaid/shared_prefs.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 
@@ -15,7 +15,7 @@ class ConfigDialog extends StatefulWidget {
 
 class _ConfigStateDialog extends State<ConfigDialog> {
   final _formKey = new GlobalKey<FormState>();
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final SharedPrefs prefs = SharedPrefs();
   TextEditingController _filterController = new TextEditingController();
   TextEditingController _filterTitleController = new TextEditingController();
   TextEditingController _filterDescriptionController =
@@ -301,9 +301,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                     Icons.delete,
                                   ),
                                   onPressed: () async {
-                                    final SharedPreferences prefs =
-                                        await _prefs;
-                                    prefs.clear();
+                                    await prefs.clear();
                                     showToastWidget(Text(AppLocalizations.of(context)!.reset_config_hint));
                                   },
                                   label: Text(
@@ -324,7 +322,6 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   }
 
   _parseConfig() async {
-    final SharedPreferences prefs = await _prefs;
     RadarConfig radarConfig = new RadarConfig();
     var params = "?";
     // 输出格式
@@ -423,20 +420,19 @@ class _ConfigStateDialog extends State<ConfigDialog> {
     }
     // 全局配置或者本次配置
     if (_onlyOnce) {
-      prefs.setString("currentParams", params);
+      prefs.currentParams = params;
     } else {
-      prefs.setString("defaultParams", params);
-      prefs.setString("config", json.encode(radarConfig.toJson()));
+      prefs.defaultParams = params;
+      prefs.config = json.encode(radarConfig.toJson());
     }
   }
 
   _loadConfig() async {
     _selectRssFormat = rssFormats.first;
-    final SharedPreferences prefs = await _prefs;
-    if (!prefs.containsKey("config")) {
+    if (prefs.config.isEmpty) {
       return;
     }
-    String configStr = prefs.getString("config")!;
+    String configStr = prefs.config;
     RadarConfig radarConfig = RadarConfig.fromJson(json.decode(configStr));
     setState(() {
       // 其他

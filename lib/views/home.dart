@@ -1,24 +1,25 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:linkify/linkify.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/common/common.dart';
 import 'package:rssaid/common/link_helper.dart';
 import 'package:rssaid/models/radar.dart';
-import 'package:rssaid/radar/radar.dart';
+import 'package:rssaid/radar/rss_plus.dart';
+import 'package:rssaid/radar/rsshub.dart';
+import 'package:rssaid/radar/rule_type/page_info.dart';
 import 'package:rssaid/shared_prefs.dart';
 import 'package:rssaid/views/components/not_found.dart';
-import 'package:rssaid/views/components/radar_card.dart';
 import 'package:rssaid/views/config.dart';
 import 'package:rssaid/views/settings.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import 'components/radar_cards.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -29,14 +30,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final SharedPrefs prefs = SharedPrefs();
+  final RssHub rssHub = RssHub();
   String _currentUrl = "";
   Future<List<Radar>>? _radarList;
   bool _configVisible = false;
   bool _notUrlDetected = false;
   late StreamSubscription _intentDataStreamSubscription;
   TextEditingController _inputUrlController = new TextEditingController();
-  late HeadlessInAppWebView headlessWebView;
-  late InAppWebViewController webViewController;
 
   @override
   void initState() {
@@ -52,20 +52,12 @@ class _HomePageState extends State<HomePage> {
     ReceiveSharingIntent.instance.getInitialMedia().then((value) => {
           {_detectUrlFromShare(value)}
         });
-
-    headlessWebView = new HeadlessInAppWebView(
-        onConsoleMessage: (controller, consoleMessage) {
-      print("CONSOLE MESSAGE: " + consoleMessage.message);
-    }, onWebViewCreated: (controller) {
-      webViewController = controller;
-    });
   }
 
   @override
   void dispose() {
     _intentDataStreamSubscription.cancel();
     super.dispose();
-    headlessWebView.dispose();
   }
 
   Future<void> _detectUrlFromShare(List<SharedMediaFile> mediaFiles) async {
@@ -150,44 +142,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Radar>> _detectUrl(String url) async {
-    await headlessWebView.run();
-    await webViewController.loadUrl(
-        urlRequest: URLRequest(url: WebUri(url), method: 'GET'));
-    // await headlessWebView.webViewController.injectJavascriptFileFromAsset(
-    //     assetFilePath: 'assets/js/radar-rules.js');
-    await headlessWebView.webViewController
-        ?.injectJavascriptFileFromAsset(assetFilePath: 'assets/js/url.min.js');
-    await headlessWebView.webViewController
-        ?.injectJavascriptFileFromAsset(assetFilePath: 'assets/js/psl.min.js');
-    await headlessWebView.webViewController?.injectJavascriptFileFromAsset(
-        assetFilePath: 'assets/js/route-recognizer.min.js');
-    await headlessWebView.webViewController
-        ?.injectJavascriptFileFromAsset(assetFilePath: 'assets/js/utils.js');
     String? rules = await Common.getRules();
     if (rules == null || rules.isEmpty) {
       showToast(AppLocalizations.of(context)!.loadRulesFailed);
       return [];
     }
-    await headlessWebView.webViewController
-        ?.evaluateJavascript(source: 'var rules=$rules');
-    var html = await webViewController.getHtml();
-    var uri = Uri.parse(url);
-    String expression = """
-      getPageRSSHub({
-                            url: "$url",
-                            host: "${uri.host}",
-                            path: "${uri.path}",
-                            html: `$html`,
-                            rules: rules
-                        });
-      """;
-    var res = await headlessWebView.webViewController
-        ?.evaluateJavascript(source: expression);
-    var radarList = [];
-    if (res != null) {
-      radarList = Radar.listFromJson(json.decode(res));
-    }
-
+    List<Radar> radarList = rssHub.getPageRSSHub(PageInfo(url: url, rules: rules));
     return [...radarList, ...await RssPlus.detecting(url)];
   }
 
@@ -237,7 +197,9 @@ class _HomePageState extends State<HomePage> {
                     label: Text(AppLocalizations.of(context)!.fromClipboard),
                     onPressed: _detectUrlByClipboard)),
             _buildCustomLinkPreview(context),
-            _createRadarList(context),
+            Padding(
+                padding:
+                EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 8),child: _createRadarList(context)),
             if (_currentUrl == '') _historyList()
           ],
         )),
@@ -320,14 +282,20 @@ class _HomePageState extends State<HomePage> {
             snapshot.data != null &&
             (snapshot.data as List).length > 0) {
           List<Radar> radarList = snapshot.data as List<Radar>;
-          return ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: radarList.length,
-            itemBuilder: (context, index) => RadarCard(
-              radar: radarList[index],
-              prefs: prefs,
-            ),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("RSS List", style: Theme.of(context).textTheme.titleLarge,),
+              SizedBox(height: 8,),
+              ListView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: radarList.length,
+                itemBuilder: (context, index) => RadarCards(
+                  radar: radarList[index],
+                ),
+              )
+            ],
           );
         }
         return _notUrlDetected

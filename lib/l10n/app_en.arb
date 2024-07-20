@@ -52,5 +52,6 @@
   "settings": "Settings",
   "common": "General",
   "about": "About",
-  "refreshRules":"Refresh Rules"
+  "refreshRules":"Refresh Rules",
+  "preview": "Preview"
 }

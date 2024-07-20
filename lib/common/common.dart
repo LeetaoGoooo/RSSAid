@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rssaid/common/link_helper.dart';
+import 'package:rssaid/shared_prefs.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:system_proxy/system_proxy.dart';
 
@@ -20,11 +21,12 @@ extension HttpClientExtension on HttpClient {
 }
 
 class Common {
-  static Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  static SharedPrefs prefs = SharedPrefs();
 
   static Future<void> launchInBrowser(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url, forceSafariVC: false, forceWebView: false);
+    var uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     }
   }
 
@@ -53,34 +55,19 @@ class Common {
   }
 
   static refreshRules() async {
-    final SharedPreferences prefs = await _prefs;
-    if (prefs.containsKey("Rules")) {
+    if (prefs.rules.isNotEmpty) {
       return;
     }
-    var url =
-        'https://raw.githubusercontent.com/Cay-Zhang/RSSBudRules/main/rules/radar-rules.js';
-
-    if (prefs.containsKey("ruleSource")) {
-      url = prefs.getString("ruleSource")!;
-    }
-
-    var jsCode = await getContentByUrl(Uri.parse(url));
-    if (jsCode != null) {
-      bool setRules = await prefs.setString("Rules", "$jsCode");
-      if (setRules) {
-        print('成功加载规则文件!');
-      }
+    var url = '${prefs.domain}/api/radar/rules';
+    var ruleUrl = LinkHelper.removeDuplicateSlashes(url);
+    var jsonResp = await getContentByUrl(Uri.parse(ruleUrl));
+    if (jsonResp != null) {
+     prefs.rules = jsonResp;
     }
   }
 
   static Future<String?> getRules()  async {
     await Common.refreshRules();
-    final SharedPreferences prefs = await _prefs;
-    return await prefs.getString("Rules");
-  }
-
-  static Future<bool> setRuleSource(String source) async {
-    final SharedPreferences prefs = await _prefs;
-    return await prefs.setString("ruleSource", source);
+    return prefs.rules;
   }
 }
