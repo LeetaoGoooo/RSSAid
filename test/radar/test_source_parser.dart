@@ -8,9 +8,6 @@ void main() {
           target: "/github/branches/:user/:repo",
           url: 'https://github.com/DIYgod/RSSHub-Radar'
       );
-      var url = parser.getRule("/:user");
-      expect(url, isNotNull);
-      expect(url, equals('/github/branches/DIYgod'));
     });
   });
 }

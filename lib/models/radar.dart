@@ -2,10 +2,9 @@ class Radar {
   String? title;
   String? path;
   bool isRssHub = true;
-  bool isGroup = false;
-  List<String>? paths;
+  String? docs;
 
-  Radar({required this.title, this.path, this.isRssHub = true, this.isGroup = false, this.paths});
+  Radar({required this.title, this.path, this.isRssHub = true, this.docs});
 
   Radar.fromJson(Map<String, dynamic> json) {
     if (json.isEmpty) return;

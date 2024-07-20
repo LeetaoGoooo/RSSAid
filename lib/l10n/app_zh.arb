@@ -52,5 +52,6 @@
   "settings": "设置",
   "common": "通用",
   "about": "关于",
-  "refreshRules":"更新规则"
+  "refreshRules":"更新规则",
+  "preview": "预览"
 }

@@ -14,11 +14,12 @@ import 'package:rssaid/radar/rsshub.dart';
 import 'package:rssaid/radar/rule_type/page_info.dart';
 import 'package:rssaid/shared_prefs.dart';
 import 'package:rssaid/views/components/not_found.dart';
-import 'package:rssaid/views/components/radar_card.dart';
 import 'package:rssaid/views/config.dart';
 import 'package:rssaid/views/settings.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import 'components/radar_cards.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -196,7 +197,9 @@ class _HomePageState extends State<HomePage> {
                     label: Text(AppLocalizations.of(context)!.fromClipboard),
                     onPressed: _detectUrlByClipboard)),
             _buildCustomLinkPreview(context),
-            _createRadarList(context),
+            Padding(
+                padding:
+                EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 8),child: _createRadarList(context)),
             if (_currentUrl == '') _historyList()
           ],
         )),
@@ -279,14 +282,20 @@ class _HomePageState extends State<HomePage> {
             snapshot.data != null &&
             (snapshot.data as List).length > 0) {
           List<Radar> radarList = snapshot.data as List<Radar>;
-          return ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: radarList.length,
-            itemBuilder: (context, index) => RadarCard(
-              radar: radarList[index],
-              prefs: prefs,
-            ),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("RSS List", style: Theme.of(context).textTheme.titleLarge,),
+              SizedBox(height: 8,),
+              ListView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: radarList.length,
+                itemBuilder: (context, index) => RadarCards(
+                  radar: radarList[index],
+                ),
+              )
+            ],
           );
         }
         return _notUrlDetected

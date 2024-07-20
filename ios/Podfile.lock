@@ -7,8 +7,6 @@ PODS:
   - flutter_inappwebview_ios/Core (0.0.1):
     - Flutter
     - OrderedSet (~> 5.0)
-  - flutter_localization (0.0.1):
-    - Flutter
   - OrderedSet (5.0.0)
   - package_info_plus (0.4.5):
     - Flutter
@@ -27,7 +25,6 @@ PODS:
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
-  - flutter_localization (from `.symlinks/plugins/flutter_localization/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - receive_sharing_intent (from `.symlinks/plugins/receive_sharing_intent/ios`)
   - share (from `.symlinks/plugins/share/ios`)
@@ -44,8 +41,6 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_inappwebview_ios:
     :path: ".symlinks/plugins/flutter_inappwebview_ios/ios"
-  flutter_localization:
-    :path: ".symlinks/plugins/flutter_localization/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   receive_sharing_intent:
@@ -62,7 +57,6 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_inappwebview_ios: 97215cf7d4677db55df76782dbd2930c5e1c1ea0
-  flutter_localization: f43b18844a2b3d2c71fd64f04ffd6b1e64dd54d4
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   receive_sharing_intent: df9c334dc9feadcbd3266e5cb49c8443405e1c9f

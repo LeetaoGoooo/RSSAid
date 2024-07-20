@@ -59,25 +59,14 @@ class RssHub {
 
     for (var ruleMap in rules) {
       var rule = Rule.fromJson(ruleMap);
-      Radar radar = Radar(title: rule.title);
-      List<String> paths = [];
-      List<String> oriSources = rule.source;
+      Radar radar = Radar(title: rule.title, docs: rule.docs, isRssHub: true);
       var sourceParser = SourceParser(target: rule.target, url: pageInfo.url);
-      for (var oriSource in oriSources) {
-        String? parsedRule = sourceParser.getRule(oriSource);
-        if (parsedRule != null) {
-          paths.add(parsedRule);
-        }
+
+      String? parsedRule = sourceParser.getRule(rule.source);
+      if (parsedRule != null) {
+        radar.path = parsedRule;
+        radars.add(radar);
       }
-      if (paths.isEmpty) {
-        continue;
-      }
-      if (paths.length > 1) {
-        radar.paths = paths;
-      } else {
-        radar.path = paths.first;
-      }
-      radars.add(radar);
     }
     return radars;
   }

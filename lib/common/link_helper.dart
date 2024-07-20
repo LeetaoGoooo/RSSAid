@@ -52,12 +52,15 @@ class LinkHelper {
     return newUrl;
   }
 
- static getSubscriptionUrl(Radar radar) async {
+ static getSubscriptionUrl(bool isRssHub, String path) async {
    var host = prefs.domain;
-   var url = "$host${radar.path}";
+   var url = "$host/$path";
+
    url = removeDuplicateSlashes(url);
-   if (!radar.isRssHub) {
-     url = radar.path!;
+
+   if (!isRssHub) {
+     url = path;
+     return url;
    }
 
    if (prefs.currentParams.isNotEmpty) {

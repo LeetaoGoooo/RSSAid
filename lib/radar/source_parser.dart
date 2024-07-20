@@ -1,7 +1,7 @@
 import 'package:rssaid/models/rule.dart';
 
 class SourceParser {
-  final Position? targetPosition;
+  final Position targetPosition;
   final String url;
 
   SourceParser(
@@ -9,16 +9,13 @@ class SourceParser {
         targetPosition = getPosition(target),
         url = url;
 
-  static Position? getPosition(String url) {
+  static Position getPosition(String url) {
     List<String> partUrls = url.split("/").sublist(1);
     List<int> positions = [];
     for (var i = 0; i < partUrls.length; i++) {
       if (isValidPart(partUrls[i])) {
         positions.add(i);
       }
-    }
-    if (positions.length == 0) {
-      return null;
     }
     return Position(
         origin: url, replacePositions: positions, strings: partUrls);
@@ -37,35 +34,59 @@ class SourceParser {
     }
   }
 
-  String? getRule(String source) {
-    var sourcePosition = getPosition(source);
-    if (sourcePosition == null) {
-      return null;
+
+  bool isMatch(Position sourcePosition, String url) {
+    var urlStrings = url.split("/").sublist(1);
+
+    var sourceStrings = sourcePosition.strings;
+    var sourceStringLen = sourceStrings.length;
+
+    if (sourceStringLen != urlStrings.length) {
+      return false;
     }
 
-    if (targetPosition == null) {
-      return null;
+    for (var i= 0; i< sourceStringLen; i++) {
+      if (!sourcePosition.replacePositions.contains(i)) {
+        var notReplaceStr = sourceStrings[i];
+        if (notReplaceStr != urlStrings[i]) {
+          return false;
+        }
+      }
     }
+    return true;
+  }
 
-    // https://www.leetao.me/posts/xxx
-    // => /posts/xxx
+  String? getRule(List<String> sources) {
+    var sourcePositions = sources.map((source) => getPosition(source)).toSet();
+
     var urlWithoutDomain = removeDomain(url);
     var urlStrings = urlWithoutDomain.split("/").sublist(1);
 
-    if (sourcePosition.replacePositions.length > urlStrings.length) {
+    var isMatched = false;
+    for (var sourcePosition in sourcePositions) {
+      isMatched = isMatch(sourcePosition, urlWithoutDomain);
+      if (isMatched) {
+        break;
+      }
+    }
+
+    if (!isMatched) {
       return null;
     }
 
-    var replacePositions = sourcePosition.replacePositions;
-    var originStrings = sourcePosition.strings;
-    print('originStrings:${targetPosition!.origin} source:${sourcePosition.origin}');
+    var replacePositions = targetPosition.replacePositions;
+
+    if (replacePositions.isEmpty) {
+      return targetPosition.origin;
+    }
+
+    var originStrings = targetPosition.strings;
+
     for (var i = 0; i <  replacePositions.length; i++) {
       var replacePosition = replacePositions[i];
       originStrings[replacePosition] = urlStrings[i];
     }
-    var prefix = targetPosition!.strings
-        .sublist(0, targetPosition!.replacePositions[0])
-        .join("/");
-    return '${prefix}/${originStrings.join("/")}';
+
+    return originStrings.join("/");
   }
 }

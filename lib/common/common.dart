@@ -24,8 +24,9 @@ class Common {
   static SharedPrefs prefs = SharedPrefs();
 
   static Future<void> launchInBrowser(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url, forceSafariVC: false, forceWebView: false);
+    var uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     }
   }
 
@@ -58,7 +59,8 @@ class Common {
       return;
     }
     var url = '${prefs.domain}/api/radar/rules';
-    var jsonResp = await getContentByUrl(Uri.parse(url));
+    var ruleUrl = LinkHelper.removeDuplicateSlashes(url);
+    var jsonResp = await getContentByUrl(Uri.parse(ruleUrl));
     if (jsonResp != null) {
      prefs.rules = jsonResp;
     }
@@ -67,11 +69,5 @@ class Common {
   static Future<String?> getRules()  async {
     await Common.refreshRules();
     return prefs.rules;
-  }
-
-  static Future<bool> setRuleSource(String source) async {
-    var _ruleSourceTrim = LinkHelper.removeDuplicateSlashes(source);
-    prefs.domain = _ruleSourceTrim;
-    return true;
   }
 }
