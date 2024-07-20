@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:linkify/linkify.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/common/common.dart';
@@ -38,8 +36,6 @@ class _HomePageState extends State<HomePage> {
   bool _notUrlDetected = false;
   late StreamSubscription _intentDataStreamSubscription;
   TextEditingController _inputUrlController = new TextEditingController();
-  late HeadlessInAppWebView headlessWebView;
-  late InAppWebViewController webViewController;
 
   @override
   void initState() {
@@ -55,20 +51,12 @@ class _HomePageState extends State<HomePage> {
     ReceiveSharingIntent.instance.getInitialMedia().then((value) => {
           {_detectUrlFromShare(value)}
         });
-
-    headlessWebView = new HeadlessInAppWebView(
-        onConsoleMessage: (controller, consoleMessage) {
-      print("CONSOLE MESSAGE: " + consoleMessage.message);
-    }, onWebViewCreated: (controller) {
-      webViewController = controller;
-    });
   }
 
   @override
   void dispose() {
     _intentDataStreamSubscription.cancel();
     super.dispose();
-    headlessWebView.dispose();
   }
 
   Future<void> _detectUrlFromShare(List<SharedMediaFile> mediaFiles) async {

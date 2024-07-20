@@ -49,7 +49,6 @@ class RadarConfig {
   RadarConfig();
 
   RadarConfig.fromJson(Map<String, dynamic> jsonRadarConfig) {
-    if (jsonRadarConfig == null) return;
     filter = jsonRadarConfig['filter'];
     filterTitle = jsonRadarConfig['filterTitle'];
     filterDescription = jsonRadarConfig['filterDescription'];
@@ -71,9 +70,7 @@ class RadarConfig {
   }
 
   static List<RadarConfig> listFromJson(List<dynamic> jsonRadarConfigList) {
-    return jsonRadarConfigList == null
-        ? []
-        : jsonRadarConfigList
+    return jsonRadarConfigList
             .map((value) => RadarConfig.fromJson(value))
             .toList();
   }

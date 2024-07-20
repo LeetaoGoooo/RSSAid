@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/common/common.dart';
-import 'package:rssaid/common/link_helper.dart';
 
 class RulesDialog extends StatefulWidget {
   @override
