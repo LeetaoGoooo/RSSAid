@@ -53,12 +53,11 @@ class _SettingPageState extends State<SettingPage> {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-            backgroundColor: Colors.white,
             centerTitle: true,
             title: Text(AppLocalizations.of(context)!.settings,
                 style: Theme.of(context).textTheme.titleLarge),
             leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+                icon: Icon(Icons.arrow_back_ios),
                 onPressed: () {
                   Navigator.pop(context);
                 })),
@@ -117,10 +116,9 @@ class CommonRows extends StatelessWidget {
       ),
       elevation: 1,
       child: ListTile(
-        leading: Icon(Icons.domain, color: Colors.orange),
+        leading: Icon(Icons.domain),
         title: Text(
           "RSSHub URL",
-          style: TextStyle(color: Colors.orange),
         ),
         onTap: () {
           _showDialog(context);
@@ -138,10 +136,9 @@ class CommonRows extends StatelessWidget {
       ),
       elevation: 1,
       child: ListTile(
-        leading: Icon(Icons.apps, color: Colors.orange),
+        leading: Icon(Icons.apps),
         title: Text(
           AppLocalizations.of(context)!.user_manual,
-          style: TextStyle(color: Colors.orange),
         ),
         onTap: () {
           Common.launchInBrowser("https://docs.rsshub.app");
@@ -159,10 +156,9 @@ class CommonRows extends StatelessWidget {
       ),
       elevation: 1,
       child: ListTile(
-        leading: Icon(Icons.note, color: Colors.orange),
+        leading: Icon(Icons.note),
         title: Text(
           "Rules",
-          style: TextStyle(color: Colors.orange),
         ),
         onTap: () {
           Navigator.push(context, MaterialPageRoute<Null>(builder: (_) {
@@ -189,14 +185,12 @@ class CommonRows extends StatelessWidget {
                 ),
                 actions: <Widget>[
                    TextButton(
-                      child: Text(AppLocalizations.of(context)!.cancel,
-                          style: TextStyle(color: Colors.orange)),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                       onPressed: () {
                         Navigator.pop(context);
                       }),
                   ElevatedButton(
-                      child: Text(AppLocalizations.of(context)!.sure,
-                          style: TextStyle(color: Colors.orange)),
+                      child: Text(AppLocalizations.of(context)!.sure),
                       onPressed: () {
                         if (_domainController.text != _domain) {
                           _domainSetCallback!(_domainController.text);
@@ -226,10 +220,9 @@ class AboutRows extends StatelessWidget {
       ),
       elevation: 1,
       child: ListTile(
-        leading: Icon(icon, color: Colors.orange),
+        leading: Icon(icon),
         title: Text(
           name,
-          style: TextStyle(color: Colors.orange),
         ),
         trailing: trailing.isNotEmpty ? Text(trailing) : null,
         onTap: url.isNotEmpty

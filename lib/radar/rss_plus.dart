@@ -22,10 +22,17 @@ class RssPlus {
       return radarList;
     }
     Document document = parse(html);
-    radarList = await parseKnownRss(document, url);
-    radarList += await parseUnKnownRss(document, url);
+    try {
+      radarList = await parseKnownRss(document, url);
+    } catch (e) {
+      print("parseKnownRss failed:$e");
+    }
+    try {
+      radarList += await parseUnKnownRss(document, url);
+    } catch (e) {
+      print("parseUnKnownRss failed:$e");
+    }
     radarList = radarList.toSet().toList();
-
     return radarList;
   }
 

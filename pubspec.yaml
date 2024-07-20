@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.0.1
+version: 2.0.3+7
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -24,7 +24,6 @@ dependencies:
   flutter:
     sdk: flutter
   clipboard: ^0.1.3
-  flutter_link_previewer: ^3.2.2
   linkify: ^5.0.0
   url_launcher: ^6.0.2
   receive_sharing_intent: ^1.8.0
@@ -33,20 +32,18 @@ dependencies:
   html: ^0.15.0
   system_proxy: ^0.1.0
   flutter_inappwebview: ^6.0.0
+  flutter_localizations: 
+    sdk: flutter
   intl: ^0.19.0
   oktoast: ^3.4.0
   package_info_plus: ^8.0.0
-  flutter_localization: ^0.2.0
-  tldts: ^0.0.1-beta
+  any_link_preview: ^3.0.2
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
 
 dev_dependencies:
-  build_runner: ^2.4.11
   flutter_test:
     sdk: flutter
-  json_serializable: ^6.8.0
-  test: ^1.25.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -61,6 +58,12 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/js/psl.min.js
+    - assets/js/route-recognizer.min.js
+    - assets/js/url.min.js
+    - assets/js/utils.js
+    - assets/js/radar-rules.js
+    - assets/js/radar-rules-ios.js
     - assets/imgs/404.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/common/common.dart';
 import 'package:rssaid/models/radar_config.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,6 @@ class ConfigDialog extends StatefulWidget {
 
 class _ConfigStateDialog extends State<ConfigDialog> {
   final _formKey = new GlobalKey<FormState>();
-  final _scaffoldKey = new GlobalKey<ScaffoldMessengerState>();
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   TextEditingController _filterController = new TextEditingController();
   TextEditingController _filterTitleController = new TextEditingController();
@@ -36,13 +36,14 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   bool _mode = false;
   bool _outScihub = false;
   String _selectLanguage = "s2t";
-  late RssFormat _selectRssFormat;
+  RssFormat? _selectRssFormat;
   List<RssFormat> rssFormats = <RssFormat>[
     RssFormat(".atom", "Atom"),
     RssFormat(".rss", "RSS 2.0")
   ];
   bool _onlyOnce = true; // 配置只对当前生效
 
+  @override
   void initState() {
     super.initState();
     _loadConfig();
@@ -51,9 +52,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: Text(AppLocalizations.of(context)!.gc),
       ),
       body: SingleChildScrollView(
@@ -74,7 +73,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                             Text(
                               AppLocalizations.of(context)!.contentFilter,
                               style: TextStyle(
-                                  fontSize: 12, color: Colors.grey[400]),
+                                  fontSize: 12),
                             ),
                             ListTile(
                               leading: Text(AppLocalizations.of(context)!.caseSensitive),
@@ -108,7 +107,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                             ),
                             Text(AppLocalizations.of(context)!.filtering,
                                 style: TextStyle(
-                                    fontSize: 12, color: Colors.grey[400])),
+                                    fontSize: 12)),
                             TextFormField(
                               autofocus: true,
                               controller: _filterController,
@@ -167,7 +166,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                               child: Text(
                                 AppLocalizations.of(context)!.filterout,
                                 style: TextStyle(
-                                    fontSize: 12, color: Colors.grey[400]),
+                                    fontSize: 12),
                               ),
                             ),
                             TextFormField(
@@ -200,7 +199,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                 child: Text(
                                   AppLocalizations.of(context)!.filter_others,
                                   style: TextStyle(
-                                      fontSize: 12, color: Colors.grey[400]),
+                                      fontSize: 12),
                                 )),
                             TextFormField(
                                 autofocus: true,
@@ -281,7 +280,6 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                     onChanged: (value) {
                                       setState(() => _onlyOnce = value!);
                                     },
-                                    activeColor: Colors.orange,
                                   ),
                                   Text(AppLocalizations.of(context)!.rule_only_once)
                                 ]),
@@ -292,31 +290,24 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                 ElevatedButton.icon(
                                   icon: Icon(
                                     Icons.save,
-                                    color: Colors.white,
                                   ),
                                   onPressed: _saveConfig,
                                   label: Text(
                                     AppLocalizations.of(context)!.sure,
-                                    style: TextStyle(color: Colors.white),
                                   ),
                                 ),
                                 ElevatedButton.icon(
                                   icon: Icon(
                                     Icons.delete,
-                                    color: Colors.white,
                                   ),
                                   onPressed: () async {
                                     final SharedPreferences prefs =
                                         await _prefs;
                                     prefs.clear();
-                                    _scaffoldKey.currentState!.showSnackBar(
-                                        SnackBar(
-                                            behavior: SnackBarBehavior.floating,
-                                            content: Text(AppLocalizations.of(context)!.reset_config_hint)));
+                                    showToastWidget(Text(AppLocalizations.of(context)!.reset_config_hint));
                                   },
                                   label: Text(
                                     AppLocalizations.of(context)!.reset,
-                                    style: TextStyle(color: Colors.white),
                                   ),
                                 ),
                               ],
@@ -328,8 +319,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   _saveConfig() async {
     if (_formKey.currentState!.validate()) {
       await _parseConfig();
-      _scaffoldKey.currentState!.showSnackBar(SnackBar(
-          behavior: SnackBarBehavior.floating, content: Text(AppLocalizations.of(context)!.save_config_hint)));
+      showToastWidget(Text(AppLocalizations.of(context)!.save_config_hint));
     }
   }
 
@@ -339,7 +329,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
     var params = "?";
     // 输出格式
     if (_selectRssFormat != null) {
-      params += _selectRssFormat.value!;
+      params += _selectRssFormat!.value!;
       radarConfig.format = _selectRssFormat;
     }
     // 是否大小写敏感
@@ -441,6 +431,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
   }
 
   _loadConfig() async {
+    _selectRssFormat = rssFormats.first;
     final SharedPreferences prefs = await _prefs;
     if (!prefs.containsKey("config")) {
       return;
@@ -450,7 +441,6 @@ class _ConfigStateDialog extends State<ConfigDialog> {
     setState(() {
       // 其他
       _selectLanguage = radarConfig.opencc!;
-      _selectRssFormat = radarConfig.format!;
       // ignore: unnecessary_null_comparison
       _caseSensitive = (radarConfig.filterCaseSensitive != null
           ? radarConfig.filterCaseSensitive
