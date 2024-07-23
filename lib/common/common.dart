@@ -55,15 +55,17 @@ class Common {
   }
 
   static refreshRules() async {
-    if (prefs.rules.isNotEmpty) {
-      return;
+    try {
+      var url = '${prefs.domain}/api/radar/rules';
+      var ruleUrl = LinkHelper.removeDuplicateSlashes(url);
+      var jsonResp = await getContentByUrl(Uri.parse(ruleUrl));
+      if (jsonResp != null) {
+        prefs.rules = jsonResp;
+      }
+    } catch (e) {
+      print('fetch rules by api failed');
     }
-    var url = '${prefs.domain}/api/radar/rules';
-    var ruleUrl = LinkHelper.removeDuplicateSlashes(url);
-    var jsonResp = await getContentByUrl(Uri.parse(ruleUrl));
-    if (jsonResp != null) {
-     prefs.rules = jsonResp;
-    }
+
   }
 
   static Future<String?> getRules()  async {
