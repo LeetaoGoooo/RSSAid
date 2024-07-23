@@ -55,14 +55,11 @@ class Common {
   }
 
   static refreshRules() async {
-    if (prefs.rules.isNotEmpty) {
-      return;
-    }
     var url = '${prefs.domain}/api/radar/rules';
     var ruleUrl = LinkHelper.removeDuplicateSlashes(url);
     var jsonResp = await getContentByUrl(Uri.parse(ruleUrl));
     if (jsonResp != null) {
-     prefs.rules = jsonResp;
+      prefs.rules = jsonResp;
     }
   }
 
