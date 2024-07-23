@@ -1,1 +1,2 @@
 feat: force refresh rules to update previous rules
+fix: add internet permission
