@@ -46,7 +46,9 @@ class _HomePageState extends State<HomePage> {
     _intentDataStreamSubscription = ReceiveSharingIntent.instance
         .getMediaStream()
         .where((event) => event.isNotEmpty)
-        .listen(_detectUrlFromShare, onError: (err) {});
+        .listen(_detectUrlFromShare, onError: (err) {
+          print("_detectUrlFromShare Error:$err");
+    });
 
     // For sharing or opening urls/text coming from outside the app while the app is closed
     ReceiveSharingIntent.instance.getInitialMedia().then((value) => {
@@ -65,7 +67,7 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    if (mediaFiles.first.type != SharedMediaType.url) {
+    if (![SharedMediaType.url, SharedMediaType.text].contains(mediaFiles.first.type)) {
       return;
     }
 
