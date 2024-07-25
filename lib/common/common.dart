@@ -56,6 +56,9 @@ class Common {
 
   static refreshRules() async {
     var url = '${prefs.domain}/api/radar/rules';
+    if (prefs.accessControl) {
+      url = '${url}?key=${prefs.accessKey}';
+    }
     var ruleUrl = LinkHelper.removeDuplicateSlashes(url);
     var jsonResp = await getContentByUrl(Uri.parse(ruleUrl));
     if (jsonResp != null) {

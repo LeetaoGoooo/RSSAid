@@ -58,4 +58,12 @@ class SharedPrefs {
   set config(String config) => _sharedPrefs.setString("config", config);
 
   String get config => _sharedPrefs.getString("config") ?? "";
+
+  bool get accessControl => _sharedPrefs.getBool("accessControl") ?? false;
+
+  set accessControl(bool value) => _sharedPrefs.setBool("accessControl", value);
+
+  String get accessKey => _sharedPrefs.getString("accessKey") ?? "";
+
+  set accessKey(String key) => _sharedPrefs.setString("accessKey", key);
 }

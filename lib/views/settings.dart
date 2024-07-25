@@ -6,6 +6,8 @@ import 'package:rssaid/views/rules.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import 'components/access_control.dart';
+
 class SettingPage extends StatefulWidget {
   @override
   _SettingPageState createState() => _SettingPageState();
@@ -61,16 +63,13 @@ class _SettingPageState extends State<SettingPage> {
                 onPressed: () {
                   Navigator.pop(context);
                 })),
-        body: Container(
-          margin: EdgeInsets.only(top: 16),
-
-          child: Column(
+        body: SingleChildScrollView(child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(padding:  EdgeInsets.only(left: 24, right: 24, bottom: 8),
-              child: Text(AppLocalizations.of(context)!.common, style: Theme.of(context).textTheme.titleMedium,),
+                child: Text(AppLocalizations.of(context)!.common, style: Theme.of(context).textTheme.titleMedium,),
               ),
               CommonRows(_domain, setDomain),
               Padding(padding:  EdgeInsets.only(left: 24, right: 24, bottom: 8),
@@ -78,8 +77,8 @@ class _SettingPageState extends State<SettingPage> {
               ),
               AboutRows(version: packageInfo.version,)
             ],
-          ),
-        ));
+          ),),
+        );
   }
 }
 
@@ -102,6 +101,7 @@ class CommonRows extends StatelessWidget {
       children: [
         _buildHowUseSoftware(context),
         _buildRssHubDomain(context),
+        AccessControlWidget(),
         _buildRules(context)
       ],
     );
