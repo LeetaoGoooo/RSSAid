@@ -43,17 +43,17 @@ class RssHub {
       return radars;
     }
 
-    List<dynamic> rules = rssHubRules[domain][subdomain ?? "."];
+    List<dynamic>? rules = rssHubRules[domain][subdomain ?? "."];
 
-    if (rules.isEmpty) {
-      if (subdomain == "www") {
+    if (rules == null || rules.isEmpty) {
+      if (subdomain == "www" || subdomain == 'mobile' || subdomain == 'm') {
         rules = rssHubRules[domain]["."];
       } else if (subdomain!.isEmpty) {
         rules = rssHubRules[domain]['www'];
       }
     }
 
-    if (rules.isEmpty) {
+    if (rules == null || rules.isEmpty) {
       return radars;
     }
 
@@ -68,6 +68,11 @@ class RssHub {
         radars.add(radar);
       }
     }
+    return radars;
+  }
+
+  List<Radar> getWebsiteRSSHub(PageInfo pageInfo) {
+    List<Radar> radars = [];
     return radars;
   }
 

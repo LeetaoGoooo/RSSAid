@@ -44,6 +44,7 @@ class Common {
       httpClient.connectionTimeout = Duration(seconds: 10);
       var request = await httpClient.getUrl(uri);
       request.headers.set("User-Agent", "RSSAid");
+
       var response = await request.close();
       if (response.statusCode == HttpStatus.ok) {
         content = await response.transform(utf8.decoder).join();
