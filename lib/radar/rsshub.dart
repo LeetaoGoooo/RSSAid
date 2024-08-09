@@ -71,11 +71,6 @@ class RssHub {
     return radars;
   }
 
-  List<Radar> getWebsiteRSSHub(PageInfo pageInfo) {
-    List<Radar> radars = [];
-    return radars;
-  }
-
   static List<String> parseSource(String url) {
     return url.split("/");
   }
