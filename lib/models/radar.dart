@@ -1,4 +1,6 @@
-class Radar {
+import 'package:equatable/equatable.dart';
+
+class Radar extends Equatable{
   String? title;
   String? path;
   bool isRssHub = true;
@@ -18,4 +20,8 @@ class Radar {
         ? []
         : json.map((value) => Radar.fromJson(value)).toList();
   }
+
+  @override
+  List<Object?> get props => [title, path];
+
 }

@@ -12,6 +12,7 @@ import 'package:rssaid/models/radar.dart';
 import 'package:rssaid/radar/rss_plus.dart';
 import 'package:rssaid/radar/rsshub.dart';
 import 'package:rssaid/radar/rule_type/page_info.dart';
+import 'package:rssaid/radar/urlUtils.dart';
 import 'package:rssaid/shared_prefs.dart';
 import 'package:rssaid/views/components/not_found.dart';
 import 'package:rssaid/views/config.dart';
@@ -149,8 +150,11 @@ class _HomePageState extends State<HomePage> {
       showToast(AppLocalizations.of(context)!.loadRulesFailed);
       return [];
     }
-    List<Radar> radarList = rssHub.getPageRSSHub(PageInfo(url: url, rules: rules));
-    return [...radarList, ...await RssPlus.detecting(url)];
+    var pcUrl = await UrlUtils.getPcWebSiteUrl(url);
+    print("pcUrl:$pcUrl");
+    List<Radar> radarList = rssHub.getPageRSSHub(PageInfo(url: pcUrl, rules: rules));
+    var radars = [...radarList, ...await RssPlus.detecting(url)];
+    return radars.toSet().toList();
   }
 
   @override
