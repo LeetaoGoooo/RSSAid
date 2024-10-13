@@ -11,18 +11,36 @@ class SourceParser {
 
   static Position getPosition(String url) {
     List<String> partUrls = url.split("/").sublist(1);
-    List<int> positions = [];
+    Map<String, PositionItem> replacePositions = {};
     for (var i = 0; i < partUrls.length; i++) {
-      if (isValidPart(partUrls[i])) {
-        positions.add(i);
+      int isValidPartVal = isValidPart(partUrls[i]);
+      if (isValidPartVal < 0) {
+        continue;
       }
+      String key = partUrls[i];
+      bool optional = false;
+      if (isValidPartVal == 2) {
+        optional = true;
+        key = partUrls[i].substring(0, partUrls[i].length - 1);
+      }
+      replacePositions[key] = PositionItem(position: i, optional: optional);
     }
     return Position(
-        origin: url, replacePositions: positions, strings: partUrls);
+        origin: url, replacePositions: replacePositions, strings: partUrls);
   }
 
-  static bool isValidPart(String part) {
-    return part.startsWith(":");
+  // 1 validate 2 validate and optional
+  // -1 invalidate
+  static int isValidPart(String part) {
+    if (!part.startsWith(":")){
+      return -1;
+    }
+    if (part.startsWith(":")) {
+      if (part.endsWith("?")) {
+        return 2;
+      }
+    }
+    return 1;
   }
 
   String removeDomain(String url) {
@@ -46,7 +64,8 @@ class SourceParser {
     }
 
     for (var i= 0; i< sourceStringLen; i++) {
-      if (!sourcePosition.replacePositions.contains(i)) {
+      var key = sourceStrings[i];
+      if (!sourcePosition.replacePositions.keys.contains(key)) {
         var notReplaceStr = sourceStrings[i];
         if (notReplaceStr != urlStrings[i]) {
           return false;
@@ -62,15 +81,16 @@ class SourceParser {
     var urlWithoutDomain = removeDomain(url);
     var urlStrings = urlWithoutDomain.split("/").sublist(1);
 
-    var isMatched = false;
+    Map<String, PositionItem>? item;
     for (var sourcePosition in sourcePositions) {
-      isMatched = isMatch(sourcePosition, urlWithoutDomain);
+      var isMatched = isMatch(sourcePosition, urlWithoutDomain);
       if (isMatched) {
+        item = sourcePosition.replacePositions;
         break;
       }
     }
 
-    if (!isMatched) {
+    if (item == null) {
       return null;
     }
 
@@ -82,9 +102,14 @@ class SourceParser {
 
     var originStrings = targetPosition.strings;
 
-    for (var i = 0; i <  replacePositions.length; i++) {
-      var replacePosition = replacePositions[i];
-      originStrings[replacePosition] = urlStrings[i];
+
+    for (var key in replacePositions.keys) {
+      if ((!(replacePositions[key]!.optional) && !item.containsKey(key)) || !item.containsKey(key)) {
+        return null;
+      }
+      int itemPosition = item[key]!.position;
+      int replacePosition = replacePositions[key]!.position;
+      originStrings[replacePosition] = urlStrings[itemPosition];
     }
 
     return originStrings.join("/");

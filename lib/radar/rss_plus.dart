@@ -4,14 +4,9 @@ import 'package:html/parser.dart' show parse;
 import 'package:rssaid/common/common.dart';
 
 import 'package:rssaid/models/radar.dart';
-import 'package:rssaid/radar/rules.dart';
 
 class RssPlus {
   static Future<List<Radar>> detecting(String url) async {
-    var specialRadar = Rules.detectUrl(url);
-    if (specialRadar != null) {
-      return specialRadar;
-    }
     return await detectByUrl(url);
   }
 
