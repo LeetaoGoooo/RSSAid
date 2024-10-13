@@ -4,17 +4,15 @@ import 'package:rssaid/models/radar.dart';
 import 'package:rssaid/radar/rule_type/page_info.dart';
 import 'package:rssaid/radar/rule_type/rule.dart';
 import 'package:rssaid/radar/source_parser.dart';
-import 'package:rssaid/shared_prefs.dart';
 import 'package:tldts/core/index.dart';
 import 'package:tldts/tldts.dart';
 
 class RssHub {
-  final SharedPrefs prefs = SharedPrefs();
 
   List<Radar> getPageRSSHub(PageInfo pageInfo) {
     List<Radar> radars = [];
 
-    String stringRules = prefs.rules;
+    String stringRules = pageInfo.rules;
     if (stringRules.isEmpty) {
       return radars;
     }
