@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/common/common.dart';
 
 class RulesDialog extends StatefulWidget {
@@ -17,10 +18,13 @@ class _RulesDialog extends State<RulesDialog> {
   }
 
   Future<void> refreshRules() async {
-    Common.getRules().then((value) {
-      setState(() {
-        _rules = value ?? "";
-      });
+    final rules = await Common.getRules();
+    if (rules == null) {
+      showToast(AppLocalizations.of(context)!.fetchRulesFailed);
+      return;
+    }
+    setState(() {
+      _rules = rules;
     });
   }
 
@@ -46,16 +50,14 @@ class _RulesDialog extends State<RulesDialog> {
           tooltip: AppLocalizations.of(context)!.refreshRules,
           child: Icon(Icons.refresh),
           onPressed: () async {
-            await refreshRules();
             _refreshRules(context);
-            Future.delayed(Duration(seconds: 3), () {
-              Navigator.pop(context);
-            });
+            await refreshRules();
+            Navigator.pop(context);
           },
         ));
   }
 
-  _refreshRules(BuildContext context) {
+  _refreshRules(BuildContext context) async {
     AlertDialog alert = AlertDialog(
       content: new Row(
         children: [
@@ -66,7 +68,7 @@ class _RulesDialog extends State<RulesDialog> {
         ],
       ),
     );
-    showDialog(
+    await showDialog(
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {

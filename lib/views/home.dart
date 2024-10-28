@@ -85,7 +85,6 @@ class _HomePageState extends State<HomePage> {
         .where((element) => element is LinkableElement);
     if (links.isNotEmpty) {
       _radarList = _detectUrl(links.first.text);
-      print(_radarList);
       setState(() => _currentUrl = links.first.text);
       _radarList!.then((value) {
         if (value.length > 0) {
@@ -311,7 +310,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  ///History recoeds list widget
+  ///History records list widget
   Widget _historyList() {
     var history = prefs.historyList;
     return Column(

@@ -53,5 +53,6 @@
   "common": "通用",
   "about": "关于",
   "refreshRules":"更新规则",
-  "preview": "预览"
+  "preview": "预览",
+  "fetchRulesFailed": "获取规则失败，请重试~"
 }

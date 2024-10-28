@@ -53,5 +53,6 @@
   "common": "General",
   "about": "About",
   "refreshRules":"Refresh Rules",
-  "preview": "Preview"
+  "preview": "Preview",
+  "fetchRulesFailed": "Fetch Rules Failed,please try again~"
 }
