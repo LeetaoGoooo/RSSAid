@@ -17,6 +17,8 @@ class _SettingPageState extends State<SettingPage> {
   final SharedPrefs prefs = SharedPrefs();
 
   String _domain = "https://rsshub.app";
+  late List<String> _domains;
+
   PackageInfo packageInfo = PackageInfo(
     appName: 'RSSAid',
     packageName: 'Unknown',
@@ -32,11 +34,12 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> init() async {
-    if (prefs.domain.isNotEmpty) {
-      setState(() {
-        _domain = prefs.domain;
-      });
-    }
+
+    setState(() {
+      _domain = prefs.domain;
+      _domains = prefs.domains;
+    });
+
     final info = await PackageInfo.fromPlatform();
     setState(() {
       packageInfo = info;
@@ -48,6 +51,13 @@ class _SettingPageState extends State<SettingPage> {
       _domain = domain;
     });
     prefs.domain = domain;
+  }
+
+  void setDomains(List<String> domains) async {
+    setState(() {
+      _domains = domains;
+    });
+    prefs.domains = domains;
   }
 
   @override
@@ -71,7 +81,22 @@ class _SettingPageState extends State<SettingPage> {
               Padding(padding:  EdgeInsets.only(left: 24, right: 24, bottom: 8),
                 child: Text(AppLocalizations.of(context)!.common, style: Theme.of(context).textTheme.titleMedium,),
               ),
-              CommonRows(_domain, setDomain),
+              CommonRows(
+                domain: _domain,
+                domains: _domains,
+                onDomainSet: (newDomain) {
+                  setState(() {
+                    _domain = newDomain;
+                    prefs.domain = newDomain;
+                  });
+                },
+                onDomainsSet: (newDomains) {
+                  setState(() {
+                    _domains = newDomains;
+                    prefs.domains = newDomains;
+                  });
+                },
+              ),
               Padding(padding:  EdgeInsets.only(left: 24, right: 24, bottom: 8),
                 child: Text(AppLocalizations.of(context)!.about, style: Theme.of(context).textTheme.titleMedium,),
               ),
@@ -83,47 +108,133 @@ class _SettingPageState extends State<SettingPage> {
 }
 
 // ignore: must_be_immutable
-class CommonRows extends StatelessWidget {
-  String? _domain;
-  Function? _domainSetCallback;
-  TextEditingController _domainController = new TextEditingController();
+class CommonRows extends StatefulWidget {
+  final String domain;
+  final List<String> domains;
+  final Function(String) onDomainSet;
+  final Function(List<String>) onDomainsSet;
 
-  CommonRows(String domain, Function domainSetFunc) {
-    this._domain = domain;
-    this._domainController.text = domain;
-    this._domainSetCallback = domainSetFunc;
+  const CommonRows({
+    Key? key,
+    required this.domain,
+    required this.domains,
+    required this.onDomainSet,
+    required this.onDomainsSet,
+  }) : super(key: key);
+
+  @override
+  _CommonRowsState createState() => _CommonRowsState();
+}
+
+class _CommonRowsState extends State<CommonRows> {
+  late TextEditingController _domainController;
+  late List<String> _localDomains;
+
+  @override
+  void initState() {
+    super.initState();
+    _domainController = TextEditingController();
+    _localDomains = List.from(widget.domains);
   }
 
   @override
-  Widget build(BuildContext context) {
-    return ListView(
+  void dispose() {
+    _domainController.dispose();
+    super.dispose();
+  }
+
+  void _addDomain(String domain) {
+    if (domain.isNotEmpty && !_localDomains.contains(domain.trim())) {
+      setState(() {
+        _localDomains.add(domain.trim());
+        widget.onDomainsSet(_localDomains);
+      });
+      _domainController.clear();
+    }
+  }
+
+  void _removeDomain(String domain) {
+    if (_localDomains.length > 1) {
+      setState(() {
+        _localDomains.remove(domain);
+        widget.onDomainsSet(_localDomains);
+
+        // If the current domain is removed, select the first available domain
+        if (domain == widget.domain) {
+          widget.onDomainSet(_localDomains.first);
+        }
+      });
+    }
+  }
+
+  Widget _buildDomainCheckboxes() {
+    return ListView.builder(
       shrinkWrap: true,
-      children: [
-        _buildHowUseSoftware(context),
-        _buildRssHubDomain(context),
-        AccessControlWidget(),
-        _buildRules(context)
-      ],
+      itemCount: _localDomains.length,
+      itemBuilder: (context, index) {
+        final domain = _localDomains[index];
+        return Row(
+          children: [
+            Checkbox(
+              value: domain == widget.domain,
+              onChanged: (bool? selected) {
+                if (selected == true) {
+                  widget.onDomainSet(domain);
+                }
+              },
+            ),
+            Expanded(child: Text(domain)),
+            if (_localDomains.length > 1)
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: () => _removeDomain(domain),
+              ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildRssHubDomain(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.only(left: 24, right: 24, bottom: 8),
-      clipBehavior: Clip.hardEdge,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
-      elevation: 1,
-      child: ListTile(
-        leading: Icon(Icons.domain),
-        title: Text(
-          "RSSHub URL",
-        ),
-        onTap: () {
-          _showDialog(context);
-        },
-      ),
+  void _showDomainDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _domainController,
+                decoration: InputDecoration(
+                  labelText: 'Add New Domain',
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () => _addDomain(_domainController.text),
+                  ),
+                ),
+                onSubmitted: _addDomain,
+              ),
+              _buildDomainCheckboxes(),
+            ],
+          ),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () => Navigator.pop(context),
+            ),
+            ElevatedButton(
+              child: Text('Save'),
+              onPressed: () {
+                // Ensure the current domain is still valid
+                if (!_localDomains.contains(widget.domain)) {
+                  widget.onDomainSet(_localDomains.first);
+                }
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -169,39 +280,29 @@ class CommonRows extends StatelessWidget {
     );
   }
 
-  _showDialog(BuildContext context) async {
-    await showDialog(
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (context, setState) {
-              return new AlertDialog(
-                // contentPadding: const EdgeInsets.all(16.0),
-                content: Container(
-                  child: TextField(
-                    controller: _domainController,
-                    decoration: new InputDecoration(labelText: 'Host'),
-                  ),
-                ),
-                actions: <Widget>[
-                   TextButton(
-                      child: Text(AppLocalizations.of(context)!.cancel),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      }),
-                  ElevatedButton(
-                      child: Text(AppLocalizations.of(context)!.sure),
-                      onPressed: () {
-                        if (_domainController.text != _domain) {
-                          _domainSetCallback!(_domainController.text);
-                        }
-                        Navigator.pop(context);
-                      })
-                ],
-              );
-            },
-          );
-        });
+  Widget _buildRssHubDomain(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.only(left: 24, right: 24, bottom: 8),
+      child: ListTile(
+        leading: Icon(Icons.domain),
+        title: Text("RSSHub URL"),
+        subtitle: Text(widget.domain),
+        onTap: () => _showDomainDialog(context),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        _buildHowUseSoftware(context),
+        _buildRssHubDomain(context),
+        AccessControlWidget(),
+        _buildRules(context)
+      ],
+    );
   }
 }
 

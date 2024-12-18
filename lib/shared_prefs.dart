@@ -28,6 +28,10 @@ class SharedPrefs {
 
   String get domain => _sharedPrefs.getString("RSSHUB") ?? "https://rsshub.app";
 
+  List<String> get domains => _sharedPrefs.getStringList("DOMAIN") ?? ["https://rsshub.app"];
+
+  set domains(List<String> domains) => _sharedPrefs.setStringList("DOMAIN", domains);
+
   /// Save history records after user delete one
   set historyList(List<String> history) =>
       _sharedPrefs.setStringList('historyListKey', history);
