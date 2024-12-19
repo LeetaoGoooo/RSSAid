@@ -1,0 +1,1 @@
+feat: support multiple rsshub domains #66
