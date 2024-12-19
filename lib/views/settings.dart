@@ -3,7 +3,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rssaid/common/common.dart';
 import 'package:rssaid/shared_prefs.dart';
 import 'package:rssaid/views/rules.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'components/access_control.dart';
@@ -34,7 +33,6 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> init() async {
-
     setState(() {
       _domain = prefs.domain;
       _domains = prefs.domains;
@@ -63,47 +61,59 @@ class _SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-            centerTitle: true,
-            title: Text(AppLocalizations.of(context)!.settings,
-                style: Theme.of(context).textTheme.titleLarge),
-            leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios),
-                onPressed: () {
-                  Navigator.pop(context);
-                })),
-        body: SingleChildScrollView(child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(padding:  EdgeInsets.only(left: 24, right: 24, bottom: 8),
-                child: Text(AppLocalizations.of(context)!.common, style: Theme.of(context).textTheme.titleMedium,),
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+          centerTitle: true,
+          title: Text(AppLocalizations.of(context)!.settings,
+              style: Theme.of(context).textTheme.titleLarge),
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: () {
+                Navigator.pop(context);
+              })),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 24, right: 24, bottom: 8),
+              child: Text(
+                AppLocalizations.of(context)!.common,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
-              CommonRows(
-                domain: _domain,
-                domains: _domains,
-                onDomainSet: (newDomain) {
-                  setState(() {
-                    _domain = newDomain;
-                    prefs.domain = newDomain;
-                  });
-                },
-                onDomainsSet: (newDomains) {
-                  setState(() {
-                    _domains = newDomains;
-                    prefs.domains = newDomains;
-                  });
-                },
+            ),
+            CommonRows(
+              domain: _domain,
+              domains: _domains,
+              onDomainSet: (newDomain) {
+                setState(() {
+                  _domain = newDomain;
+                  prefs.domain = newDomain;
+                });
+              },
+              onDomainsSet: (newDomains) {
+                setState(() {
+                  _domains = newDomains;
+                  prefs.domains = newDomains;
+                });
+              },
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 24, right: 24, bottom: 8),
+              child: Text(
+                AppLocalizations.of(context)!.about,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
-              Padding(padding:  EdgeInsets.only(left: 24, right: 24, bottom: 8),
-                child: Text(AppLocalizations.of(context)!.about, style: Theme.of(context).textTheme.titleMedium,),
-              ),
-              AboutRows(version: packageInfo.version,)
-            ],
-          ),),
-        );
+            ),
+            AboutRows(
+              version: packageInfo.version,
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -129,12 +139,14 @@ class CommonRows extends StatefulWidget {
 class _CommonRowsState extends State<CommonRows> {
   late TextEditingController _domainController;
   late List<String> _localDomains;
+  late String _localDomain;
 
   @override
   void initState() {
     super.initState();
     _domainController = TextEditingController();
     _localDomains = List.from(widget.domains);
+    _localDomain = widget.domain;
   }
 
   @override
@@ -143,92 +155,93 @@ class _CommonRowsState extends State<CommonRows> {
     super.dispose();
   }
 
-  void _addDomain(String domain) {
-    if (domain.isNotEmpty && !_localDomains.contains(domain.trim())) {
-      setState(() {
-        _localDomains.add(domain.trim());
-        widget.onDomainsSet(_localDomains);
-      });
-      _domainController.clear();
-    }
-  }
-
-  void _removeDomain(String domain) {
-    if (_localDomains.length > 1) {
-      setState(() {
-        _localDomains.remove(domain);
-        widget.onDomainsSet(_localDomains);
-
-        // If the current domain is removed, select the first available domain
-        if (domain == widget.domain) {
-          widget.onDomainSet(_localDomains.first);
-        }
-      });
-    }
-  }
-
-  Widget _buildDomainCheckboxes() {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: _localDomains.length,
-      itemBuilder: (context, index) {
-        final domain = _localDomains[index];
-        return Row(
-          children: [
-            Checkbox(
-              value: domain == widget.domain,
-              onChanged: (bool? selected) {
-                if (selected == true) {
-                  widget.onDomainSet(domain);
-                }
-              },
-            ),
-            Expanded(child: Text(domain)),
-            if (_localDomains.length > 1)
-              IconButton(
-                icon: Icon(Icons.delete, color: Colors.red),
-                onPressed: () => _removeDomain(domain),
-              ),
-          ],
-        );
-      },
-    );
-  }
 
   void _showDomainDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _domainController,
-                decoration: InputDecoration(
-                  labelText: 'Add New Domain',
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: () => _addDomain(_domainController.text),
+          content: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _domainController,
+                  decoration: InputDecoration(
+                    labelText: 'Add New Domain',
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () {
+                        if (_domainController.text.isNotEmpty &&
+                            !_localDomains
+                                .contains(_domainController.text.trim())) {
+                          setState(() {
+                            _localDomains.add(_domainController.text.trim());
+                            widget.onDomainsSet(_localDomains);
+                          });
+                          _domainController.clear();
+                        }
+                      },
+                    ),
                   ),
+                  onSubmitted: (String domain) {
+                    if (domain.isNotEmpty && !_localDomains.contains(domain.trim())) {
+                      setState(() {
+                        _localDomains.add(domain.trim());
+                        widget.onDomainsSet(_localDomains);
+                      });
+                      _domainController.clear();
+                    }
+                  },
                 ),
-                onSubmitted: _addDomain,
-              ),
-              _buildDomainCheckboxes(),
-            ],
-          ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _localDomains.length,
+                  itemBuilder: (context, index) {
+                    final domain = _localDomains[index];
+                    return Row(
+                      children: [
+                        Checkbox(
+                          value: domain == _localDomain,
+                          onChanged: (bool? selected) {
+                            if (selected == true) {
+                              setState(() {
+                                widget.onDomainSet(domain);
+                                _localDomain = domain;
+                              });
+                            }
+                          },
+                        ),
+                        Expanded(child: Text(domain)),
+                        if (_localDomains.length > 1)
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              if (_localDomains.length > 1) {
+                                setState(() {
+                                  _localDomains.remove(domain);
+                                  widget.onDomainsSet(_localDomains);
+
+                                  // If the current domain is removed, select the first available domain
+                                  if (domain == widget.domain) {
+                                    widget.onDomainSet(_localDomains.first);
+                                  }
+                                });
+                              }
+                            },
+                          ),
+                      ],
+                    );
+                  },
+                )
+              ],
+            );
+          }),
           actions: [
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () => Navigator.pop(context),
-            ),
             ElevatedButton(
-              child: Text('Save'),
+              child: Text('Ok'),
               onPressed: () {
-                // Ensure the current domain is still valid
-                if (!_localDomains.contains(widget.domain)) {
-                  widget.onDomainSet(_localDomains.first);
-                }
                 Navigator.pop(context);
               },
             ),
