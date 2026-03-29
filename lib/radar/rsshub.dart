@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 import 'package:rssaid/models/radar.dart';
 import 'package:rssaid/radar/rule_type/page_info.dart';
@@ -9,44 +9,41 @@ import 'package:tldts/tldts.dart';
 
 class RssHub {
 
-  List<Radar> getPageRSSHub(PageInfo pageInfo) {
+  Future<List<Radar>> getPageRSSHub(PageInfo pageInfo) async {
     List<Radar> radars = [];
 
-    String stringRules = pageInfo.rules;
-    if (stringRules.isEmpty) {
+    final Map<String, dynamic> rssHubRules = pageInfo.rules;
+    if (rssHubRules.isEmpty) {
       return radars;
     }
-    Map<String, dynamic> rssHubRules = jsonDecode(stringRules);
 
     Result? parsedDomain;
-
     try {
       parsedDomain = parse(pageInfo.url);
     } on FormatException catch (e) {
-      print('Not valid URI:${e}');
+      if (kDebugMode) print('Not valid URI: $e');
       return radars;
     } on Exception catch (e) {
-      print('Unknown exception:${e}');
+      if (kDebugMode) print('Unknown exception: $e');
       return radars;
     }
 
-    String? domain = parsedDomain.domain;
-    String? subdomain = parsedDomain.subdomain != null && parsedDomain.subdomain!.isNotEmpty ?  parsedDomain.subdomain : null;
+    final String? domain = parsedDomain.domain;
+    final String? subdomain = (parsedDomain.subdomain != null &&
+            parsedDomain.subdomain!.isNotEmpty)
+        ? parsedDomain.subdomain
+        : null;
 
-    if (domain == null) {
+    if (domain == null || !rssHubRules.containsKey(domain)) {
       return radars;
     }
 
-    if (!rssHubRules.containsKey(domain)) {
-      return radars;
-    }
-
-    List<dynamic>? rules = rssHubRules[domain][subdomain ?? "."];
+    List<dynamic>? rules = rssHubRules[domain][subdomain ?? '.'];
 
     if (rules == null || rules.isEmpty) {
-      if (subdomain == "www" || subdomain == 'mobile' || subdomain == 'm') {
-        rules = rssHubRules[domain]["."];
-      } else if (subdomain!.isEmpty) {
+      if (subdomain == 'www' || subdomain == 'mobile' || subdomain == 'm') {
+        rules = rssHubRules[domain]['.'];
+      } else if (subdomain == null || subdomain.isEmpty) {
         rules = rssHubRules[domain]['www'];
       }
     }
@@ -56,14 +53,16 @@ class RssHub {
     }
 
     for (var ruleMap in rules) {
-      var rule = Rule.fromJson(ruleMap);
-      Radar radar = Radar(title: rule.title, docs: rule.docs, isRssHub: true);
-      var sourceParser = SourceParser(target: rule.target, url: pageInfo.url);
-
-      String? parsedRule = sourceParser.getRule(rule.source);
+      final rule = Rule.fromJson(ruleMap);
+      final sourceParser = SourceParser(target: rule.target, url: pageInfo.url);
+      final String? parsedRule = sourceParser.getRule(rule.source);
       if (parsedRule != null) {
-        radar.path = parsedRule;
-        radars.add(radar);
+        radars.add(Radar(
+          title: rule.title,
+          docs: rule.docs,
+          isRssHub: true,
+          path: parsedRule,
+        ));
       }
     }
     return radars;

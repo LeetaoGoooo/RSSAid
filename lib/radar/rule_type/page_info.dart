@@ -1,6 +1,6 @@
 class PageInfo {
   final String url;
-  final String rules;
+  final Map<String, dynamic> rules;
 
   PageInfo({
     required this.url,

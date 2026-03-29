@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:linkify/linkify.dart';
 import 'package:oktoast/oktoast.dart';
@@ -18,7 +17,7 @@ import 'package:rssaid/views/components/not_found.dart';
 import 'package:rssaid/views/config.dart';
 import 'package:rssaid/views/settings.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:rssaid/l10n/app_localizations.dart';
 
 import 'components/radar_cards.dart';
 
@@ -32,75 +31,70 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final SharedPrefs prefs = SharedPrefs();
   final RssHub rssHub = RssHub();
-  String _currentUrl = "";
+
+  String _currentUrl = '';
   Future<List<Radar>>? _radarList;
+
+  /// Tri-state: null = idle, true = loading, false = done.
+  bool? _isLoading;
   bool _configVisible = false;
   bool _notUrlDetected = false;
+  bool _isRefreshing = false;
+
   late StreamSubscription _intentDataStreamSubscription;
-  TextEditingController _inputUrlController = new TextEditingController();
+  final TextEditingController _inputUrlController = TextEditingController();
+
+  // history is kept as a state variable to avoid stale-local-copy issues.
+  late List<String> _history;
 
   @override
   void initState() {
     super.initState();
-    // _fetchRules();
-    // For sharing or opening urls/text coming from outside the app while the app is in the memory
+    _history = prefs.historyList;
+
     _intentDataStreamSubscription = ReceiveSharingIntent.instance
         .getMediaStream()
         .where((event) => event.isNotEmpty)
-        .listen(_detectUrlFromShare, onError: (err) {
-          print("_detectUrlFromShare Error:$err");
-    });
+        .listen(_detectUrlFromShare, onError: (_) {});
 
-    // For sharing or opening urls/text coming from outside the app while the app is closed
-    ReceiveSharingIntent.instance.getInitialMedia().then((value) => {
-          {_detectUrlFromShare(value)}
-        });
+    ReceiveSharingIntent.instance
+        .getInitialMedia()
+        .then((value) => _detectUrlFromShare(value));
   }
 
   @override
   void dispose() {
     _intentDataStreamSubscription.cancel();
+    _inputUrlController.dispose();
     super.dispose();
   }
 
   Future<void> _detectUrlFromShare(List<SharedMediaFile> mediaFiles) async {
-    if (mediaFiles.isEmpty) {
-      return;
-    }
+    if (mediaFiles.isEmpty) return;
+    if (![SharedMediaType.url, SharedMediaType.text]
+        .contains(mediaFiles.first.type)) return;
 
-    if (![SharedMediaType.url, SharedMediaType.text].contains(mediaFiles.first.type)) {
-      return;
-    }
-
-    String text = mediaFiles.first.path;
+    final String text = mediaFiles.first.path;
 
     setState(() {
       _currentUrl = '';
       _configVisible = false;
       _notUrlDetected = false;
+      _isLoading = null;
     });
-    var links = linkify(text.trim(),
-            options: LinkifyOptions(humanize: false),
-            linkifiers: [UrlLinkifier()])
-        .where((element) => element is LinkableElement);
+
+    final links = linkify(
+      text.trim(),
+      options: const LinkifyOptions(humanize: false),
+      linkifiers: const [UrlLinkifier()],
+    ).where((element) => element is LinkableElement);
+
     if (links.isNotEmpty) {
-      _radarList = _detectUrl(links.first.text);
-      print(_radarList);
-      setState(() => _currentUrl = links.first.text);
-      _radarList!.then((value) {
-        if (value.length > 0) {
-          setState(() {
-            _configVisible = true;
-            _notUrlDetected = false;
-          });
-        } else {
-          setState(() {
-            _notUrlDetected = true;
-          });
-        }
-      });
+      _callRadar(links.first.text);
     } else {
-      showToastWidget(Text(AppLocalizations.of(context)!.notfoundinshare));
+      if (mounted) {
+        showToastWidget(Text(AppLocalizations.of(context)!.notfoundinshare));
+      }
     }
   }
 
@@ -109,52 +103,78 @@ class _HomePageState extends State<HomePage> {
       _currentUrl = '';
       _configVisible = false;
       _notUrlDetected = false;
+      _isLoading = null;
     });
-    ClipboardData? data = (await Clipboard.getData(Clipboard.kTextPlain));
+    final ClipboardData? data =
+        await Clipboard.getData(Clipboard.kTextPlain);
     if (data != null && data.text != null) {
-      var link = LinkHelper.verifyLink(data.text);
+      final link = LinkHelper.verifyLink(data.text);
       if (link != null && link.isNotEmpty) {
         _callRadar(link);
       } else {
-        showToast(AppLocalizations.of(context)!.notfoundinClipboard);
+        if (mounted) showToast(AppLocalizations.of(context)!.notfoundinClipboard);
       }
     } else {
-      showToast(AppLocalizations.of(context)!.notfoundinClipboard);
+      if (mounted) showToast(AppLocalizations.of(context)!.notfoundinClipboard);
     }
   }
 
   void _callRadar(String url) {
-    _radarList = _detectUrl(url);
-    setState(() => _currentUrl = url);
+    // Single setState to start the loading state — no intermediate rebuilds.
+    setState(() {
+      _currentUrl = url;
+      _configVisible = false;
+      _notUrlDetected = false;
+      _isLoading = true;
+    });
+
     prefs.record = url;
-    _radarList!.then(
-      (value) {
-        if (value.length > 0) {
-          print("_radarList length > 0, set _configVisible is true");
-          setState(() {
-            _configVisible = true;
-            _notUrlDetected = false;
-          });
+
+    _radarList = _detectUrl(url);
+    _radarList!.then((value) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        if (value.isNotEmpty) {
+          _configVisible = true;
+          _notUrlDetected = false;
         } else {
-          setState(() {
-            _notUrlDetected = true;
-          });
+          _notUrlDetected = true;
         }
-      },
-    );
+      });
+    }).catchError((_) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _notUrlDetected = true;
+      });
+    });
   }
 
   Future<List<Radar>> _detectUrl(String url) async {
-    String? rules = await Common.getRules();
+    // Uses the in-memory cached parsed rules — no re-deserialization.
+    final Map<String, dynamic>? rules = await Common.getParsedRules();
     if (rules == null || rules.isEmpty) {
-      showToast(AppLocalizations.of(context)!.loadRulesFailed);
+      if (mounted) showToast(AppLocalizations.of(context)!.loadRulesFailed);
       return [];
     }
-    var pcUrl = await UrlUtils.getPcWebSiteUrl(url);
-    print("pcUrl:$pcUrl");
-    List<Radar> radarList = rssHub.getPageRSSHub(PageInfo(url: pcUrl, rules: rules));
-    var radars = [...radarList, ...await RssPlus.detecting(url)];
+    final String pcUrl = await UrlUtils.getPcWebSiteUrl(url);
+    final List<Radar> radarList =
+        await rssHub.getPageRSSHub(PageInfo(url: pcUrl, rules: rules));
+    final radars = [...radarList, ...await RssPlus.detecting(url)];
     return radars.toSet().toList();
+  }
+
+  Future<void> _refreshRules() async {
+    setState(() => _isRefreshing = true);
+    try {
+      await Common.refreshRules();
+      if (mounted) showToast(AppLocalizations.of(context)!.refreshRulesSuccess);
+    } catch (_) {
+      if (mounted) showToast(AppLocalizations.of(context)!.refreshRulesFailed);
+    } finally {
+      if (mounted) setState(() => _isRefreshing = false);
+    }
   }
 
   @override
@@ -162,30 +182,41 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: Text("RSSAid", style: Theme.of(context).textTheme.titleLarge),
+        title: Text('RSSAid', style: Theme.of(context).textTheme.titleLarge),
         actions: [
+          _isRefreshing
+              ? const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.network_check),
+                  onPressed: _refreshRules,
+                ),
           IconButton(
-              icon: Icon(
-                Icons.settings,
-              ),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (context) => new SettingPage()));
-              })
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingPage()),
+              );
+            },
+          ),
         ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-            child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          // mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Padding(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Padding(
                 padding:
-                    EdgeInsets.only(left: 24, right: 24, top: 0, bottom: 8),
+                    const EdgeInsets.only(left: 24, right: 24, top: 0, bottom: 8),
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.inputLinkChecked,
@@ -194,174 +225,195 @@ class _HomePageState extends State<HomePage> {
                   autofocus: true,
                   textInputAction: TextInputAction.done,
                   onEditingComplete: submitInputUrl,
-                )),
-            Padding(
+                ),
+              ),
+              Padding(
                 padding:
-                    EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 8),
+                    const EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 8),
                 child: ElevatedButton.icon(
-                    icon: Icon(Icons.copy_outlined),
-                    label: Text(AppLocalizations.of(context)!.fromClipboard),
-                    onPressed: _detectUrlByClipboard)),
-            _buildCustomLinkPreview(context),
-            Padding(
+                  icon: const Icon(Icons.copy_outlined),
+                  label: Text(AppLocalizations.of(context)!.fromClipboard),
+                  onPressed: _detectUrlByClipboard,
+                ),
+              ),
+              _buildCustomLinkPreview(context),
+              Padding(
                 padding:
-                EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 8),child: _createRadarList(context)),
-            if (_currentUrl == '') _historyList()
-          ],
-        )),
+                    const EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 8),
+                child: _createRadarList(context),
+              ),
+              if (_currentUrl.isEmpty) _historyList(),
+            ],
+          ),
+        ),
       ),
       floatingActionButton: _configVisible
           ? FloatingActionButton(
               tooltip: AppLocalizations.of(context)!.addConfig,
-              child: Icon(Icons.post_add),
+              child: const Icon(Icons.post_add),
               onPressed: () {
-                Navigator.of(context).push(new MaterialPageRoute<Null>(
-                    builder: (BuildContext context) {
-                      return new ConfigDialog();
-                    },
-                    fullscreenDialog: true));
+                Navigator.of(context).push(
+                  MaterialPageRoute<Null>(
+                    builder: (BuildContext context) => ConfigDialog(),
+                    fullscreenDialog: true,
+                  ),
+                );
               },
             )
           : null,
     );
   }
 
-  Widget trailingWidget() {
-    if (!(_configVisible || _notUrlDetected)) {
-      return SizedBox(
-          height: 20,
-          width: 20,
-          child: CircularProgressIndicator(strokeWidth: 2));
+  Widget _trailingWidget() {
+    if (_isLoading == true) {
+      return const SizedBox(
+        height: 20,
+        width: 20,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
     }
     return IconButton(
-        padding: EdgeInsets.zero,
-        icon: Icon(Icons.close),
-        onPressed: () {
-          setState(() {
-            _currentUrl = "";
-            _configVisible = false;
-            _notUrlDetected = false;
-            _radarList = null;
-          });
+      padding: EdgeInsets.zero,
+      icon: const Icon(Icons.close),
+      onPressed: () {
+        setState(() {
+          _currentUrl = '';
+          _configVisible = false;
+          _notUrlDetected = false;
+          _radarList = null;
+          _isLoading = null;
         });
-  }
-
-  Widget _buildCustomLinkPreview(BuildContext context) {
-    if (_currentUrl.trim().length != 0) {
-      return Card(
-          margin: EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 8),
-          elevation: 0,
-          child: Padding(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
-              child: Column(
-                children: [
-                  Card(
-                    child: ListTile(
-                      dense: true,
-                      title: Text(_currentUrl,
-                          maxLines: 1, overflow: TextOverflow.ellipsis),
-                      trailing: trailingWidget(),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  AnyLinkPreview(
-                    link: _currentUrl.trim(),
-                    displayDirection: UIDirection.uiDirectionHorizontal,
-                    cache: Duration(hours: 1),
-                    errorWidget: Container(
-                      child: Text('Oops!'),
-                    ),
-                  ),
-                ],
-              )));
-    }
-    return SizedBox.shrink();
-  }
-
-  Widget _createRadarList(BuildContext context) {
-    return FutureBuilder(
-      future: _radarList,
-      builder: (context, snapshot) {
-        if (snapshot.hasData &&
-            snapshot.data != null &&
-            (snapshot.data as List).length > 0) {
-          List<Radar> radarList = snapshot.data as List<Radar>;
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("RSS List", style: Theme.of(context).textTheme.titleLarge,),
-              SizedBox(height: 8,),
-              ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: radarList.length,
-                itemBuilder: (context, index) => RadarCards(
-                  radar: radarList[index],
-                ),
-              )
-            ],
-          );
-        }
-        return _notUrlDetected
-            ? NotFound()
-            : Container();
       },
     );
   }
 
-  ///History recoeds list widget
+  Widget _buildCustomLinkPreview(BuildContext context) {
+    if (_currentUrl.trim().isEmpty) return const SizedBox.shrink();
+
+    return Card(
+      margin: const EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 8),
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
+        child: Column(
+          children: [
+            Card(
+              child: ListTile(
+                dense: true,
+                title: Text(
+                  _currentUrl,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: _trailingWidget(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            AnyLinkPreview(
+              link: _currentUrl.trim(),
+              displayDirection: UIDirection.uiDirectionHorizontal,
+              cache: const Duration(hours: 1),
+              errorWidget: const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _createRadarList(BuildContext context) {
+    return FutureBuilder<List<Radar>>(
+      future: _radarList,
+      builder: (context, snapshot) {
+        if (snapshot.hasData &&
+            snapshot.data != null &&
+            snapshot.data!.isNotEmpty) {
+          final radarList = snapshot.data!;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'RSS List',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: radarList.length,
+                itemBuilder: (context, index) =>
+                    RadarCards(radar: radarList[index]),
+              ),
+            ],
+          );
+        }
+        if (_notUrlDetected) return NotFound();
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  /// History list uses [_history] (a state variable) to prevent
+  /// index-out-of-range errors after swipe-to-dismiss.
   Widget _historyList() {
-    var history = prefs.historyList;
+    if (_history.isEmpty) return const SizedBox.shrink();
+
     return Column(
       children: [
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         ListView.builder(
           shrinkWrap: true,
-          itemCount: history.length,
-          physics: NeverScrollableScrollPhysics(),
+          itemCount: _history.length,
+          physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
             return Dismissible(
-              key: ValueKey(history[index]),
-              onDismissed: (direction) {
-                setState(() => history.removeAt(index));
-                prefs.historyList = history;
-                if (mounted) setState(() {});
+              key: ValueKey(_history[index]),
+              onDismissed: (_) {
+                setState(() => _history.removeAt(index));
+                prefs.historyList = _history;
               },
               child: Card(
-                  margin: EdgeInsets.only(left: 24, right: 24, bottom: 12),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0)),
-                  elevation: 0,
-                  child: InkWell(
-                    onTap: () => _callRadar(history[index]),
-                    borderRadius: BorderRadius.circular(10.0),
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text(history[index],
-                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                margin:
+                    const EdgeInsets.only(left: 24, right: 24, bottom: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0)),
+                elevation: 0,
+                child: InkWell(
+                  onTap: () => _callRadar(_history[index]),
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      _history[index],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  )),
+                  ),
+                ),
+              ),
             );
           },
         ),
         Padding(
-            padding: EdgeInsets.only(left: 24, right: 24, top: 0, bottom: 8),
-            child: ElevatedButton.icon(
-                icon: Icon(Icons.clear_all_outlined),
-                label: Text(AppLocalizations.of(context)!.clear),
-                onPressed: () {
-                  prefs.historyList = [];
-                })),
+          padding:
+              const EdgeInsets.only(left: 24, right: 24, top: 0, bottom: 8),
+          child: ElevatedButton.icon(
+            icon: const Icon(Icons.clear_all_outlined),
+            label: Text(AppLocalizations.of(context)!.clear),
+            onPressed: () {
+              setState(() => _history = []);
+              prefs.historyList = [];
+            },
+          ),
+        ),
       ],
     );
   }
 
   void submitInputUrl() {
-    var url = _inputUrlController.text.trim();
-    if (url.length > 0) {
-      var link = LinkHelper.verifyLink(url);
+    final url = _inputUrlController.text.trim();
+    if (url.isNotEmpty) {
+      final link = LinkHelper.verifyLink(url);
       if (link != null) {
         _callRadar(link);
         return;

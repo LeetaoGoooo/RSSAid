@@ -53,5 +53,8 @@
   "common": "General",
   "about": "About",
   "refreshRules":"Refresh Rules",
+  "refreshingRules": "Refreshing Rules...",
+  "refreshRulesSuccess": "Rules updated successfully!",
+  "refreshRulesFailed": "Failed to update rules.",
   "preview": "Preview"
 }

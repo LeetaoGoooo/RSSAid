@@ -53,5 +53,8 @@
   "common": "通用",
   "about": "关于",
   "refreshRules":"更新规则",
+  "refreshingRules": "正在更新规则...",
+  "refreshRulesSuccess": "规则更新成功！",
+  "refreshRulesFailed": "规则更新失败。",
   "preview": "预览"
 }

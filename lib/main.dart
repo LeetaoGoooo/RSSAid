@@ -7,19 +7,21 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/shared_prefs.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:rssaid/l10n/app_localizations.dart';
+import 'package:system_proxy/system_proxy.dart';
 import 'package:rssaid/theme.dart';
 import 'package:rssaid/views/home.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPrefs().init();
+  await SystemProxy.setProxy();
+  
   if (Platform.isAndroid) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(false);
   }
-
   runApp(RSSAidApp());
-
+  
   var systemUiOverlayStyle = SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       systemNavigationBarColor: Colors.transparent);
