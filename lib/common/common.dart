@@ -1,21 +1,45 @@
 import 'dart:convert';
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart' as launcher;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:system_proxy/system_proxy.dart';
+
+extension HttpClientExtension on HttpClient {
+  Future<HttpClient> autoProxy() async {
+    Map<String, String>? sysProxy = await SystemProxy.getProxySettings();
+    var proxy = "DIRECT";
+    if (sysProxy != null) {
+      print('DETECTED_PROXY: ${sysProxy}');
+      proxy = "PROXY ${sysProxy['host']}:${sysProxy['port']}; DIRECT";
+    } else {
+      print('DETECTED_PROXY: NONE');
+    }
+    this.findProxy = (uri) {
+      return proxy;
+    };
+    this.badCertificateCallback = (cert, host, port) => true;
+    return this;
+  }
+}
 
 class Common {
-  static const String rsshubRadarRulesUrl =
-      "https://raw.githubusercontent.com/DIYgod/RSSHub/master/assets/radar-rules.json";
+  static const String jsDelivrRulesUrl =
+      "https://fastly.jsdelivr.net/gh/DIYgod/RSSHub@gh-pages/radar-rules.js";
+  static const String rsshubRadarRulesJsonUrl =
+      "https://raw.githubusercontent.com/DIYgod/RSSHub/gh-pages/radar-rules.js";
   static const String radarMirrorUrl =
-      "https://radar.rsshub.app/rules.json";
+      "https://rsshub.app/radar-rules.js";
 
   // In-memory cache: avoids re-deserializing the large JSON on every URL detection.
   static Map<String, dynamic>? _cachedParsedRules;
   static String? _cachedRulesSource;
+  static Future<String?>? _pendingRulesFetch;
 
-  static Future<String?> getContentByUrl(dynamic url) async {
+  static Future<String?> getContentByUrl(dynamic url, {bool useProxy = true}) async {
     try {
       Uri uri;
       if (url is String) {
@@ -25,12 +49,43 @@ class Common {
       } else {
         return null;
       }
-      var response = await http.get(uri);
+      
+      HttpClient httpClient;
+      if (useProxy) {
+        httpClient = await HttpClient().autoProxy();
+      } else {
+        print('FETCHING_DIRECT: $url');
+        httpClient = HttpClient();
+        httpClient.badCertificateCallback = (cert, host, port) => true;
+      }
+
+      httpClient.connectionTimeout = const Duration(seconds: 60);
+      var request = await httpClient.getUrl(uri);
+      
+      // Mimic a modern mobile browser and official extension to bypass 403s
+      request.headers.set("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1");
+      request.headers.set("Accept", "application/json, text/plain, */*");
+      request.headers.set("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8");
+      request.headers.set("Cache-Control", "no-cache");
+      request.headers.set("Pragma", "no-cache");
+      request.headers.set("Referer", "https://rsshub.app/");
+      request.headers.set("X-Requested-With", "XMLHttpRequest");
+      request.headers.set("Origin", "chrome-extension://kbmfpngjjgdllneeigpgnljpghcabnoo");
+      request.headers.set("Sec-CH-UA", '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"');
+      request.headers.set("Sec-CH-UA-Mobile", "?1");
+      request.headers.set("Sec-CH-UA-Platform", '"iOS"');
+      request.headers.set("Sec-Fetch-Dest", "empty");
+      request.headers.set("Sec-Fetch-Mode", "cors");
+      request.headers.set("Sec-Fetch-Site", "same-site");
+
+      var response = await request.close();
+      
+      print('HTTP_RESPONSE: ${response.statusCode} (Proxy: $useProxy) for $url');
       if (response.statusCode == 200) {
-        return response.body;
+        return await response.transform(utf8.decoder).join();
       }
     } catch (e) {
-      print('GET_CONTENT_ERROR: \$e');
+      print('GET_CONTENT_ERROR (Proxy: $useProxy): $e');
     }
     return null;
   }
@@ -46,11 +101,11 @@ class Common {
     return double.tryParse(s) != null;
   }
 
-  static Future<void> refreshRules() async {
+  static Future<String?> refreshRules() async {
     // Clear in-memory cache so the new rules are picked up immediately.
     _cachedParsedRules = null;
     _cachedRulesSource = null;
-    await getRules(forceRefresh: true);
+    return await getRules(forceRefresh: true);
   }
 
   /// Returns the parsed rules Map, using an in-memory cache to avoid
@@ -75,7 +130,13 @@ class Common {
       _cachedParsedRules = await compute(_parseRules, rawRules);
       _cachedRulesSource = rawRules;
     } catch (e) {
-      if (kDebugMode) print('PARSE_RULES_ERROR: \$e');
+      if (kDebugMode) print('PARSE_RULES_ERROR: $e');
+      // If parsing fails (e.g., stale JS in cache), clear stale rules and try assets
+      if (!forceRefresh) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.remove('radar-rules');
+        return getParsedRules(forceRefresh: true);
+      }
     }
     return _cachedParsedRules;
   }
@@ -88,40 +149,79 @@ class Common {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (!forceRefresh) {
       String? cachedRules = prefs.getString('radar-rules');
-      if (cachedRules != null && cachedRules.isNotEmpty) {
+      // ONLY return from cache if it looks like a valid JSON object
+      if (cachedRules != null && cachedRules.isNotEmpty && cachedRules.trim().startsWith('{')) {
         return cachedRules;
       }
     }
 
-    // Attempt to refresh
-    String? rules = await _fetchAndLevelRules();
-    if (rules != null && rules.isNotEmpty) {
-      await prefs.setString('radar-rules', rules);
-      return rules;
+    // Reuse ongoing fetch if one exists to avoid redundant concurrent requests
+    if (_pendingRulesFetch != null) {
+      return _pendingRulesFetch;
     }
-    
-    return prefs.getString('radar-rules');
+
+    _pendingRulesFetch = _fetchAndLevelRules().then((rules) async {
+      if (rules != null && rules.isNotEmpty) {
+        await prefs.setString('radar-rules', rules);
+        return rules;
+      }
+      
+      // If network fails, try stored rules from disk
+      String? stored = prefs.getString('radar-rules');
+      if (stored != null && stored.isNotEmpty) {
+        return stored;
+      }
+
+      // Final fallback: Load from bundled assets (Decisive Hardening)
+      try {
+        print('FETCH_RULES_FALLBACK: Loading bundled assets/radar-rules.json');
+        return await rootBundle.loadString('assets/radar-rules.json');
+      } catch (e) {
+        print('FETCH_RULES_ERROR (Assets): $e');
+        return null;
+      }
+    }).catchError((e) {
+      _pendingRulesFetch = null;
+      throw e;
+    }).whenComplete(() {
+      _pendingRulesFetch = null;
+    });
+
+    return _pendingRulesFetch;
   }
 
   static Future<String?> _fetchAndLevelRules() async {
-    // Primary: GitHub Raw Master
-    try {
-      String? body = await getContentByUrl(rsshubRadarRulesUrl);
-      if (body != null) {
-        return sanitizeTsToJson(body);
-      }
-    } catch (e) {
-      print('FETCH_RULES_ERROR (GitHub): \$e');
-    }
+    final sources = [
+      {'name': 'Official Build (jsDelivr)', 'url': jsDelivrRulesUrl},
+      {'name': 'Official Build (GitHub gh-pages)', 'url': rsshubRadarRulesJsonUrl},
+      {'name': 'Official Mirror (Backup)', 'url': radarMirrorUrl},
+    ];
 
-    // Fallback: Radar Mirror
-    try {
-      String? body = await getContentByUrl(radarMirrorUrl);
-      if (body != null) {
-        return sanitizeTsToJson(body);
+    for (var source in sources) {
+      String name = source['name']!;
+      String url = source['url']!;
+
+      // 1. Try with Proxy first
+      try {
+        String? body = await getContentByUrl(url, useProxy: true);
+        if (body != null && body.isNotEmpty) {
+          print('FETCH_RULES_SUCCESS: $name (Proxy)');
+          return sanitizeTsToJson(body);
+        }
+      } catch (e) {
+        print('FETCH_RULES_ERROR: $name (Proxy): $e');
       }
-    } catch (e) {
-      print('FETCH_RULES_ERROR (Mirror): \$e');
+
+      // 2. Try Direct fallback if Proxy failed or returned empty/error
+      try {
+        String? body = await getContentByUrl(url, useProxy: false);
+        if (body != null && body.isNotEmpty) {
+          print('FETCH_RULES_SUCCESS: $name (Direct)');
+          return sanitizeTsToJson(body);
+        }
+      } catch (e) {
+        print('FETCH_RULES_ERROR: $name (Direct): $e');
+      }
     }
     
     return null;
@@ -129,8 +229,21 @@ class Common {
 
   static String sanitizeTsToJson(String ts) {
     try {
-      int start = ts.indexOf('{');
-      int end = ts.lastIndexOf('}');
+      final trimmed = ts.trim();
+      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        print('PARSE_STATUS: Native JSON detected, skipping sanitization.');
+        return ts;
+      }
+
+      // Find where rules = [...] or export default [...] starts.
+      int start = ts.indexOf('[');
+      if (ts.contains('rules =')) {
+        start = ts.indexOf('[', ts.indexOf('rules ='));
+      } else if (ts.contains('export default')) {
+        start = ts.indexOf('[', ts.indexOf('export default'));
+      }
+      
+      int end = ts.lastIndexOf(']');
       if (start == -1 || end == -1) return ts;
       String content = ts.substring(start, end + 1);
 

@@ -1,0 +1,97 @@
+{
+  "bilibili.com": {
+    "_name": "Bilibili",
+    ".": [
+      {
+        "title": "视频详情",
+        "docs": "https://docs.rsshub.app/social-media.html#bilibili",
+        "source": ["/video/:id"],
+        "target": "/bilibili/video/:id"
+      }
+    ],
+    "space": [
+      {
+        "title": "UP 主动态",
+        "docs": "https://docs.rsshub.app/social-media.html#bilibili",
+        "source": ["/:id"],
+        "target": "/bilibili/user/dynamic/:id"
+      },
+      {
+        "title": "UP 主投稿",
+        "docs": "https://docs.rsshub.app/social-media.html#bilibili",
+        "source": ["/:id"],
+        "target": "/bilibili/user/video/:id"
+      }
+    ]
+  },
+  "weibo.com": {
+    "_name": "微博",
+    ".": [
+      {
+        "title": "微博博主",
+        "docs": "https://docs.rsshub.app/social-media.html#weibo",
+        "source": ["/u/:id", "/n/:id"],
+        "target": "/weibo/user/:id"
+      }
+    ],
+    "www": [
+      {
+        "title": "微博博主",
+        "docs": "https://docs.rsshub.app/social-media.html#weibo",
+        "source": ["/u/:id", "/n/:id"],
+        "target": "/weibo/user/:id"
+      }
+    ],
+    "m": [
+      {
+        "title": "微博博主 (移动版)",
+        "docs": "https://docs.rsshub.app/social-media.html#weibo",
+        "source": ["/profile/:id"],
+        "target": "/weibo/user/:id"
+      }
+    ]
+  },
+  "github.com": {
+    "_name": "GitHub",
+    ".": [
+      {
+        "title": "仓库发行版",
+        "docs": "https://docs.rsshub.app/programming.html#github",
+        "source": ["/:user/:repo/releases"],
+        "target": "/github/release/:user/:repo"
+      },
+      {
+        "title": "仓库提交",
+        "docs": "https://docs.rsshub.app/programming.html#github",
+        "source": ["/:user/:repo/commits/:branch", "/:user/:repo/commits"],
+        "target": "/github/commits/:user/:repo"
+      },
+      {
+        "title": "仓库主页 (Commits)",
+        "docs": "https://docs.rsshub.app/programming.html#github",
+        "source": ["/:user/:repo"],
+        "target": "/github/commits/:user/:repo"
+      },
+      {
+        "title": "仓库议题 (Issues)",
+        "docs": "https://docs.rsshub.app/programming.html#github",
+        "source": ["/:user/:repo/issues"],
+        "target": "/github/issue/:user/:repo"
+      },
+      {
+        "title": "用户仓库",
+        "docs": "https://docs.rsshub.app/programming.html#github",
+        "source": ["/:user"],
+        "target": "/github/repos/:user"
+      }
+    ],
+    "www": [
+      {
+        "title": "仓库主页 (Commits)",
+        "docs": "https://docs.rsshub.app/programming.html#github",
+        "source": ["/:user/:repo"],
+        "target": "/github/commits/:user/:repo"
+      }
+    ]
+  }
+}

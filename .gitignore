@@ -47,3 +47,10 @@ app.*.map.json
 
 bundletool-all-1.4.0.jar
 /android/app/keystore.jks
+
+# Temporary Scripts
+test_*.dart
+verify_*.dart
+test/common_test.dart
+android/build_output.txt
+packages/
