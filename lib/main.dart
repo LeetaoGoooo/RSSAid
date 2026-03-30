@@ -15,7 +15,6 @@ import 'package:rssaid/views/home.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPrefs().init();
-  await SystemProxy.setProxy();
   
   if (Platform.isAndroid) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(false);
