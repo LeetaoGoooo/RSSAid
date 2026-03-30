@@ -5,12 +5,38 @@ allprojects {
     }
 }
 
-rootProject.buildDir = "../build"
-subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(":app")
+// rootProject.buildDir = "../build"
+// subprojects {
+//    project.buildDir = "${rootProject.buildDir}/${project.name}"
+// }
+
+// Global fix for namespace and JVM targets
+allprojects {
+    def configureProject = { prj ->
+        if (prj.hasProperty('android')) {
+            prj.android {
+                if (namespace == null) {
+                    namespace = prj.group ?: "com.rssaid.fallback"
+                }
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
+        // Force Kotlin JVM target
+        prj.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
+    }
+
+    if (project.state.executed) {
+        configureProject(project)
+    } else {
+        project.afterEvaluate { configureProject(it) }
+    }
 }
 
 tasks.register("clean", Delete) {

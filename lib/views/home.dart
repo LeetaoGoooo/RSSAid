@@ -168,8 +168,14 @@ class _HomePageState extends State<HomePage> {
   Future<void> _refreshRules() async {
     setState(() => _isRefreshing = true);
     try {
-      await Common.refreshRules();
-      if (mounted) showToast(AppLocalizations.of(context)!.refreshRulesSuccess);
+      var rules = await Common.refreshRules();
+      if (mounted) {
+        if (rules != null && rules.isNotEmpty) {
+          showToast(AppLocalizations.of(context)!.refreshRulesSuccess);
+        } else {
+          showToast(AppLocalizations.of(context)!.refreshRulesFailed);
+        }
+      }
     } catch (_) {
       if (mounted) showToast(AppLocalizations.of(context)!.refreshRulesFailed);
     } finally {

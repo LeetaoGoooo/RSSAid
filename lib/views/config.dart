@@ -5,7 +5,7 @@ import 'package:rssaid/common/common.dart';
 import 'package:rssaid/models/radar_config.dart';
 import 'package:flutter/material.dart';
 import 'package:rssaid/shared_prefs.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:rssaid/l10n/app_localizations.dart';
 
 
 class ConfigDialog extends StatefulWidget {
@@ -243,7 +243,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                 icon: Icon(Icons.language),
                               ),
                               hint: Text( AppLocalizations.of(context)!.csAts),
-                              value: _selectLanguage,
+                              initialValue: _selectLanguage,
                               onChanged: (String? value) {
                                 setState(() {
                                   _selectLanguage = value!;
@@ -259,7 +259,7 @@ class _ConfigStateDialog extends State<ConfigDialog> {
                                 icon: Icon(Icons.rss_feed),
                               ),
                               hint: Text(AppLocalizations.of(context)!.output_format),
-                              value: _selectRssFormat,
+                              initialValue: _selectRssFormat,
                               onChanged: (RssFormat? value) {
                                 setState(() {
                                   _selectRssFormat = value!;

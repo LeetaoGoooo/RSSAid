@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:rssaid/common/link_helper.dart';
 import 'package:rssaid/shared_prefs.dart';
-import 'package:share/share.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:rssaid/l10n/app_localizations.dart';
 
 enum RadarCardAction { copy, subscribe, preview, doc }
 class RadarCards extends StatelessWidget {

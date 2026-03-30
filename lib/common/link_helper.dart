@@ -1,5 +1,4 @@
 import 'package:linkify/linkify.dart';
-import 'package:rssaid/models/radar.dart';
 import 'package:rssaid/shared_prefs.dart';
 
 class LinkHelper {

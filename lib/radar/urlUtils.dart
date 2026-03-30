@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:rssaid/common/common.dart';
 
 class UrlUtils {
   static Future<String> getPcWebSiteUrl(String url) async {
     try {
-      final httpClient = HttpClient();
+      final httpClient = await HttpClient().autoProxy();
       httpClient.connectionTimeout = const Duration(seconds: 5);
       final request = await httpClient.getUrl(Uri.parse(url)).timeout(
         const Duration(seconds: 6),

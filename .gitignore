@@ -54,3 +54,4 @@ verify_*.dart
 test/common_test.dart
 android/build_output.txt
 packages/
+android/app/

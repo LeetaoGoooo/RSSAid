@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:rssaid/l10n/app_localizations.dart';
 import 'package:rssaid/common/common.dart';
 
 class RulesDialog extends StatefulWidget {
@@ -9,6 +9,7 @@ class RulesDialog extends StatefulWidget {
 
 class _RulesDialog extends State<RulesDialog> {
   String _rules = "";
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -16,41 +17,52 @@ class _RulesDialog extends State<RulesDialog> {
     refreshRules();
   }
 
-  Future<void> refreshRules() async {
-    Common.getRules().then((value) {
+  Future<void> refreshRules({bool force = false}) async {
+    if (mounted) {
       setState(() {
-        _rules = value ?? "";
+        _isLoading = true;
       });
+    }
+    Common.getRules(forceRefresh: force).then((value) {
+      if (mounted) {
+        setState(() {
+          _rules = value ?? "";
+          _isLoading = false;
+        });
+      }
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          centerTitle: true,
-          title: Text(
-            "Rules",
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          )
-        ),
-        body: SingleChildScrollView(child: Container(child: Text(_rules))),
+            centerTitle: true,
+            title: Text(
+              "Rules",
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )),
+        body: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : _rules.isEmpty
+                ? Center(child: Text("No rules found. Try refreshing."))
+                : SingleChildScrollView(
+                    padding: EdgeInsets.all(16),
+                    child: SelectableText(_rules),
+                  ),
         floatingActionButton: FloatingActionButton(
           tooltip: AppLocalizations.of(context)!.refreshRules,
           child: Icon(Icons.refresh),
           onPressed: () async {
-            await refreshRules();
             _refreshRules(context);
-            Future.delayed(Duration(seconds: 3), () {
-              Navigator.pop(context);
-            });
+            await refreshRules(force: true);
+            Navigator.pop(context); // Close the loading dialog
           },
         ));
   }
