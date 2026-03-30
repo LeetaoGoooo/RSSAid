@@ -1,0 +1,5 @@
+1. 恢复 RSSHub Radar 规则更新功能 (Jedi 补丁)。
+2. 支持多镜像源同步回退（jsDelivr, GitHub, Mirror）。
+3. 内置离线规则离线库 (Golden Copy)，解决云端 403/404 导致的刷新为空问题。
+4. 增强解析器，支持 ES6 源码及原始 JSON 格式。
+5. 升级规则探测逻辑，补全 GitHub/微博/知乎核心源。
