@@ -28,18 +28,19 @@ dependencies:
   url_launcher: ^6.0.2
   receive_sharing_intent: ^1.8.0
   shared_preferences: ^2.0.15
-  share: ^2.0.0
+  share_plus: ^10.1.4
   html: ^0.15.0
-  system_proxy: ^0.1.0
   flutter_inappwebview: ^6.0.0
   flutter_localizations: 
     sdk: flutter
-  intl: ^0.19.0
+  intl: ^0.20.2
   oktoast: ^3.4.0
   package_info_plus: ^8.0.0
   any_link_preview: ^3.0.2
   tldts: ^0.0.1-beta
   equatable: ^2.0.5
+  system_proxy:
+    path: ./packages/system_proxy
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
 
@@ -63,6 +64,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/imgs/404.png
+    - assets/radar-rules.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
