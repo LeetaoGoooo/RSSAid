@@ -1,0 +1,2 @@
+- Fix settings page gray screen on Android devices (#72)
+- Update Android build toolchain to AGP 8.7.0 and Gradle 8.9
