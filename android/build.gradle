@@ -5,6 +5,19 @@ allprojects {
     }
 }
 
+// AGP 8.x requires a namespace in every module's build.gradle.
+// Older Flutter plugins set it via AndroidManifest.xml `package` attribute instead.
+// This block ensures all sub-projects without an explicit namespace fall back to their group id.
+subprojects {
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin("com.android.library") || project.plugins.hasPlugin("com.android.application")) {
+            if (!project.android.namespace) {
+                project.android.namespace = project.group
+            }
+        }
+    }
+}
+
 rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
