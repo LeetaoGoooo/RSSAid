@@ -28,7 +28,7 @@ gradle.projectsEvaluated {
         if (project.name == "app") return
         if (project.plugins.hasPlugin("kotlin-android") || project.plugins.hasPlugin("org.jetbrains.kotlin.android")) {
             def javaSource = project.android.compileOptions.sourceCompatibility
-            def targetStr = javaSource?.toString()?.replace("VERSION_", "")?.replace("_", ".")?.toLowerCase() ?: "1.8"
+            def targetStr = javaSource?.toString()?.replace("VERSION_", "")?.replace("_", ".") ?: "1.8"
             project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
                 kotlinOptions {
                     jvmTarget = targetStr
