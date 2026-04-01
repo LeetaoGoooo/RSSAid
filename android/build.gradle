@@ -8,11 +8,31 @@ allprojects {
 // AGP 8.x requires a namespace in every module's build.gradle.
 // Older Flutter plugins set it via AndroidManifest.xml `package` attribute instead.
 // This block ensures all sub-projects without an explicit namespace fall back to their group id.
+// It also fixes Kotlin 2.x JVM-target inconsistency warnings in older plugin dependencies.
 subprojects {
     afterEvaluate { project ->
+        if (project.name == "app") return
         if (project.plugins.hasPlugin("com.android.library") || project.plugins.hasPlugin("com.android.application")) {
             if (!project.android.namespace) {
                 project.android.namespace = project.group
+            }
+        }
+    }
+}
+
+// Kotlin 2.x may default jvmTarget to 17 but older plugins keep Java compileOptions at 1.8.
+// After all projects are fully evaluated, align each Kotlin plugin sub-project's jvmTarget
+// to match its Java sourceCompatibility so the build does not abort with an inconsistency error.
+gradle.projectsEvaluated {
+    subprojects { project ->
+        if (project.name == "app") return
+        if (project.plugins.hasPlugin("kotlin-android") || project.plugins.hasPlugin("org.jetbrains.kotlin.android")) {
+            def javaSource = project.android.compileOptions.sourceCompatibility
+            def targetStr = javaSource?.toString()?.replace("VERSION_", "")?.replace("_", ".")?.toLowerCase() ?: "1.8"
+            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                kotlinOptions {
+                    jvmTarget = targetStr
+                }
             }
         }
     }

@@ -5,7 +5,7 @@ import 'package:rssaid/common/common.dart';
 import 'package:rssaid/models/radar_config.dart';
 import 'package:flutter/material.dart';
 import 'package:rssaid/shared_prefs.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:rssaid/l10n/app_localizations.dart';
 
 
 class ConfigDialog extends StatefulWidget {

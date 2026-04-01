@@ -3,7 +3,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rssaid/common/common.dart';
 import 'package:rssaid/shared_prefs.dart';
 import 'package:rssaid/views/rules.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:rssaid/l10n/app_localizations.dart';
 
 import 'components/access_control.dart';
 
