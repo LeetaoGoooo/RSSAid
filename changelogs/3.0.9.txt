@@ -1,0 +1,4 @@
+1. 修复设置页面灰屏问题 (AppLocalizations 导入错误)。
+2. 移除 Android 中对数字 JVM target 字符串的语义错误 toLowerCase 调用。
+3. 更新 Android 构建工具链，确保与 AGP 8.x 兼容。
+4. 更新 AGP 和 intl 版本以兼容 Flutter。
