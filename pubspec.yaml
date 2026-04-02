@@ -31,7 +31,7 @@ dependencies:
   share_plus: ^10.1.4
   html: ^0.15.0
   flutter_inappwebview: ^6.0.0
-  flutter_localizations: 
+  flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
   oktoast: ^3.4.0
